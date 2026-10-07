@@ -30,3 +30,7 @@ Testovací WordPress běžel pouze lokálně, s umělými daty, blokovanými ext
 6. Ověřte TXT a tiskovou verzi. PDF uložte přes prohlížeč a zkontrolujte češtinu, zalomení a úplnost.
 7. Vyzkoušejte vypnutí security a reports a poté globální vypnutí. Po obnovení musí data zůstat zachovaná.
 8. Teprve po úspěšném pilotu posuďte omezené produkční nasazení. Tento balíček není finální v1.0.
+
+## Ověření 0.3.0-alpha (2026-10-07)
+
+Lokálně PHP 8.3.35: syntaxe, smoke, 42 behavior kontrol, šest režimů loaderu, 15 scénářů verzovaného loaderu, kontrola obsahu a hashů ZIPů. Opakované balíčkování nad stejným buildem dalo stejné SHA-256; nesprávný tag byl odmítnut. Linux CI navíc kontroluje symlinkovaný ukazatel. Toto není test živého hostingu, atomického přepnutí ani skutečného vydání tagem. Pro tuto změnu nebyly opakovány integrační kontroly v reálném WordPressu; produkční nasazení vyžaduje staging.

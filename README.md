@@ -1,4 +1,4 @@
-# JT WP Care 0.2.0-alpha
+# JT WP Care 0.3.0-alpha
 
 První instalovatelná pilotní verze MU pluginu. **Určena pro staging, nikoli plošné produkční nasazení.** Metodika vychází z ručního servisu; plugin nic neaktualizuje ani nevypíná.
 
@@ -19,7 +19,7 @@ Multisite je v této verzi výslovně blokované. Základní kód cílí na PHP 
 
 ## Instalace přes FTP
 
-Pro běžné budoucí aktualizace připravujeme [centrální distribuci a potvrzený updater](docs/updates.md). V 0.2.0-alpha ještě není implementován; tato verze stále používá níže uvedený ruční postup.
+Pro běžné budoucí aktualizace připravujeme [centrální distribuci a potvrzený updater](docs/updates.md). Verzovaný loader a balíčky jsou připravené; updater zatím implementován není. Tato verze používá níže uvedený ruční postup.
 
 1. Použijte staging a zálohu. Rozbalte distribuční ZIP lokálně.
 2. Nahrajte adresář `jt-wp-care` do `wp-content/mu-plugins/`.
@@ -32,13 +32,22 @@ Pro běžné budoucí aktualizace připravujeme [centrální distribuci a potvrz
 wp-content/mu-plugins/
 ├── jt-wp-care.php
 └── jt-wp-care/
-    ├── bootstrap.php
-    ├── autoload.php
-    ├── src/
-    └── assets/
+    ├── current.json
+    └── releases/0.3.0-alpha/
+        ├── release.json
+        ├── bootstrap.php
+        ├── autoload.php
+        ├── src/
+        └── assets/
 ```
 
 Do hostingu nenahrávejte repozitář, testy ani dokumentaci. Při další výměně nejdříve vypněte framework, uchovejte předchozí balíček, nahrajte kompletní nový obsah a znovu zapněte. FTP výměna více souborů není atomická.
+
+## Přechod z 0.2.0
+
+Jednorázově vypněte JT WP Care konstantou níže, uchovejte původní složku i loader mimo veřejný web a nasaďte celý nový instalační balíček. Potom konstantu odeberte a ověřte diagnostiku i uložený checklist. WordPress option se nemění. Původní plochý balíček 0.2.0 není automaticky použitelný jako previous. Nouzový návrat vyžaduje obnovení jeho původní složky i loaderu při vypnutém frameworku.
+
+[Protokol loaderu a postup obnovy](docs/loader-protocol.md).
 
 ## Vypnutí
 
@@ -64,10 +73,13 @@ Bez runtime závislostí, Composer ani WP-CLI nejsou na hostingu potřeba.
 php tests/smoke.php
 php tests/behavior.php
 php tools/build.php
+php tests/versioned-loader.php
+php tools/package.php
+php tests/package.php
 ```
 
 Build vytvoří `dist/mu-plugins/`. Existující dist odmítne přepsat; před dalším buildem jej přesuňte. PSR-4 namespace je `JT\WPCare`, zdroje jsou v `src/`. Složky modulů obsahují vlastní registraci a služby; Core řeší lifecycle, request boundary a úložiště. Konfigurace CI připravuje PHP 8.0–8.5; její existence není důkazem provedení této matice.
 
 [Metodika](docs/service-methodology.md) · [Ruční checklist](docs/service-checklist.md) · [XML-RPC specifikace](docs/security-audit-xmlrpc.md) · [Architektura](docs/architecture.md) · [Roadmapa](docs/roadmap.md) · [Changelog](CHANGELOG.md)
 
-SemVer; před 1.0 jsou kontrakty experimentální. Datové schéma je verzováno odděleně, nepodporované schéma se nepřepisuje. Interní repozitář, bez nastaveného vzdáleného repozitáře a veřejné licence.
+SemVer; před 1.0 jsou kontrakty experimentální. Datové schéma je verzováno odděleně, nepodporované schéma se nepřepisuje. Soukromý [GitHub repozitář](https://github.com/jan-tomasek-designer/jt-wp-care), bez veřejné licence. Balíčkování vyžaduje rozšíření PHP zip pouze na vývojovém stroji/CI. Tag odpovídající verzi připraví draft vydání; publikování zůstává ruční.

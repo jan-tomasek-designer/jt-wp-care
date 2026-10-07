@@ -20,13 +20,13 @@ final class Module implements ModuleInterface
     public function assets(string $hook): void
     {
         if ($hook === 'tools_page_jt-wp-care') {
-            wp_enqueue_style('jt-wp-care', plugins_url('assets/admin.css', dirname(__DIR__, 3) . '/bootstrap.php'), [], '0.2.0-alpha');
+            wp_enqueue_style('jt-wp-care', plugins_url('assets/admin.css', dirname(__DIR__, 3) . '/bootstrap.php'), [], \JT\WPCare\Core\Release::VERSION);
         }
     }
     public function render(): void
     {
         Access::authorize();
-        echo '<div class="wrap jt-care"><h1>JT WP Care <small>0.2.0-alpha</small></h1><p>Servis podle metodiky 0.1 · ' . esc_html(home_url('/')) . '</p>';
+        echo '<div class="wrap jt-care"><h1>JT WP Care <small>' . esc_html(\JT\WPCare\Core\Release::VERSION) . '</small></h1><p>Servis podle metodiky 0.1 · ' . esc_html(home_url('/')) . '</p>';
         echo '<div class="notice notice-warning inline"><p>Testovací verze pro staging. Aktualizace i změny zabezpečení provádí správce ručně. Nejde o úplný bezpečnostní audit.</p></div>';
         if (isset($_GET['saved']) && $_GET['saved'] === '1') {
             echo '<div class="notice notice-success inline"><p>Operace byla uložena.</p></div>';

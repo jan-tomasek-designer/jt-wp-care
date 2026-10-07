@@ -1,3 +1,10 @@
+# 0.3.0-alpha — 2026-10-07
+
+- Stabilní MU loader, oddělené verzované složky a nouzový pin.
+- Instalační a payload ZIP, nepodepsaný manifest a SHA-256.
+- CI ověřuje protokol a balíčky; tag připraví draft vydání.
+- Bez změny datového schématu; bez implementace updateru.
+
 # Changelog
 
 ## 0.2.0-alpha — 2026-10-06
@@ -31,4 +38,3 @@
 - Modulární registr a základní administrační obrazovka s kontrolou oprávnění.
 - FTP build, smoke testy jádra a konfigurace PHP CI matice.
 - Diagnostika v1.0 a produkční integrační ověření dosud nejsou dokončené.
-

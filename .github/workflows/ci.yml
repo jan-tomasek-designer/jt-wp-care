@@ -1,11 +1,16 @@
-name: PHP foundation
-on: [push, pull_request]
+name: PHP checks
+on:
+  push:
+    branches: ['**']
+  pull_request:
+  workflow_call:
 permissions:
   contents: read
 jobs:
   test:
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
         php: ['8.0', '8.1', '8.2', '8.3', '8.4', '8.5']
     steps:
@@ -13,9 +18,22 @@ jobs:
       - uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php }}
+          extensions: zip
           coverage: none
       - run: find . -name '*.php' -not -path './vendor/*' -print0 | xargs -0 -n1 php -l
       - run: php tests/smoke.php
       - run: php tests/behavior.php
       - run: php tools/build.php
       - run: for mode in admin frontend disabled modules-disabled old-wp multisite; do php tests/loader.php "$mode" || exit 1; done
+      - run: php tests/versioned-loader.php
+      - run: php tools/package.php
+      - run: php tests/package.php
+      - uses: actions/upload-artifact@v4
+        if: matrix.php == '8.3'
+        with:
+          name: jt-wp-care-preview
+          path: |
+            dist/*.zip
+            dist/manifest.json
+            dist/SHA256SUMS.txt
+          retention-days: 14
