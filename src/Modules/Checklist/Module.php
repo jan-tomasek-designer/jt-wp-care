@@ -1,0 +1,57 @@
+<?php
+declare(strict_types=1);
+namespace JT\WPCare\Modules\Checklist;
+
+use JT\WPCare\Contracts\ModuleInterface;
+use JT\WPCare\Core\Access;
+use JT\WPCare\Core\Store;
+
+final class Module implements ModuleInterface
+{
+    private Store $store;
+    public function __construct(Store $store) { $this->store = $store; }
+    public function id(): string { return 'checklist'; }
+    public function register(): void
+    {
+        add_action('jt_wp_care_sections', [$this, 'render'], 20);
+        add_action('admin_post_jt_care_save', [$this, 'save']);
+    }
+
+    public function save(): void
+    {
+        Access::post('jt_care_save');
+        try {
+            $record = $this->store->load();
+            $input = isset($_POST['items']) && is_array($_POST['items']) ? wp_unslash($_POST['items']) : [];
+            $record['items'] = Catalog::normalize($input, $record['items']);
+            $this->store->save($record, Access::field('revision'));
+        } catch (\Throwable $error) { Access::fail($error); }
+        Access::redirect();
+    }
+
+    public function render(): void
+    {
+        Access::authorize();
+        $record = $this->store->load();
+        echo '<section class="jt-card"><h2>Servisní checklist</h2><p>Jeden průběžně ukládaný servis. Automatická diagnostika body nezaškrtává. Poznámky neobsahují hesla ani osobní údaje zákazníků. Časy jsou v UTC.</p>';
+        echo '<form method="post" action="' . esc_url(admin_url('admin-post.php')) . '">';
+        wp_nonce_field('jt_care_save');
+        echo '<input type="hidden" name="action" value="jt_care_save"><input type="hidden" name="revision" value="' . esc_attr($record['revision']) . '">';
+        foreach (Catalog::groups() as $group => $items) {
+            echo '<h3>' . esc_html($group) . '</h3>';
+            foreach ($items as $id => [$label, $hint]) {
+                $row = $record['items'][$id] ?? ['state' => 'unknown', 'note' => '', 'at' => ''];
+                echo '<div class="jt-row"><div><label for="jt-' . esc_attr($id) . '"><strong>' . esc_html($label) . '</strong></label><p>' . esc_html($hint) . '</p></div><div>';
+                echo '<select id="jt-' . esc_attr($id) . '" name="items[' . esc_attr($id) . '][state]">';
+                foreach (Catalog::states() as $value => $text) {
+                    echo '<option value="' . esc_attr($value) . '" ' . selected($row['state'], $value, false) . '>' . esc_html($text) . '</option>';
+                }
+                echo '</select><label class="screen-reader-text" for="jt-note-' . esc_attr($id) . '">Důkaz nebo důvod: ' . esc_html($label) . '</label>';
+                echo '<textarea id="jt-note-' . esc_attr($id) . '" name="items[' . esc_attr($id) . '][note]" rows="2" maxlength="2000" placeholder="Důkaz, čas testu, výsledek nebo důvod">' . esc_textarea($row['note']) . '</textarea>';
+                echo '<small>' . esc_html($row['at'] ?? '') . '</small></div></div>';
+            }
+        }
+        submit_button('Uložit checklist');
+        echo '</form></section>';
+    }
+}

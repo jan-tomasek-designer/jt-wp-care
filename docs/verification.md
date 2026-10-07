@@ -1,0 +1,32 @@
+# Ověření 0.2.0-alpha
+
+Datum: 2026-10-06. Balíček je určen pro pilot na stagingu.
+
+## Provedeno
+
+- PHP 8.3.35: kontrola syntaxe všech zdrojových PHP souborů.
+- Smoke testy registru modulů a PSR-4 autoloadingu.
+- 42 behaviorálních kontrol s náhradami WordPress API: povinné důkazy, neplatné a neúplné vstupy, maximální délka poznámek, zachování času nezměněného důkazu, XML-RPC rozhodování, oprávnění/POST/nonce, souběžné uložení, selhání DB, nepodporované schéma, escapování a report.
+- Šest scénářů sestaveného MU loaderu: admin, frontend, úplné vypnutí, vypnutí všech modulů, starý WordPress, multisite.
+- Skutečný lokální WordPress 7.1.2, PHP 8.3.35 a SQLite Database Integration: načtení MU balíčku, skutečné uložení a atomické porovnání záznamu, odmítnutí staré revize, vypnutý autoload, vygenerování administračních sekcí a bezpečné zobrazení poznámky.
+- HTTP na skutečném lokálním WordPressu: autentizovaná stránka a 17 bodů, uložení a reload, stará revize HTTP 409, neplatný nonce HTTP 403, odmítnutí anonymního handleru, audit, TXT export, shodný text tiskové verze a odpověď 200 pro CSS balíčku.
+
+Testovací WordPress běžel pouze lokálně, s umělými daty, blokovanými externími HTTP požadavky a potlačeným odesíláním pošty. Klientský web nebyl změněn. Použití SQLite je vlastnost testovacího prostředí, nikoliv závislost balíčku.
+
+## Ještě ověřit před produkcí
+
+- MySQL/MariaDB na cílovém hostingu; minimum WordPress 6.0 a další řady PHP. CI matice 8.0–8.5 je připravená, v této relaci nebyla celá spuštěna.
+- S aktivním WooCommerce a konkrétní sestavou klientských pluginů; HPOS a checkout. Alpha nečte objednávky ani jejich tabulky.
+- Skutečné bezpečnostní pluginy, přesměrování, cache a proxy hostingu.
+- Vizuální kontrola administrační stránky a tiskového PDF v prohlížeči. Pokus o automatizované spuštění prohlížeče skončil chybou spawn EPERM, takže vizuální shodu nepotvrzujeme.
+
+## Krátký staging postup
+
+1. Nahrajte kompletní FTP balíček, loader poslední. Ověřte stránku Nástroje → JT WP Care.
+2. Bez administrátorského oprávnění musí být stránka a operace nepřístupné.
+3. Spusťte diagnostiku. XML-RPC z internetu musí zůstat neověřeno; žádný bod checklistu se automaticky nesplní.
+4. Vyplňte důkaz zálohy, uložte a obnovte stránku. Ověřte zachování stavu i poznámky.
+5. Ve dvou oknech upravte stejný záznam: druhé uložení zastaralého formuláře musí být odmítnuto.
+6. Ověřte TXT a tiskovou verzi. PDF uložte přes prohlížeč a zkontrolujte češtinu, zalomení a úplnost.
+7. Vyzkoušejte vypnutí security a reports a poté globální vypnutí. Po obnovení musí data zůstat zachovaná.
+8. Teprve po úspěšném pilotu posuďte omezené produkční nasazení. Tento balíček není finální v1.0.

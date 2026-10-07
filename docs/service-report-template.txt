@@ -1,0 +1,51 @@
+JT WP Care — SERVISNÍ REPORT
+Šablona metodiky 0.1; nejde o zprávu o provedeném servisu.
+
+Web / prostředí:
+ID servisu / technik:
+Začátek / konec / časové pásmo:
+Rozsah práce:
+Výsledek: dokončeno / dokončeno s výhradami / přerušeno
+
+1. ZÁLOHA
+Zdroj, čas, rozsah, dokončení, dostupnost obnovy:
+Test obnovy: proveden/neproveden, datum a výsledek:
+
+2. VÝCHOZÍ STAV A PLÁN
+WordPress / PHP / šablona / WooCommerce:
+Známé závady:
+Posouzení aktualizací a kompatibility:
+
+3. PROVEDENÉ ZMĚNY
+Komponenta | verze před | verze po | práce | čas | výsledek
+[doplnit zvlášť WP, pluginy, šablonu, WooCommerce a DB]
+Beze změny / odloženo a důvod:
+
+4. FUNKČNÍ TESTY
+Web, administrace, formuláře:
+GoPay: režim, rozsah testu, identifikátor, potvrzení a stav objednávky:
+SMTP: odeslání a potvrzené přijetí:
+Objednávka: průchod, stav, transakční e-mail:
+Vypořádání testovacích dat / platby:
+Částečné nebo neprovedené testy a důvod:
+
+5. BEZPEČNOST
+PHP: verze, podpora, zdroj a datum ověření:
+Wordfence / alternativní ochrana:
+2FA:
+XML-RPC:
+DISALLOW_FILE_EDIT:
+Ke každému bodu: stav, důkaz, čas a omezení ověření.
+
+6. PROBLÉMY A DALŠÍ KROKY
+Problém | dopad | doporučení | odpovědnost | dohodnutý termín
+Incidenty, náprava a opakované testy:
+
+7. UZAVŘENÍ
+Co bylo dokončeno:
+Co zůstává neověřeno nebo odloženo:
+Odkaz na checklist v interní evidenci:
+Předání reportu, pokud dohodnuto:
+
+PDF musí odpovídat TXT. Vynechat hesla, tokeny, obnovovací kódy,
+platební údaje a nepotřebné osobní údaje. Důkazy odkazovat do interní evidence.

@@ -1,0 +1,9 @@
+{
+  "name": "jt/wp-care",
+  "description": "Modular WordPress maintenance and diagnostics MU framework",
+  "type": "project",
+  "license": "proprietary",
+  "require": { "php": ">=8.0" },
+  "autoload": { "psr-4": { "JT\\WPCare\\": "src/" } },
+  "scripts": { "test": ["php tests/smoke.php", "php tests/behavior.php"], "build": "php tools/build.php" }
+}
