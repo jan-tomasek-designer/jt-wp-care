@@ -68,3 +68,7 @@ Od v1.0 zveřejnit seznam stabilních rozhraní, hooků, ID a schémat. Interní
 - [WordPress capabilities](https://developer.wordpress.org/plugins/security/checking-user-capabilities/)
 - [WordPress security](https://developer.wordpress.org/apis/security/)
 - [PHP podporované verze](https://www.php.net/supported-versions.php)
+
+## 0.3.0: verzovaný loader
+
+Implementace rozděluje stabilní loader a aplikaci ve složce releases/<verze>. Důvodem je příprava nové verze vedle běžícího kódu. Ukazatel je JSON, nikoli spustitelné PHP. Protokol loaderu a datové schéma jsou verzované odděleně; tento loader připouští pouze hodnotu 1. Podrobnosti a omezení obnovy obsahuje [protokol](loader-protocol.md). Přechod z plochého rozložení 0.2.0 je jednorázový ruční krok. Implementace sama nic nestahuje ani nepřepíná.

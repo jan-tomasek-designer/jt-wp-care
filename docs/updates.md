@@ -1,6 +1,6 @@
 # Distribuce a řízené aktualizace JT WP Care
 
-Stav: návrh 2026-10-06, zatím neimplementováno. Balíček 0.2.0-alpha stále vyžaduje ruční výměnu. Aktualizace samotného JT WP Care je samostatná funkce; nenahrazuje plánované aktualizace WordPressu, pluginů a WooCommerce ve v2.0.
+Stav 2026-10-07: v 0.3.0-alpha je implementován verzovaný loader, instalační/payload ZIP a workflow pro draft vydání. Podpisy, distribuce a updater zůstávají návrhem; instalace je stále ruční. Podrobnosti: [protokol loaderu](loader-protocol.md). Aktualizace samotného JT WP Care je samostatná funkce; nenahrazuje plánované aktualizace WordPressu, pluginů a WooCommerce ve v2.0.
 
 ## Cíl
 

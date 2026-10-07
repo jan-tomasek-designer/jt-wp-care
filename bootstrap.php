@@ -12,7 +12,7 @@ add_action('plugins_loaded', static function (): void {
     if (is_multisite()) {
         add_action('admin_notices', static function (): void {
             if (current_user_can('manage_options')) {
-                echo '<div class="notice notice-warning"><p>JT WP Care 0.2.0-alpha: multisite zatím není podporováno. Moduly nebyly spuštěny.</p></div>';
+                echo '<div class="notice notice-warning"><p>JT WP Care: multisite zatím není podporováno. Moduly nebyly spuštěny.</p></div>';
             }
         });
         return;

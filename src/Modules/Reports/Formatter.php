@@ -9,7 +9,7 @@ final class Formatter
 {
     public static function text(array $record, string $site): string
     {
-        $lines = ['JT WP Care 0.2.0-alpha — průběžný servisní záznam', 'Web: ' . $site,
+        $lines = ['JT WP Care ' . \JT\WPCare\Core\Release::VERSION . ' — průběžný servisní záznam', 'Web: ' . $site,
             'Metodika: ' . ($record['methodology'] ?? '0.1'), 'Revize: ' . $record['revision'],
             'Poslední uložení (UTC): ' . ($record['updated_at'] ?? 'Dosud neuloženo'),
             'Není potvrzením dokončeného servisu. Stavy checklistu zadal správce; diagnostika je automatický lokální snímek.', ''];
