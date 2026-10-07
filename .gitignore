@@ -1,0 +1,15 @@
+/vendor/
+/dist/
+/.idea/
+/.vscode/
+*.log
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+/work/
+/wp-config.php
+*.sql
+*.sqlite
+*.sqlite3
