@@ -1,6 +1,6 @@
-# JT WP Care 0.3.0-alpha
+# JT WP Care 0.4.0-alpha
 
-První instalovatelná pilotní verze MU pluginu. **Určena pro staging, nikoli plošné produkční nasazení.** Metodika vychází z ručního servisu; plugin nic neaktualizuje ani nevypíná.
+První instalovatelná pilotní verze MU pluginu. **Určena pro staging, nikoli plošné produkční nasazení.** Metodika vychází z ručního servisu; auditní MU plugin neaktualizuje WordPress ani jiné pluginy a nic nevypíná.
 
 ## Co balíček umí
 
@@ -17,9 +17,13 @@ Jeden rozpracovaný servis bez archivace, uzavírání a zakládání dalšího 
 
 Multisite je v této verzi výslovně blokované. Základní kód cílí na PHP 8.0+ a WordPress 6.0+; konkrétní provedené testy a zbývající staging kontroly uvádí [ověření](docs/verification.md).
 
-## Instalace přes FTP
+## Aktualizace existující instalace 0.3 přes WordPress
 
-Pro běžné budoucí aktualizace připravujeme [centrální distribuci a potvrzený updater](docs/updates.md). Verzovaný loader a balíčky jsou připravené; updater zatím implementován není. Tato verze používá níže uvedený ruční postup.
+Použij [návod k pomocnému instalátoru](docs/wordpress-update.md). Umožňuje ručně nahrát payload ZIP z repozitáře a potvrdit změnu bez FTP. Nejde zatím o přímé stahování ani automatické aktualizace.
+
+## První instalace přes FTP
+
+Pro běžné budoucí aktualizace připravujeme [centrální distribuci a potvrzený updater](docs/updates.md). Pomocný instalátor již umí potvrzené nahrání payloadu přes WordPress. Přímé stahování a automatická distribuce zatím implementované nejsou. Níže je postup první MU instalace.
 
 1. Použijte staging a zálohu. Rozbalte distribuční ZIP lokálně.
 2. Nahrajte adresář `jt-wp-care` do `wp-content/mu-plugins/`.
@@ -33,7 +37,7 @@ wp-content/mu-plugins/
 ├── jt-wp-care.php
 └── jt-wp-care/
     ├── current.json
-    └── releases/0.3.0-alpha/
+    └── releases/0.4.0-alpha/
         ├── release.json
         ├── bootstrap.php
         ├── autoload.php

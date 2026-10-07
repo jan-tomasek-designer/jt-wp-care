@@ -10,13 +10,17 @@ final class Collector
         require_once ABSPATH . 'wp-admin/includes/plugin.php';
         $plugins = get_plugins();
         $updates = get_site_transient('update_plugins');
+        $coreUpdates = get_site_transient('update_core');
+        $themeUpdates = get_site_transient('update_themes');
         $theme = wp_get_theme();
         $parent = $theme->parent();
         $auth = apply_filters('xmlrpc_enabled', true);
         $known = [];
         $rows = [];
+        $smtp = [];
         foreach ($plugins as $file => $data) {
             $active = is_plugin_active($file) || is_plugin_active_for_network($file);
+            if ($active && in_array($file, ['wp-mail-smtp/wp_mail_smtp.php', 'fluent-smtp/fluent-smtp.php', 'post-smtp/postman-smtp.php', 'easy-wp-smtp/easy-wp-smtp.php', 'wp-smtp/wp-smtp.php'], true)) { $smtp[] = wp_strip_all_tags($data['Name']); }
             // Exact identifiers; no inference from translated display names.
             if ($active && $file === 'jetpack/jetpack.php') { $known[] = 'Jetpack'; }
             $offer = is_object($updates) && isset($updates->response[$file]) ? $updates->response[$file] : null;
@@ -27,8 +31,20 @@ final class Collector
         if (defined('JETPACK__VERSION') && !in_array('Jetpack', $known, true)) { $known[] = 'Jetpack (načtený kód)'; }
         $wc = defined('WC_VERSION') ? (string) WC_VERSION : 'Nenačteno';
         $db = get_option('woocommerce_db_version', 'Nezjištěno');
+        $coreOffers = [];
+        foreach (is_object($coreUpdates) && is_array($coreUpdates->updates ?? null) ? $coreUpdates->updates : [] as $offer) {
+            if (is_object($offer) && ($offer->response ?? '') === 'upgrade' && isset($offer->current)) { $coreOffers[] = (string) $offer->current; }
+        }
+        $themeOffers = [];
+        foreach (is_object($themeUpdates) && is_array($themeUpdates->response ?? null) ? $themeUpdates->response : [] as $slug => $offer) {
+            if (is_array($offer) && isset($offer['new_version'])) { $themeOffers[] = $slug . ' → ' . $offer['new_version']; }
+        }
+        $cacheTime = static fn($cache): string => is_object($cache) && !empty($cache->last_checked) ? gmdate('c', (int) $cache->last_checked) : 'čas nezjištěn';
         $facts = [
             'WordPress' => get_bloginfo('version'),
+            'Aktualizace WordPressu' => ($coreOffers ? implode(', ', $coreOffers) : 'V cache není nabídka; aktuálnost neověřena') . ' — cache: ' . $cacheTime($coreUpdates),
+            'Aktualizace šablon' => ($themeOffers ? implode('; ', $themeOffers) : 'V cache není nabídka; aktuálnost neověřena') . ' — cache: ' . $cacheTime($themeUpdates),
+            'SMTP' => ($smtp ? implode(', ', $smtp) : 'Známý aktivní SMTP plugin nezjištěn; jiná konfigurace není vyloučena') . ' — nastavení a doručení neověřeno',
             'PHP' => PHP_VERSION . ' — bezpečnostní podporu ověřte ručně',
             'Databáze' => (string) $GLOBALS['wpdb']->db_version(),
             'Šablona' => $theme->get('Name') . ' ' . $theme->get('Version'),
@@ -47,6 +63,6 @@ final class Collector
             'XML-RPC známé návaznosti' => $known !== [] ? implode(', ', $known) : 'Nenalezeny v omezeném seznamu (Jetpack); další pluginy, MU kód a externí klienti nejsou vyloučeni',
             'XML-RPC doporučení' => XmlRpcPolicy::advice($known, $externalUse, $auth),
         ];
-        return ['at' => gmdate('c'), 'source' => 'Lokální WordPress API a existující cache; žádné externí sondy', 'facts' => $facts, 'plugins' => $rows];
+        return ['at' => gmdate('c'), 'source' => 'Lokální WordPress API a existující cache; žádné externí sondy', 'facts' => $facts, 'plugins' => $rows, 'checks' => ['file_edit_disabled' => defined('DISALLOW_FILE_EDIT') && DISALLOW_FILE_EDIT === true]];
     }
 }

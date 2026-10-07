@@ -48,7 +48,7 @@ final class Catalog
         return ['unknown' => 'Neověřeno', 'done' => '✓ Splněno', 'problem' => 'Problém', 'deferred' => 'Odloženo', 'na' => 'Netýká se'];
     }
 
-    public static function normalize(array $input, array $old): array
+    public static function normalize(array $input, array $old, ?array $audit = null): array
     {
         $items = [];
         foreach (self::items() as $id => $definition) {
@@ -60,7 +60,7 @@ final class Catalog
                 throw new \DomainException('Poznámka je příliš dlouhá (maximum 6000 bajtů).');
             }
             $note = trim(sanitize_textarea_field($row['note']));
-            if ($row['state'] !== 'unknown' && $note === '') {
+            if ($row['state'] !== 'unknown' && $note === '' && !Evidence::proves($id, $row['state'], $audit)) {
                 throw new \DomainException('Ke každému vyhodnocenému bodu doplňte důkaz nebo důvod: ' . $definition[0]);
             }
             $before = $old[$id] ?? [];

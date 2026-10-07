@@ -1,12 +1,7 @@
-# Vydání 0.3.0-alpha
+# Vydání 0.4.0-alpha
 
-Základ pro budoucí řízené aktualizace: stabilní MU loader vybírá jednu kompletní verzi ze složky releases. Instalační ZIP obsahuje loader a počáteční ukazatel; payload ZIP obsahuje pouze konkrétní vydání.
+Checklist předvyplňuje z uložené diagnostiky verze, nabídky aktualizací a zjistitelná nastavení. U každého bodu ukazuje konkrétní pokyn pro ruční ověření. Poznámky a stavy správce zůstávají zachované. Nová diagnostika doplňuje cache WordPressu/šablon a omezenou detekci SMTP pluginů.
 
-- Kontrola platformy, protokolu a datového schématu před načtením.
-- Návrat na předchozí kompatibilní vydání při chybějícím vstupním souboru nebo neplatných metadatech.
-- Nouzová volba verze přes JT_WP_CARE_PINNED_RELEASE.
-- Manifest a SHA-256 pro kontrolu balíčků.
+Samostatný pomocný instalátor umožní přechod z 0.3 přes administraci WordPressu: ruční nahrání payload ZIPu z našeho repozitáře, SHA-256, potvrzení, instalace vedle původní verze a možnost návratu. Podrobný postup: docs/wordpress-update.md. Do běžného instalátoru WordPressu patří pouze jt-wp-care-installer-0.1.0-alpha.zip.
 
-Alpha pro staging. Manifest zatím není kryptograficky podepsaný. Stahování, instalace z administrace, atomické přepnutí ani automatická obnova po fatální chybě nejsou implementovány. Nedochází k aktualizaci WordPressu, pluginů nebo databázového schématu.
-
-Přechod z 0.2.0 vyžaduje jednorázové ruční nasazení podle README. Samotné rozložení 0.2.0 nelze použít jako předchozí vydání tohoto loaderu.
+Alpha: nejprve staging a ověřená záloha. Přímé stahování z GitHubu, podpisy manifestů a automatická obnova po fatální chybě nejsou implementovány. Vyžadován přímý zápis, PHP zip a nezměněný podporovaný loader. Datové schéma zůstává 1; WordPress, WooCommerce ani jiné pluginy se neaktualizují.

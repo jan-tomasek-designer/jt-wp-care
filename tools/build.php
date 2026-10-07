@@ -20,6 +20,8 @@ function copyTree(string $source, string $target): void
         foreach (new DirectoryIterator($source) as $item) {
             if (!$item->isDot() && $item->getFilename() !== '.gitkeep') { copyTree($item->getPathname(), $target . '/' . $item->getFilename()); }
         }
+    } elseif (preg_match('/\.(php|css|js)$/', $source)) {
+        if (file_put_contents($target, str_replace("\r\n", "\n", (string) file_get_contents($source))) === false) { throw new RuntimeException('Cannot copy text file.'); }
     } elseif (!copy($source, $target)) { throw new RuntimeException('Cannot copy build file.'); }
 }
 function writeJson(string $file, array $data): void
@@ -32,4 +34,7 @@ copyTree($root . '/mu-plugin/jt-wp-care.php', $target . '/jt-wp-care.php');
 foreach (['bootstrap.php', 'autoload.php', 'src', 'assets'] as $path) { copyTree($root . '/' . $path, $release . '/' . $path); }
 writeJson($release . '/release.json', Release::metadata());
 writeJson($target . '/jt-wp-care/current.json', ['schema' => 1, 'active' => Release::VERSION, 'previous' => null]);
+copyTree($root . '/installer', $root . '/dist/companion/jt-wp-care-installer');
+file_put_contents($root . '/dist/companion/jt-wp-care-installer/loader.sha256', hash_file('sha256', $target . '/jt-wp-care.php') . "\n");
+
 echo "Build ready: dist/mu-plugins, version " . Release::VERSION . "\n";

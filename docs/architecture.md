@@ -72,3 +72,9 @@ Od v1.0 zveřejnit seznam stabilních rozhraní, hooků, ID a schémat. Interní
 ## 0.3.0: verzovaný loader
 
 Implementace rozděluje stabilní loader a aplikaci ve složce releases/<verze>. Důvodem je příprava nové verze vedle běžícího kódu. Ukazatel je JSON, nikoli spustitelné PHP. Protokol loaderu a datové schéma jsou verzované odděleně; tento loader připouští pouze hodnotu 1. Podrobnosti a omezení obnovy obsahuje [protokol](loader-protocol.md). Přechod z plochého rozložení 0.2.0 je jednorázový ruční krok. Implementace sama nic nestahuje ani nepřepíná.
+
+## 0.4.0: asistovaný checklist a první aktualizace bez FTP
+
+Automatické důkazy jsou projekcí uloženého snímku, ne přepisem poznámek. Proto zůstanou uživatelská data kompatibilní se schématem 1 a export používá stejný zdroj jako obrazovka. Stav testu potvrzuje člověk, s úzkou výjimkou doložení DISALLOW_FILE_EDIT přes typovanou hodnotu true.
+
+Pomocný běžný plugin v installer/ má oddělený namespace a lifecycle. Důvodem je bootstrap aktualizací u již nasazené verze 0.3, která nemá updater, a možnost vrátit soubory nezávisle na UI MU modulu. Je volitelný a deaktivovatelný. Kvůli pořadí načítání MU pluginů však neobejde fatální chybu při bootstrapu; nouzová obnova zůstává přes loader/pin/FTP. Ruční upload ověřený správcem a SHA-256 je mezikrok; automatická distribuce nadále vyžaduje podpisy.

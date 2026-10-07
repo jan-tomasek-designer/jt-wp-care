@@ -3,6 +3,7 @@ declare(strict_types=1);
 namespace JT\WPCare\Modules\Reports;
 
 use JT\WPCare\Modules\Checklist\Catalog;
+use JT\WPCare\Modules\Checklist\Evidence;
 
 /** Both export formats use this exact text, never a second live audit. */
 final class Formatter
@@ -18,7 +19,9 @@ final class Formatter
             foreach ($items as $id => [$label, $hint]) {
                 $row = $record['items'][$id] ?? ['state' => 'unknown', 'note' => ''];
                 $lines[] = $label . ': ' . (Catalog::states()[$row['state']] ?? 'Neověřeno');
-                $lines[] = '  ' . ($row['note'] !== '' ? $row['note'] : 'Bez důkazu / poznámky');
+                $evidence = Evidence::forItem($id, $record['audit'] ?? null);
+                if ($evidence !== '') { $lines[] = '  Zjištěno automaticky (' . ($record['audit']['at'] ?? '') . '): ' . $evidence; }
+                $lines[] = '  Vlastní poznámka: ' . ($row['note'] !== '' ? $row['note'] : 'Bez ruční poznámky');
                 if (!empty($row['at'])) { $lines[] = '  Záznam: ' . $row['at'] . ', správce ID ' . $row['by']; }
             }
             $lines[] = '';

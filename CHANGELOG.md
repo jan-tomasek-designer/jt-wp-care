@@ -1,3 +1,11 @@
+# 0.4.0-alpha — 2026-10-07
+
+- Automatické údaje a konkrétní ruční pokyny přímo u checklistu, zachování poznámek.
+- Report obsahuje stejné automatické důkazy s časem snímku.
+- Cache aktualizací WP/šablon a omezená detekce SMTP.
+- Samostatný instalátor 0.1.0-alpha: potvrzené nahrání payload ZIPu přes WP, kontrola SHA-256, přepnutí a ruční návrat.
+- Datové schéma 1 beze změny. Přímé stahování a podpisy nejsou implementovány.
+
 # 0.3.0-alpha — 2026-10-07
 
 - Stabilní MU loader, oddělené verzované složky a nouzový pin.

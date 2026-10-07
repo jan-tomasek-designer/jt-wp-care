@@ -34,3 +34,9 @@ Testovací WordPress běžel pouze lokálně, s umělými daty, blokovanými ext
 ## Ověření 0.3.0-alpha (2026-10-07)
 
 Lokálně PHP 8.3.35: syntaxe, smoke, 42 behavior kontrol, šest režimů loaderu, 15 scénářů verzovaného loaderu, kontrola obsahu a hashů ZIPů. Opakované balíčkování nad stejným buildem dalo stejné SHA-256; nesprávný tag byl odmítnut. Linux CI navíc kontroluje symlinkovaný ukazatel. Toto není test živého hostingu, atomického přepnutí ani skutečného vydání tagem. Pro tuto změnu nebyly opakovány integrační kontroly v reálném WordPressu; produkční nasazení vyžaduje staging.
+
+## Ověření 0.4.0-alpha
+
+Lokální PHP 8.3.35: původní behavior testy, nové předvyplnění/vykreslení/report, 50 kontrol balíčku a instalátoru a 14 kontrol oprávnění, nonce, metody požadavku a potvrzení. Linux CI přidává odmítnutí symlinkovaného ukazatele.
+
+V místní skutečné instalaci WordPress 7.1.2 se SQLite adaptérem proběhlo přes HTTP s přihlášeným administrátorem: aktivace pomocného pluginu, multipart upload 0.4 payloadu z běžícího MU 0.3, přesměrování a ověření načtené nové verze, vykreslení asistovaného checklistu, návrat 0.4 → 0.3 a opětovný návrat 0.3 → 0.4. Uložený servisní záznam byl shodný před a po aktualizaci. To nepotvrzuje kompatibilitu konkrétního WooCommerce ani hostingu PIPNI; livemotion.cz nebyl změněn. Zkouška nezahrnuje automatickou obnovu po fatální chybě ani GitHub download.
