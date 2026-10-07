@@ -30,6 +30,7 @@ jobs:
       - run: php tools/package.php
       - run: php tests/package.php
       - run: php tests/installer.php
+      - run: php -n tests/installer-no-zip.php
       - run: php tests/installer-boundary.php
       - uses: actions/upload-artifact@v4
         if: matrix.php == '8.3'

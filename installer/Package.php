@@ -13,13 +13,14 @@ final class Package
 
     public static function read(string $file, string $digest, string $version, string $wpVersion): array
     {
-        if (!class_exists(\ZipArchive::class)) { throw new \DomainException('Hosting nemá rozšíření PHP zip. Aktualizace nebyla spuštěna.'); }
+        require_once __DIR__ . '/StoredZip.php';
         if (!self::version($version) || !preg_match('/^[a-f0-9]{64}$/D', $digest) || !is_file($file) || is_link($file)
             || filesize($file) > self::MAX_ZIP || !hash_equals($digest, (string) hash_file('sha256', $file))) {
             throw new \DomainException('Nesouhlasí verze, velikost nebo SHA-256 balíčku. Použij payload ZIP a jeho kontrolní součet z GitHubu.');
         }
-        $zip = new \ZipArchive();
-        if ($zip->open($file, \ZipArchive::RDONLY) !== true) { throw new \DomainException('ZIP nelze přečíst.'); }
+        $native = class_exists(\ZipArchive::class);
+        $zip = $native ? new \ZipArchive() : new StoredZip();
+        if ($zip->open($file, $native ? \ZipArchive::RDONLY : 0) !== true) { throw new \DomainException('ZIP nelze přečíst. Bez PHP zip použij původní payload z repozitáře bez opětovného komprimování.'); }
         $files = []; $seen = []; $total = 0;
         try {
             if ($zip->numFiles < 3 || $zip->numFiles > 1500) { throw new \DomainException('Nepovolený počet souborů.'); }
@@ -34,7 +35,7 @@ final class Package
                 $os = 0; $attr = 0;
                 if (!$allowed || isset($seen[strtolower($name)]) || ($stat['encryption_method'] ?? 0) !== 0
                     || !$zip->getExternalAttributesIndex($i, $os, $attr)
-                    || ($os === \ZipArchive::OPSYS_UNIX && (($attr >> 16) & 0170000) !== 0100000)) {
+                    || ($os === 3 && (($attr >> 16) & 0170000) !== 0100000)) {
                     throw new \DomainException('ZIP obsahuje nepovolenou cestu, odkaz, duplicitu nebo typ souboru.');
                 }
                 $seen[strtolower($name)] = true;

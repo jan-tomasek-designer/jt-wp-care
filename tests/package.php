@@ -11,10 +11,10 @@ foreach ($manifest['assets'] as $file => $expected) {
     $zip = new ZipArchive(); $zip->open($dist . '/' . $file);
     $companion = str_starts_with($file, 'jt-wp-care-installer-');
     if ($companion) {
-        foreach (['jt-wp-care-installer.php', 'Package.php', 'Installer.php', 'Screen.php', 'loader.sha256'] as $name) {
+        foreach (['jt-wp-care-installer.php', 'Package.php', 'StoredZip.php', 'Installer.php', 'Screen.php', 'loader.sha256'] as $name) {
             if ($zip->getFromName('jt-wp-care-installer/' . $name) !== file_get_contents($dist . '/companion/jt-wp-care-installer/' . $name)) { throw new RuntimeException('Companion mismatch'); }
         }
-        if ($zip->numFiles !== 5) { throw new RuntimeException('Unexpected companion file'); }
+        if ($zip->numFiles !== 6) { throw new RuntimeException('Unexpected companion file'); }
         $zip->close(); continue;
     }
     $payload = str_ends_with($file, '-payload.zip');

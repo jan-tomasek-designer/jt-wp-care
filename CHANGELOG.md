@@ -1,3 +1,8 @@
+# Instalátor 0.1.1-alpha — 2026-10-07
+
+- Oprava aktualizace na hostingu bez PHP zip pomocí omezeného čtení našich STORE balíčků.
+- MU verze 0.4.0-alpha a její payload zůstávají stejné.
+
 # 0.4.0-alpha — 2026-10-07
 
 - Automatické údaje a konkrétní ruční pokyny přímo u checklistu, zachování poznámek.
