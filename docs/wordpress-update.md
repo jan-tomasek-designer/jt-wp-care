@@ -35,3 +35,9 @@ Stav funkčního ověření potvrzuje správce. U DISALLOW_FILE_EDIT může stav
 
 
 Instalátor 0.1.1 podporuje hosting bez PHP zip: omezený čteč přijímá pouze původní ZIPy typu STORE vytvořené naším buildem. Nic nedekomprimuje ani přímo nerozbaluje na disk. Ověřuje centrální i lokální hlavičky, souvislé umístění, CRC, typy a stejné následné bezpečnostní kontroly jako nativní čteč. Nepodporuje ZIP64, šifrování, kompresi a data descriptors; balíček proto nepřebalujte. PHP zip zůstává potřebné pouze při sestavování vydání.
+
+## Instalátor 0.1.2-alpha: diagnostika selhání
+
+Před další instalací otevři aktualizační obrazovku. Uvede verzi instalátoru i skutečnou složku, ze které běží. Kontroluje úplnost doplňkových souborů a dostupnost funkcí nutných k aktualizaci; při jejich zákazu instalaci zablokuje konkrétní zprávou. Tato kontrola sama neinstaluje vydání ani nepřepíná ukazatel. Kontrola filesystem metody WordPressu může vytvořit vlastní krátkodobý testovací soubor.
+
+Při chybě zobrazí krok, bezpečný důvod a typ/soubor/řádek bez absolutních cest či obsahu runtime výjimky. Následně vždy ověř aktivní a načtenou verzi: selhání může nastat i po přepnutí při ukládání výsledku. Tato úprava zpřesňuje diagnostiku, nepotvrzuje dosud příčinu chyby na Livemotion. Při dvou instalátorech deaktivuj oba a aktivuj jen kompletní novou kopii 0.1.2. Veřejné zobrazování PHP chyb není potřeba.

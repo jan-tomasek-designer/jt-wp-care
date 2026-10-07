@@ -32,6 +32,9 @@ jobs:
       - run: php tests/installer.php
       - run: php -n tests/installer-no-zip.php
       - run: php tests/installer-boundary.php
+      - run: php -n tests/installer-diagnostics.php
+      - run: php -n -d disable_functions=disk_free_space tests/installer-diagnostics.php disk_free_space
+      - run: php -n -d disable_functions=flock tests/installer-diagnostics.php flock
       - uses: actions/upload-artifact@v4
         if: matrix.php == '8.3'
         with:

@@ -5,10 +5,18 @@ namespace JT\WPCareInstaller;
 /** Separate from the MU namespace; only local direct filesystem updates, never an HTTP code fetcher. */
 final class Installer
 {
+    public string $phase = 'kontrola prostředí';
+    public static function environment(): void
+    {
+        foreach (['disk_free_space', 'flock', 'random_bytes', 'rename', 'mkdir', 'file_put_contents', 'hash_file', 'fopen', 'fclose', 'unlink', 'rmdir'] as $function) {
+            if (!function_exists($function)) { throw new \DomainException('Hosting nemá dostupnou PHP funkci ' . $function . '. Aktualizace je zablokovaná; tuto informaci předej podpoře hostingu.'); }
+        }
+    }
     private string $base;
     private string $wpVersion;
     public function __construct(string $muDirectory, string $loaderHash, string $wpVersion)
     {
+        self::environment();
         $mu = realpath($muDirectory);
         if ($mu === false || is_link($muDirectory)) { throw new \DomainException('MU adresář není dostupný nebo je odkazem.'); }
         $this->base = $mu . '/jt-wp-care'; $this->wpVersion = $wpVersion;
@@ -33,24 +41,30 @@ final class Installer
 
     public function install(string $file, string $digest, string $version, string $expected): array
     {
+        $this->phase = 'ověření a čtení payload ZIPu';
         $files = Package::read($file, $digest, $version, $this->wpVersion);
         return $this->locked(function () use ($files, $version, $expected): array {
+            $this->phase = 'kontrola stavu vydání';
             $state = $this->state();
             if ($state['active'] !== $expected || !version_compare($version, $state['active'], '>')) { throw new \DomainException('Aktivní verze se změnila nebo balíček není novější. Obnov stránku.'); }
             $this->compatible($state['active']);
             $target = $this->base . '/releases/' . $version;
             if (file_exists($target) || is_link($target)) { throw new \DomainException('Tato verze již na disku existuje. Nebude přepsána.'); }
+            $this->phase = 'kontrola volného místa';
             $free = disk_free_space($this->base);
             if ($free === false || $free < 2 * array_sum(array_map('strlen', $files)) + 10485760) { throw new \DomainException('Nedostatek volného místa nebo nelze zjistit jeho velikost.'); }
+            $this->phase = 'příprava nové složky';
             $stage = $this->base . '/releases/.stage-' . bin2hex(random_bytes(16));
             if (!mkdir($stage, 0755)) { throw new \DomainException('Nelze připravit novou verzi.'); }
             try {
                 foreach ($files as $name => $bytes) {
+                    $this->phase = 'zápis souborů nové verze';
                     $path = $stage . '/' . $name;
-                    if (!is_dir(dirname($path)) && !mkdir(dirname($path), 0755, true)) { throw new \RuntimeException('mkdir'); }
-                    if (file_put_contents($path, $bytes, LOCK_EX) !== strlen($bytes) || !hash_equals(hash('sha256', $bytes), (string) hash_file('sha256', $path))) { throw new \RuntimeException('write verification'); }
+                    if (!is_dir(dirname($path)) && !mkdir(dirname($path), 0755, true)) { throw new \DomainException('Nelze vytvořit podsložku nové verze. Ověř oprávnění a vlastníka adresáře releases.'); }
+                    if (file_put_contents($path, $bytes, LOCK_EX) !== strlen($bytes) || !hash_equals(hash('sha256', $bytes), (string) hash_file('sha256', $path))) { throw new \DomainException('Zápis nebo následná kontrola souboru nové verze selhala. Ověř oprávnění a místo na disku.'); }
                 }
-                if (!rename($stage, $target)) { throw new \RuntimeException('release rename'); }
+                $this->phase = 'dokončení složky vydání';
+                if (!rename($stage, $target)) { throw new \DomainException('Nelze přejmenovat připravenou složku na nové vydání.'); }
                 $next = ['schema' => 1, 'active' => $version, 'previous' => $state['active']];
                 $this->switchTo($next);
                 return $next;
@@ -86,6 +100,7 @@ final class Installer
 
     private function locked(callable $operation): array
     {
+        $this->phase = 'získání zámku aktualizace';
         $path = $this->base . '/.update.lock';
         if (is_link($path)) { throw new \DomainException('Nepovolený odkaz zámku.'); }
         $lock = fopen($path, 'c');
@@ -96,10 +111,11 @@ final class Installer
 
     private function switchTo(array $state): void
     {
+        $this->phase = 'přepnutí aktivní verze';
         $temp = $this->base . '/.current-' . bin2hex(random_bytes(16)) . '.json';
         $bytes = json_encode($state, JSON_THROW_ON_ERROR) . "\n";
         try {
-            if (file_put_contents($temp, $bytes, LOCK_EX) !== strlen($bytes)) { throw new \RuntimeException('pointer write'); }
+            if (file_put_contents($temp, $bytes, LOCK_EX) !== strlen($bytes)) { throw new \DomainException('Nelze zapsat nový ukazatel current.json. Původní ukazatel nebyl nahrazen.'); }
             // Same directory/filesystem. Never unlink the old pointer before rename.
             if (!rename($temp, $this->base . '/current.json')) { throw new \DomainException('Hosting nepovolil přepnutí. Původní ukazatel zůstal zachován.'); }
             clearstatcache();

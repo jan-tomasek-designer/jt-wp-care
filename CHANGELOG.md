@@ -1,3 +1,9 @@
+# Instalátor 0.1.2-alpha — diagnostika
+
+- Zobrazení skutečné složky a verze instalátoru.
+- Kontrola chybějících souborů a zakázaných PHP funkcí před instalací.
+- Konkrétní fáze a bezpečný kód namísto obecné chyby; payload 0.4 beze změny.
+
 # Instalátor 0.1.1-alpha — 2026-10-07
 
 - Oprava aktualizace na hostingu bez PHP zip pomocí omezeného čtení našich STORE balíčků.

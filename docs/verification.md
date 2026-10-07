@@ -44,3 +44,7 @@ V místní skutečné instalaci WordPress 7.1.2 se SQLite adaptérem proběhlo p
 ## Instalátor 0.1.1-alpha — hosting bez PHP ZIP
 
 Příčina: instalátor 0.1.0 předpokládal dostupnost ZipArchive; na livemotion.cz chybí. Odmítnutí proběhlo před zápisem nové verze. Fallback podporuje pouze náš již používaný formát STORE, ne libovolnou kompresi. Lokálně ověřeno skutečným PHP -n bez ZipArchive: shodné vyčtené soubory, odmítnutí osmi poškozených/nebezpečných variant, instalace i návrat. Původních 50 kontrol nativního instalátoru nadále prochází. Aktualizační payload 0.4.0-alpha zůstává beze změny.
+
+## Instalátor 0.1.2-alpha
+
+Lokálně: původních 50 kontrol, cesta bez PHP zip s instalací a návratem, request boundary a nové kontroly bezpečných diagnostických zpráv. PHP -n s disable_functions=disk_free_space a samostatně flock ověřilo konkrétní odmítnutí před instalací. Neznámé runtime zprávy/cesty nejsou přenášeny do UI. Payload 0.4.0 má nadále SHA-256 5c44b750c7f64736f7b55bdbea3b114d468d4a63acb921b74ab76c3918dade6a. Hostitelská příčina selhání dosud není potvrzena.
