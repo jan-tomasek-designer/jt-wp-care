@@ -48,3 +48,9 @@ Příčina: instalátor 0.1.0 předpokládal dostupnost ZipArchive; na livemotio
 ## Instalátor 0.1.2-alpha
 
 Lokálně: původních 50 kontrol, cesta bez PHP zip s instalací a návratem, request boundary a nové kontroly bezpečných diagnostických zpráv. PHP -n s disable_functions=disk_free_space a samostatně flock ověřilo konkrétní odmítnutí před instalací. Neznámé runtime zprávy/cesty nejsou přenášeny do UI. Payload 0.4.0 má nadále SHA-256 5c44b750c7f64736f7b55bdbea3b114d468d4a63acb921b74ab76c3918dade6a. Hostitelská příčina selhání dosud není potvrzena.
+
+## Automatika 0.5.0-alpha — 2026-10-12
+
+Lokálně prošly testy podpory PHP včetně konce podpory a expirace pravidel, stáří cache/snímku, hodinového intervalu, zachování ručních položek a XML-RPC potvrzení, oprávnění a nonce. JavaScriptový test ověřil jeden POST, zákaz formulářů během požadavku, obnovení pouze při úspěchu a žádnou smyčku při chybě.
+
+Ve skutečném místním WordPressu se ověřilo HTTP načtení stránky se starým snímkem, autentizovaný automatický POST, uložení výsledků, následná stránka bez dalšího požadavku, automatické stavy bez ručního PHP přepínače a zachování ručního formuláře pro zálohu. Uložené lidské položky a potvrzení XML-RPC se před/po shodovaly. Nejde o test na MRA ani Webglobe; jejich vzdálené instalace nebyly měněny.

@@ -1,3 +1,10 @@
+# 0.5.0-alpha — 2026-10-12
+
+- Automatické obnovení lokální diagnostiky při návštěvě administrace, nejvýše jednou za hodinu.
+- Automatické technické výsledky a podpora větví PHP s expirací pravidel.
+- PHP a editor souborů bez ručního potvrzování; původní záznamy zachované.
+- Rozlišení debug display/log a oddělené nabídky WooCommerce.
+
 # Instalátor 0.1.2-alpha — diagnostika
 
 - Zobrazení skutečné složky a verze instalátoru.

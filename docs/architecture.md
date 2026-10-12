@@ -78,3 +78,7 @@ Implementace rozděluje stabilní loader a aplikaci ve složce releases/<verze>.
 Automatické důkazy jsou projekcí uloženého snímku, ne přepisem poznámek. Proto zůstanou uživatelská data kompatibilní se schématem 1 a export používá stejný zdroj jako obrazovka. Stav testu potvrzuje člověk, s úzkou výjimkou doložení DISALLOW_FILE_EDIT přes typovanou hodnotu true.
 
 Pomocný běžný plugin v installer/ má oddělený namespace a lifecycle. Důvodem je bootstrap aktualizací u již nasazené verze 0.3, která nemá updater, a možnost vrátit soubory nezávisle na UI MU modulu. Je volitelný a deaktivovatelný. Kvůli pořadí načítání MU pluginů však neobejde fatální chybu při bootstrapu; nouzová obnova zůstává přes loader/pin/FTP. Ruční upload ověřený správcem a SHA-256 je mezikrok; automatická distribuce nadále vyžaduje podpisy.
+
+## 0.5.0: automatické technické výsledky
+
+Samostatný vypínatelný modul automatic spouští při návštěvě administrace omezený POST sběr. UI GET ani frontend neprovádějí zápis. Výsledky jsou ve volitelném poli snímku audit.automatic; schema zůstává 1. Zachování původních lidských stavů umožní návrat ke staršímu kódu bez migrace dat. Pouze dva úzce definované technické body nahrazují v UI ruční volbu; širší servisní úkony mají automatické nálezy oddělené od potvrzení provedení. Při neaktuálním snímku/pravidlech se nepoužívá zelený stav z minulosti.

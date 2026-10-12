@@ -14,7 +14,7 @@ require dirname(__DIR__) . '/dist/mu-plugins/jt-wp-care.php';
 foreach ($hooks['plugins_loaded'] ?? [] as $callback) { $callback(); }
 $handlers = array_filter(array_keys($hooks), fn($key) => str_starts_with($key, 'admin_post_'));
 if ($mode === 'admin') {
-    if (count($handlers) !== 3 || !isset($hooks['admin_menu'])) { throw new RuntimeException('Admin registration failed'); }
+    if (count($handlers) !== 4 || !isset($hooks['admin_menu'])) { throw new RuntimeException('Admin registration failed'); }
 } elseif ($handlers !== []) { throw new RuntimeException('Disabled environment registered handlers'); }
 if ($mode === 'disabled' && $hooks !== []) { throw new RuntimeException('Kill switch registered hooks'); }
 if (in_array($mode, ['old-wp', 'multisite'], true) && !isset($hooks['admin_notices'])) { throw new RuntimeException('Missing compatibility notice'); }

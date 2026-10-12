@@ -33,7 +33,7 @@ final class Module implements ModuleInterface
     {
         Access::authorize();
         $record = $this->store->load();
-        echo '<section class="jt-card"><h2>Servisní checklist</h2><p>Jeden průběžně ukládaný servis. Diagnostika předvyplní zjištěné údaje u jednotlivých bodů. Ty vybereš výsledek ručního ověření a doplníš jen vlastní poznámku. Poznámky neobsahují hesla ani osobní údaje zákazníků. Časy jsou v UTC.</p>';
+        echo '<section class="jt-card"><h2>Servisní checklist</h2><p>Jeden průběžně ukládaný servis. Diagnostika předvyplní zjištěné údaje u jednotlivých bodů. PHP a editor souborů vyhodnocuje automatika. Ručně doplníš jen skutečné funkční testy a výjimky. Poznámky neobsahují hesla ani osobní údaje zákazníků. Časy jsou v UTC.</p>';
         echo '<form method="post" action="' . esc_url(admin_url('admin-post.php')) . '">';
         wp_nonce_field('jt_care_save');
         echo '<input type="hidden" name="action" value="jt_care_save"><input type="hidden" name="revision" value="' . esc_attr($record['revision']) . '">';
@@ -46,6 +46,12 @@ final class Module implements ModuleInterface
                     $evidence = Evidence::forItem($id, $record['audit']);
                     if ($evidence !== '') { echo '<div class="jt-evidence"><strong>Zjištěno automaticky</strong><small> — snímek ' . esc_html($record['audit']['at'] ?? '') . '</small><pre>' . esc_html($evidence) . '</pre></div>'; }
                 } else { echo '<p>Pro předvyplnění údajů nejprve spusť diagnostiku nahoře.</p>'; }
+                $automatic = \JT\WPCare\Modules\Automatic\Evaluation::item($id, $record['audit'] ?? null);
+                if ($automatic !== null) {
+                    echo '<p><strong>Automaticky: ' . esc_html(Catalog::states()[$automatic['state']] ?? 'Neověřeno') . '</strong><br>' . esc_html($automatic['text']) . '</p>';
+                    if ($row['note'] !== '' || ($row['state'] ?? 'unknown') !== 'unknown') { echo '<details><summary>Dřívější ruční záznam (zachován)</summary><p>' . esc_html(Catalog::states()[$row['state']] ?? 'Neověřeno') . ' — ' . esc_html($row['note']) . '</p></details>'; }
+                    echo '</div></div>'; continue;
+                }
                 echo '<p><strong>Co ověřit:</strong> ' . esc_html(Evidence::instruction($id)) . '</p>';
                 echo '<label for="jt-' . esc_attr($id) . '">Výsledek tvého ověření </label>';
                 echo '<select id="jt-' . esc_attr($id) . '" name="items[' . esc_attr($id) . '][state]">';

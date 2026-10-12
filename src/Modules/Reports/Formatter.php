@@ -13,12 +13,14 @@ final class Formatter
         $lines = ['JT WP Care ' . \JT\WPCare\Core\Release::VERSION . ' — průběžný servisní záznam', 'Web: ' . $site,
             'Metodika: ' . ($record['methodology'] ?? '0.1'), 'Revize: ' . $record['revision'],
             'Poslední uložení (UTC): ' . ($record['updated_at'] ?? 'Dosud neuloženo'),
-            'Není potvrzením dokončeného servisu. Stavy checklistu zadal správce; diagnostika je automatický lokální snímek.', ''];
+            'Není potvrzením dokončeného servisu. Automatické stavy jsou označeny; ostatní výsledky zadal správce. Nejde o potvrzení funkčních testů.', ''];
         foreach (Catalog::groups() as $group => $items) {
             $lines[] = $group;
             foreach ($items as $id => [$label, $hint]) {
                 $row = $record['items'][$id] ?? ['state' => 'unknown', 'note' => ''];
-                $lines[] = $label . ': ' . (Catalog::states()[$row['state']] ?? 'Neověřeno');
+                $auto = \JT\WPCare\Modules\Automatic\Evaluation::item($id, $record['audit'] ?? null);
+                $lines[] = $label . ': ' . (Catalog::states()[$auto['state'] ?? $row['state']] ?? 'Neověřeno') . ($auto !== null ? ' (automaticky)' : '');
+                if ($auto !== null) { $lines[] = '  ' . $auto['text']; $lines[] = '  Dřívější ruční stav: ' . (Catalog::states()[$row['state']] ?? 'Neověřeno'); }
                 $evidence = Evidence::forItem($id, $record['audit'] ?? null);
                 if ($evidence !== '') { $lines[] = '  Zjištěno automaticky (' . ($record['audit']['at'] ?? '') . '): ' . $evidence; }
                 $lines[] = '  Vlastní poznámka: ' . ($row['note'] !== '' ? $row['note'] : 'Bez ruční poznámky');
@@ -26,6 +28,7 @@ final class Formatter
             }
             $lines[] = '';
         }
+        foreach (\JT\WPCare\Modules\Automatic\Evaluation::results($record['audit'] ?? null) as $id => $result) { $lines[] = 'Automatická kontrola ' . $id . ': ' . $result['state'] . ' — ' . $result['text']; }
         $lines[] = 'Externí použití XML-RPC: ' . (['unknown' => 'Neověřeno', 'used' => 'Používá se', 'unused' => 'Správce potvrdil nepotřebnost'][$record['external_use'] ?? 'unknown'] ?? 'Neověřeno');
         $lines[] = $record['external_note'] ?? '';
         if (!empty($record['external_at'])) { $lines[] = 'Potvrzení: ' . $record['external_at'] . ', správce ID ' . $record['external_by']; }

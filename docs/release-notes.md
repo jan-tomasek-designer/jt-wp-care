@@ -1,7 +1,7 @@
-# Vydání 0.4.0-alpha
+# Vydání 0.5.0-alpha
 
-Checklist předvyplňuje z uložené diagnostiky verze, nabídky aktualizací a zjistitelná nastavení. U každého bodu ukazuje konkrétní pokyn pro ruční ověření. Poznámky a stavy správce zůstávají zachované. Nová diagnostika doplňuje cache WordPressu/šablon a omezenou detekci SMTP pluginů.
+Diagnostika se při otevření JT WP Care obnovuje automaticky nejvýše jednou za hodinu. Nový vypínatelný modul vyhodnotí podporu větve PHP, editor souborů, debug režim a uložené nabídky aktualizací. PHP a DISALLOW_FILE_EDIT již nevyžadují ruční zaškrtávání; původní poznámky a ruční záznamy zůstávají zachované. Export zahrnuje automatické výsledky.
 
-Samostatný pomocný instalátor umožní přechod z 0.3 přes administraci WordPressu: ruční nahrání payload ZIPu z našeho repozitáře, SHA-256, potvrzení, instalace vedle původní verze a možnost návratu. Podrobný postup: docs/wordpress-update.md. Do běžného instalátoru WordPressu patří pouze jt-wp-care-installer-0.1.1-alpha.zip.
+Automatika neprovádí aktualizace webu, neposílá poštu a nepotvrzuje zálohy ani funkční testy. Aktualizační cache se nestahuje; chybějící nabídka není důkaz aktuálnosti. Pravidla PHP ověřena 2026-10-12, platná do 2027-04-12. Podrobnosti: docs/automatic-checks.md.
 
-Alpha: nejprve staging a ověřená záloha. Přímé stahování z GitHubu, podpisy manifestů a automatická obnova po fatální chybě nejsou implementovány. Vyžadován přímý zápis a nezměněný podporovaný loader. Datové schéma zůstává 1; WordPress, WooCommerce ani jiné pluginy se neaktualizují.
+Datové schéma a loader zůstávají 1. Pomocný instalátor je 0.1.2-alpha a má vlastní omezení hostingu; tato verze neobchází nedostupné disk_free_space. Pro aktualizaci používej payload 0.5.0 a jeho nový SHA-256, ne starý součet z 0.4.

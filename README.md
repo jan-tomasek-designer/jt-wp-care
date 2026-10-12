@@ -1,4 +1,4 @@
-# JT WP Care 0.4.0-alpha
+# JT WP Care 0.5.0-alpha
 
 První instalovatelná pilotní verze MU pluginu. **Určena pro staging, nikoli plošné produkční nasazení.** Metodika vychází z ručního servisu; auditní MU plugin neaktualizuje WordPress ani jiné pluginy a nic nevypíná.
 
@@ -6,7 +6,7 @@ První instalovatelná pilotní verze MU pluginu. **Určena pro staging, nikoli 
 
 - Nástroje → JT WP Care: 17bodový checklist se stavy neověřeno, splněno, problém, odloženo a netýká se.
 - Uloží jeden průběžný záznam; u vyhodnoceného bodu vyžaduje důkaz nebo důvod. Zaznamenává UTC čas změny a ID správce.
-- Na vyžádání pořídí lokální diagnostický snímek: WordPress, PHP, DB, šablona/child theme, běžné pluginy, uložené nabídky aktualizací, WooCommerce a základní bezpečnostní informace.
+- Při otevření administrace automaticky (nejvýše jednou za hodinu) nebo na vyžádání pořídí lokální diagnostický snímek: WordPress, PHP, DB, šablona/child theme, běžné pluginy, uložené nabídky aktualizací, WooCommerce a základní bezpečnostní informace.
 - Security Audit rozlišuje XML-RPC přihlašované metody od neověřené dostupnosti z internetu; hledá Jetpack a vyžádá potvrzení externího použití.
 - TXT export a tisková HTML verze používají tentýž uložený záznam. PDF vzniká přes Tisk → Uložit jako PDF v prohlížeči, nejde o serverový PDF generátor.
 - Oprávnění manage_options, POST + nonce u handlerů a ochrana před přepsáním záznamu souběžným požadavkem.
@@ -37,7 +37,7 @@ wp-content/mu-plugins/
 ├── jt-wp-care.php
 └── jt-wp-care/
     ├── current.json
-    └── releases/0.4.0-alpha/
+    └── releases/0.5.0-alpha/
         ├── release.json
         ├── bootstrap.php
         ├── autoload.php
@@ -63,11 +63,11 @@ define('JT_WP_CARE_DISABLED', true);
 define('JT_WP_CARE_DISABLED_MODULES', ['security', 'reports']);
 ```
 
-ID modulů: `dashboard`, `checklist`, `security`, `reports`. Vypnutý modul neregistruje UI ani své handlery. Vypnutí dashboardu skryje stránku; ostatní moduly mají vlastní registraci, pro kompletní vypnutí použijte globální konstantu. Nouzově přes FTP přejmenujte loader tak, aby neměl příponu `.php`.
+ID modulů: `dashboard`, `checklist`, `security`, `reports`, `automatic`. [Automatické kontroly a jejich omezení](docs/automatic-checks.md). Vypnutý modul neregistruje UI ani své handlery. Vypnutí dashboardu skryje stránku; ostatní moduly mají vlastní registraci, pro kompletní vypnutí použijte globální konstantu. Nouzově přes FTP přejmenujte loader tak, aby neměl příponu `.php`.
 
 ## Uložená data
 
-WordPress option `jt_wp_care_record_v1` bez autoloadu: stavy, poznámky, ID správců, UTC časy, revize, potvrzení XML-RPC a poslední snímek. Záznam zůstává až do ručního odstranění správcem; alpha nemá retenční automatizaci. Vypnutí/odstranění souborů nic nemaže. Běžné otevření stránky nic neukládá. Exporty se streamují do prohlížeče, nevznikají veřejné soubory v uploads. Do poznámek nevkládejte hesla, klíče ani osobní údaje zákazníků.
+WordPress option `jt_wp_care_record_v1` bez autoloadu: stavy, poznámky, ID správců, UTC časy, revize, potvrzení XML-RPC a poslední snímek. Záznam zůstává až do ručního odstranění správcem; alpha nemá retenční automatizaci. Vypnutí/odstranění souborů nic nemaže. Samotné vykreslení nic neukládá; při otevření JT WP Care může automatický modul samostatným ověřeným POST požadavkem obnovit diagnostický snímek. Exporty se streamují do prohlížeče, nevznikají veřejné soubory v uploads. Do poznámek nevkládejte hesla, klíče ani osobní údaje zákazníků.
 
 ## Vývoj a sestavení
 
