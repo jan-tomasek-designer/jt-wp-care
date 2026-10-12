@@ -1,3 +1,9 @@
+## 0.6.0-alpha — 2026-10-12
+
+- Samostatně vypínatelná diagnostika WooCommerce DB a Action Scheduleru.
+- Omezené čtecí dotazy, žádné spouštění migrací nebo úloh; poznámky a ruční stavy zachovány.
+- Neúspěšné a opožděné úlohy v automatických kontrolách a reportu.
+
 # 0.5.0-alpha — 2026-10-12
 
 - Automatické obnovení lokální diagnostiky při návštěvě administrace, nejvýše jednou za hodinu.

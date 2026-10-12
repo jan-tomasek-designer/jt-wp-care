@@ -1,4 +1,4 @@
-# JT WP Care 0.5.0-alpha
+# JT WP Care 0.6.0-alpha
 
 První instalovatelná pilotní verze MU pluginu. **Určena pro staging, nikoli plošné produkční nasazení.** Metodika vychází z ručního servisu; auditní MU plugin neaktualizuje WordPress ani jiné pluginy a nic nevypíná.
 
@@ -37,7 +37,7 @@ wp-content/mu-plugins/
 ├── jt-wp-care.php
 └── jt-wp-care/
     ├── current.json
-    └── releases/0.5.0-alpha/
+    └── releases/0.6.0-alpha/
         ├── release.json
         ├── bootstrap.php
         ├── autoload.php
@@ -87,3 +87,5 @@ Build vytvoří `dist/mu-plugins/`. Existující dist odmítne přepsat; před d
 [Metodika](docs/service-methodology.md) · [Ruční checklist](docs/service-checklist.md) · [XML-RPC specifikace](docs/security-audit-xmlrpc.md) · [Architektura](docs/architecture.md) · [Roadmapa](docs/roadmap.md) · [Changelog](CHANGELOG.md)
 
 SemVer; před 1.0 jsou kontrakty experimentální. Datové schéma je verzováno odděleně, nepodporované schéma se nepřepisuje. Soukromý [GitHub repozitář](https://github.com/jan-tomasek-designer/jt-wp-care), bez veřejné licence. Balíčkování vyžaduje rozšíření PHP zip pouze na vývojovém stroji/CI. Tag odpovídající verzi připraví draft vydání; publikování zůstává ruční.
+
+WooCommerce DB a fronta úloh: viz [popis kontrol](docs/woocommerce-audit.md). Modul: `woocommerce`.

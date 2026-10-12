@@ -10,6 +10,7 @@ $hooks = [];
 function is_admin() { global $mode; return $mode !== 'frontend'; }
 function is_multisite() { global $mode; return $mode === 'multisite'; }
 function add_action($hook, $callback, $priority = 10) { global $hooks; $hooks[$hook][] = $callback; }
+function add_filter($hook, $callback) { add_action($hook, $callback); }
 require dirname(__DIR__) . '/dist/mu-plugins/jt-wp-care.php';
 foreach ($hooks['plugins_loaded'] ?? [] as $callback) { $callback(); }
 $handlers = array_filter(array_keys($hooks), fn($key) => str_starts_with($key, 'admin_post_'));

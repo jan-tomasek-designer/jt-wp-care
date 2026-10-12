@@ -42,7 +42,7 @@ final class Module implements ModuleInterface
     {
         Access::authorize(); $record = $this->store->load();
         echo '<section class="jt-card"><h2>Automatické kontroly</h2><p>Kontrola se sama obnoví při otevření JT WP Care, nejvýše jednou za hodinu. Nemění nastavení webu ani neinstaluje aktualizace.</p>';
-        $labels = ['php' => 'Podpora větve PHP', 'file_edit' => 'Editor souborů', 'debug' => 'Debug režim', 'wordpress' => 'WordPress', 'plugins' => 'Pluginy', 'theme' => 'Šablony', 'woocommerce' => 'WooCommerce'];
+        $labels = ['php' => 'Podpora větve PHP', 'file_edit' => 'Editor souborů', 'debug' => 'Debug režim', 'wordpress' => 'WordPress', 'plugins' => 'Pluginy', 'theme' => 'Šablony', 'woocommerce' => 'WooCommerce', 'wc_database' => 'Databáze WooCommerce', 'wc_queue' => 'Naplánované úlohy'];
         foreach (Evaluation::results($record['audit'] ?? null) as $id => $result) {
             echo '<p><strong>' . esc_html($labels[$id] ?? $id) . ' — ' . esc_html(['done' => '✓ Ověřeno', 'problem' => 'Vyžaduje pozornost', 'unknown' => 'Neověřeno'][$result['state']] ?? 'Neověřeno') . '</strong><br>' . esc_html($result['text']) . '</p>';
         }

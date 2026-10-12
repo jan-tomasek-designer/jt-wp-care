@@ -37,7 +37,12 @@ function get_plugins() { return $GLOBALS['plugins'] ?? []; }
 function is_plugin_active($file) { return in_array($file, $GLOBALS['active'] ?? [], true); }
 function is_plugin_active_for_network($file) { return in_array($file, $GLOBALS['network'] ?? [], true); }
 function is_ssl() { return true; }
-function apply_filters($hook, $value) { return $GLOBALS['xmlrpc_auth'] ?? $value; }
+function add_filter($hook, $callback) { $GLOBALS['filters'][$hook][] = $callback; }
+function apply_filters($hook, $value) {
+    if ($hook === 'xmlrpc_enabled') { return $GLOBALS['xmlrpc_auth'] ?? $value; }
+    foreach ($GLOBALS['filters'][$hook] ?? [] as $callback) { $value = $callback($value); }
+    return $value;
+}
 function wp_get_theme() { return new class { public function get($key) { return $key === 'Name' ? '<Test theme>' : '1.0'; } public function parent() { return false; } }; }
 $GLOBALS['wpdb'] = new class {
     public string $options = 'wp_options';

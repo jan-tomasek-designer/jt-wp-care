@@ -74,6 +74,6 @@ final class Collector
             $count = 0; foreach ($rows as $row) { if (($row['file'] === 'woocommerce/woocommerce.php') === ($id === 'woocommerce') && $row['update_version'] !== '') { ++$count; } }
             $checks['offers'][$id] = ['count' => $count, 'at' => is_object($updates) ? (int) ($updates->last_checked ?? 0) : 0];
         }
-        return ['at' => gmdate('c'), 'source' => 'Lokální WordPress API a existující cache; žádné externí sondy', 'facts' => $facts, 'plugins' => $rows, 'checks' => $checks, 'automatic' => \JT\WPCare\Modules\Automatic\Evaluation::collect($checks, time())];
+        return ['at' => gmdate('c'), 'source' => 'Lokální WordPress API a existující cache; žádné externí sondy', 'facts' => $facts, 'plugins' => $rows, 'checks' => $checks, 'automatic' => apply_filters('jt_wp_care_automatic_results', \JT\WPCare\Modules\Automatic\Evaluation::collect($checks, time()))];
     }
 }
