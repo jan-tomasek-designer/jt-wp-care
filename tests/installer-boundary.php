@@ -2,6 +2,7 @@
 declare(strict_types=1);
 require dirname(__DIR__) . '/installer/Screen.php';
 function current_user_can($cap) { return $GLOBALS['caps'][$cap] ?? false; }
+function get_option($name, $default = false) { return $default; }
 function wp_die($message, $title = '', $args = []) { throw new RuntimeException((string) ($args['response'] ?? 500)); }
 function is_multisite() { return $GLOBALS['multi'] ?? false; }
 function wp_is_file_mod_allowed($context) { return $GLOBALS['allowed'] ?? true; }
@@ -11,7 +12,7 @@ function esc_html($value) { return $value; }
 $screen = new JT\WPCareInstaller\Screen();
 $boundary = new ReflectionMethod($screen, 'boundary');
 $boundary->setAccessible(true);
-foreach (['install', 'rollback'] as $method) {
+foreach (['install', 'rollback', 'release_install'] as $method) {
     foreach (['no_caps', 'no_update', 'get', 'nonce', 'multisite', 'file_mods', 'unconfirmed'] as $case) {
         $GLOBALS['caps'] = ['manage_options' => true, 'update_plugins' => true];
         $GLOBALS['multi'] = false; $GLOBALS['allowed'] = true; $GLOBALS['nonce'] = true;
@@ -33,4 +34,4 @@ foreach (['install', 'rollback'] as $method) {
         }
     }
 }
-echo "Installer request-boundary tests passed: 14\n";
+echo "Installer request-boundary tests passed: 21\n";

@@ -53,7 +53,7 @@ try {
     $zip = new ZipArchive(); $zip->open($linked); $zip->setExternalAttributesName($prefix . 'bootstrap.php', ZipArchive::OPSYS_UNIX, 0120777 << 16); $zip->close();
     rejected(fn() => Package::read($linked, hash_file('sha256', $linked), $version, '6.0'));
     rejected(fn() => $engine->install($payload, $hash, $version, '0.2.0-alpha'));
-    $lock = fopen($base . '/.update.lock', 'c'); flock($lock, LOCK_EX);
+    $lock = fopen($base . '/.maintenance.lock', 'c'); flock($lock, LOCK_EX);
     rejected(fn() => $engine->install($payload, $hash, $version, '0.3.0-alpha'));
     flock($lock, LOCK_UN); fclose($lock);
     ok($engine->state() === $state, 'All rejections kept the pointer');

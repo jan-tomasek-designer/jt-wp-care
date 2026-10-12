@@ -27,7 +27,7 @@ final class Module implements ModuleInterface
     {
         Access::authorize();
         echo '<div class="wrap jt-care"><h1>JT WP Care <small>' . esc_html(\JT\WPCare\Core\Release::VERSION) . '</small></h1><p>Servis podle metodiky 0.1 · ' . esc_html(home_url('/')) . '</p>';
-        echo '<div class="notice notice-warning inline"><p>Testovací verze pro staging. Aktualizace i změny zabezpečení provádí správce ručně. Nejde o úplný bezpečnostní audit.</p></div>';
+        echo '<div class="notice notice-warning inline"><p>Testovací verze. Vybrané aktualizace se spustí po schválení správcem; nejprve ověř zálohu a možnost obnovy. Nejde o úplný bezpečnostní audit.</p></div>';
         if (isset($_GET['saved']) && $_GET['saved'] === '1') {
             echo '<div class="notice notice-success inline"><p>Operace byla uložena.</p></div>';
         }

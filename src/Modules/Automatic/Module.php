@@ -21,6 +21,9 @@ final class Module implements ModuleInterface
     public static function due(array $record, ?int $now = null): bool
     {
         $at = strtotime($record['audit']['at'] ?? ''); $now = $now ?? time();
+        $plan = get_option('jt_wp_care_update_plan', []);
+        if (in_array($plan['state'] ?? '', ['ready', 'running'], true)) { return false; }
+        if (in_array($plan['state'] ?? '', ['complete', 'stopped', 'closed'], true) && $at < strtotime($plan['updated'] ?? '')) { return true; }
         return !isset($record['audit']['automatic']) || $at === false || $at > $now + 300 || $now - $at >= 3600;
     }
     public function refresh(string $revision): bool

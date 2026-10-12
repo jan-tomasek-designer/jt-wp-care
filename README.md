@@ -1,6 +1,6 @@
-# JT WP Care 0.6.0-alpha
+# JT WP Care 0.7.0-alpha
 
-První instalovatelná pilotní verze MU pluginu. **Určena pro staging, nikoli plošné produkční nasazení.** Metodika vychází z ručního servisu; auditní MU plugin neaktualizuje WordPress ani jiné pluginy a nic nevypíná.
+První instalovatelná pilotní verze MU pluginu. **Určena pro staging, nikoli plošné produkční nasazení.** Metodika vychází z ručního servisu; modul updates provádí schválené aktualizace pluginů a šablon. WordPress core a změny zabezpečení zůstávají ruční.
 
 ## Co balíček umí
 
@@ -13,7 +13,7 @@ První instalovatelná pilotní verze MU pluginu. **Určena pro staging, nikoli 
 
 ## Omezení alpha
 
-Jeden rozpracovaný servis bez archivace, uzavírání a zakládání dalšího cyklu. Report je průběžný záznam, nikoli potvrzení dokončení. Modul Security obsahuje zatím i základní lokální inventuru; plný diagnostický systém je backlog. XML-RPC používá omezený seznam známých závislostí (Jetpack), není externě sondováno. PHP support, SMTP doručení, 2FA pokrytí, firewall/scan, GoPay, objednávka a dokončení migrací vyžadují ruční ověření. Seznam běžných pluginů neobsahuje MU a drop-ins. Aktualizační cache se neobnovuje a chybějící nabídka není důkaz aktuálnosti.
+Jeden rozpracovaný servis bez archivace, uzavírání a zakládání dalšího cyklu. Report je průběžný záznam, nikoli potvrzení dokončení. Modul Security obsahuje zatím i základní lokální inventuru; plný diagnostický systém je backlog. XML-RPC používá omezený seznam známých závislostí (Jetpack), není externě sondováno. PHP support, SMTP doručení, 2FA pokrytí, firewall/scan, GoPay, objednávka a dokončení migrací vyžadují ruční ověření. Seznam běžných pluginů neobsahuje MU a drop-ins. Diagnostický sběr sám cache neobnovuje; tlačítko Načíst aktuální nabídky ji obnoví a chybějící nabídka není důkaz aktuálnosti.
 
 Multisite je v této verzi výslovně blokované. Základní kód cílí na PHP 8.0+ a WordPress 6.0+; konkrétní provedené testy a zbývající staging kontroly uvádí [ověření](docs/verification.md).
 
@@ -37,7 +37,7 @@ wp-content/mu-plugins/
 ├── jt-wp-care.php
 └── jt-wp-care/
     ├── current.json
-    └── releases/0.6.0-alpha/
+    └── releases/0.7.0-alpha/
         ├── release.json
         ├── bootstrap.php
         ├── autoload.php
@@ -86,6 +86,10 @@ Build vytvoří `dist/mu-plugins/`. Existující dist odmítne přepsat; před d
 
 [Metodika](docs/service-methodology.md) · [Ruční checklist](docs/service-checklist.md) · [XML-RPC specifikace](docs/security-audit-xmlrpc.md) · [Architektura](docs/architecture.md) · [Roadmapa](docs/roadmap.md) · [Changelog](CHANGELOG.md)
 
-SemVer; před 1.0 jsou kontrakty experimentální. Datové schéma je verzováno odděleně, nepodporované schéma se nepřepisuje. Soukromý [GitHub repozitář](https://github.com/jan-tomasek-designer/jt-wp-care), bez veřejné licence. Balíčkování vyžaduje rozšíření PHP zip pouze na vývojovém stroji/CI. Tag odpovídající verzi připraví draft vydání; publikování zůstává ruční.
+SemVer; před 1.0 jsou kontrakty experimentální. Datové schéma je verzováno odděleně, nepodporované schéma se nepřepisuje. [GitHub repozitář](https://github.com/jan-tomasek-designer/jt-wp-care), bez udělené open-source licence; veřejná distribuce vyžaduje zveřejnění repozitáře a vydání. Balíčkování vyžaduje rozšíření PHP zip pouze na vývojovém stroji/CI. Tag odpovídající verzi připraví draft vydání; publikování zůstává ruční.
 
 WooCommerce DB a fronta úloh: viz [popis kontrol](docs/woocommerce-audit.md). Modul: `woocommerce`.
+
+## Aktualizace 0.7
+
+[Řízené aktualizace a veřejný GitHub](docs/version-0.7.md) jsou popsány v docs/version-0.7.md. Modul `updates` lze vypnout. Instalátor 0.2.0-alpha stahuje vydání přímo z GitHubu; starší instalátor je potřeba jednou nahradit přes nahrání běžného pluginu.

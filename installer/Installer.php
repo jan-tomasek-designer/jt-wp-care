@@ -101,7 +101,7 @@ final class Installer
     private function locked(callable $operation): array
     {
         $this->phase = 'získání zámku aktualizace';
-        $path = $this->base . '/.update.lock';
+        $path = $this->base . '/.maintenance.lock';
         if (is_link($path)) { throw new \DomainException('Nepovolený odkaz zámku.'); }
         $lock = fopen($path, 'c');
         if ($lock === false) { throw new \DomainException('Nelze získat zámek aktualizace.'); }

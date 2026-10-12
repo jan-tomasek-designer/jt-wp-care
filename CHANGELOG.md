@@ -1,3 +1,10 @@
+## 0.7.0-alpha — 2026-10-12
+
+- Schválený seznam aktualizací pluginů a šablon přes standardní WordPress upgrader; WooCommerce poslední.
+- Samostatné potvrzení citlivých změn, kontrola nabídky před každým krokem, zámek, zastavení při chybě a historie v reportu.
+- Instalátor 0.2.0-alpha: veřejná GitHub Releases, automatické stažení, limity a SHA-256 bez ručního zadávání.
+- Ruční ZIP zůstává nouzovou cestou; změny schématu ani loaderu nejsou potřeba.
+
 ## 0.6.0-alpha — 2026-10-12
 
 - Samostatně vypínatelná diagnostika WooCommerce DB a Action Scheduleru.

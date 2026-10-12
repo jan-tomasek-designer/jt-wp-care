@@ -42,6 +42,14 @@ final class Formatter
                 $lines[] = $plugin['name'] . ' ' . $plugin['version'] . ' | ' . ($plugin['active'] ? 'aktivní' : 'neaktivní') . ' | ' . $plugin['update'];
             }
         } else { $lines[] = 'Diagnostika dosud nebyla spuštěna.'; }
+        foreach ($record['update_history'] ?? [] as $plan) {
+            $lines[] = "\nŘÍZENÉ AKTUALIZACE — " . ($plan['updated'] ?? '') . ' — stav: ' . ($plan['state'] ?? 'unknown');
+            $lines[] = 'Schválil správce ID ' . ($plan['by'] ?? '') . '; záloha potvrzena při spuštění: ' . (!empty($plan['backup_confirmed']) ? 'ano' : 'ne');
+            foreach ($plan['results'] ?? [] as $result) {
+                $lines[] = $result['name'] . ': ' . $result['from'] . ' → ' . $result['to'] . ' — ' . $result['state'] . ' — ' . $result['message'];
+            }
+            $lines[] = 'Funkční test ani dokončení databázových migrací nejsou tímto záznamem potvrzeny.';
+        }
         return implode("\n", $lines) . "\n";
     }
 }
