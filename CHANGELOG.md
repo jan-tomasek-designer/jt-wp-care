@@ -81,5 +81,5 @@
 
 - Barevné řádky a štítky checklistu i automatických kontrol podle stavu; změna výběru se projeví ihned.
 - Technická kontrola přihlášené relace správce a načtení backoffice aktuálním požadavkem.
-- Omezené read-only HTTP kontroly úvodní a nejvýše pěti základních stránek stejného webu.
+- Omezené read-only HTTP kontroly úvodní a nejvýše čtyř základních stránek stejného webu.
 - HTTP/HTML dostupnost je oddělená od ručního vizuálního a funkčního testu; chyby spojení zůstávají Neověřeno.

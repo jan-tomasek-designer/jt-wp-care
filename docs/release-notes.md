@@ -2,7 +2,7 @@
 
 Checklist a panel automatických kontrol nyní barevně rozlišují splněno, problém, odloženo, neověřeno a netýká se. Barva ručního řádku se mění už při výběru stavu, před uložením.
 
-Nový vypínatelný modul `functional-tests` potvrzuje aktuální přihlášenou relaci správce a úspěšné načtení administračního požadavku. Přes omezené read-only GET požadavky kontroluje HTML dostupnost úvodní stránky a nejvýše pěti základních publikovaných stránek stejného webu, včetně nalezených stránek WooCommerce. Neodesílá formuláře, nevytváří objednávky a nehodnotí vzhled, JavaScript ani správnost obsahu. Transportní chyba je Neověřeno, HTTP 4xx/5xx je problém.
+Nový vypínatelný modul `functional-tests` potvrzuje aktuální přihlášenou relaci správce a úspěšné načtení administračního požadavku. Přes omezené read-only GET požadavky kontroluje HTML dostupnost úvodní stránky a nejvýše čtyř základních publikovaných stránek stejného webu, včetně nalezených stránek WooCommerce. Neodesílá formuláře, nevytváří objednávky a nehodnotí vzhled, JavaScript ani správnost obsahu. Transportní chyba je Neověřeno, HTTP 4xx/5xx je problém.
 
 Ruční bod „Přihlášení, web a administrace“ zůstává, protože automatická dostupnost nenahrazuje reálný test v prohlížeči. Výsledek je součástí diagnostiky a reportu. Modul lze vypnout přes `JT_WP_CARE_DISABLED_MODULES`.
 
