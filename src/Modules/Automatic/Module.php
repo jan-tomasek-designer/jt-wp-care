@@ -45,9 +45,10 @@ final class Module implements ModuleInterface
     {
         Access::authorize(); $record = $this->store->load();
         echo '<section class="jt-card"><h2>Automatické kontroly</h2><p>Kontrola se sama obnoví při otevření JT WP Care, nejvýše jednou za hodinu. Nemění nastavení webu ani neinstaluje aktualizace.</p>';
-        $labels = ['php' => 'Podpora větve PHP', 'file_edit' => 'Editor souborů', 'debug' => 'Debug režim', 'wordpress' => 'WordPress', 'plugins' => 'Pluginy', 'theme' => 'Šablony', 'woocommerce' => 'WooCommerce', 'wc_database' => 'Databáze WooCommerce', 'wc_queue' => 'Naplánované úlohy'];
+        $labels = ['php' => 'Podpora větve PHP', 'file_edit' => 'Editor souborů', 'debug' => 'Debug režim', 'wordpress' => 'WordPress', 'plugins' => 'Pluginy', 'theme' => 'Šablony', 'woocommerce' => 'WooCommerce', 'wc_database' => 'Databáze WooCommerce', 'wc_queue' => 'Naplánované úlohy', 'login_session' => 'Přihlášení správce', 'backoffice' => 'Backoffice', 'frontoffice' => 'Front office', 'basic_pages' => 'Základní stránky'];
         foreach (Evaluation::results($record['audit'] ?? null) as $id => $result) {
-            echo '<p><strong>' . esc_html($labels[$id] ?? $id) . ' — ' . esc_html(['done' => '✓ Ověřeno', 'problem' => 'Vyžaduje pozornost', 'unknown' => 'Neověřeno'][$result['state']] ?? 'Neověřeno') . '</strong><br>' . esc_html($result['text']) . '</p>';
+            $state = in_array($result['state'] ?? '', ['done', 'problem', 'deferred', 'unknown', 'na'], true) ? $result['state'] : 'unknown';
+            echo '<p class="jt-status jt-status-' . esc_attr($state) . '"><strong>' . esc_html($labels[$id] ?? $id) . ' — ' . esc_html(['done' => '✓ Ověřeno', 'problem' => 'Vyžaduje pozornost', 'deferred' => 'Odloženo', 'na' => 'Netýká se', 'unknown' => 'Neověřeno'][$state]) . '</strong><br>' . esc_html($result['text']) . '</p>';
         }
         if (self::due($record)) {
             echo '<p id="jt-auto-status" data-url="' . esc_url(admin_url('admin-post.php')) . '" data-nonce="' . esc_attr(wp_create_nonce('jt_care_auto_audit')) . '" data-revision="' . esc_attr($record['revision']) . '">Čeká na automatické obnovení diagnostiky…</p>';

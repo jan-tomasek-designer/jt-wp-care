@@ -5,7 +5,7 @@ namespace JT\WPCare\Core;
 /** Single source of application version and supported package contract. */
 final class Release
 {
-    public const VERSION = '0.7.0-alpha';
+    public const VERSION = '0.8.0-alpha';
     public const LOADER_PROTOCOL = 1;
     public const DATA_SCHEMA = 1;
     public const PHP_MIN = '8.0';

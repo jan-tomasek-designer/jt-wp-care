@@ -55,6 +55,7 @@ final class Evaluation
         $results = $audit['automatic'];
         $disabled = defined('JT_WP_CARE_DISABLED_MODULES') ? JT_WP_CARE_DISABLED_MODULES : [];
         if (is_array($disabled) && in_array('woocommerce', $disabled, true)) { unset($results['wc_database'], $results['wc_queue']); }
+        if (is_array($disabled) && in_array('functional-tests', $disabled, true)) { unset($results['login_session'], $results['backoffice'], $results['frontoffice'], $results['basic_pages']); }
         if ($at === false || $at > $now + 300 || $at < $now - 86400) {
             foreach ($results as &$row) { $row = ['state' => 'unknown', 'text' => 'Snímek není čerstvý. Obnov diagnostiku.']; } unset($row);
         }

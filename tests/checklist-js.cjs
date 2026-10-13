@@ -1,0 +1,12 @@
+const fs = require('fs'), vm = require('vm');
+const classes = new Set(['jt-row', 'jt-state-unknown']);
+const row = {classList: {add: x => classes.add(x), remove: x => classes.delete(x)}};
+let change;
+const select = {value: 'unknown', closest: () => row, addEventListener: (event, cb) => { change = cb; }};
+vm.runInNewContext(fs.readFileSync('assets/checklist.js', 'utf8'), {document: {querySelectorAll: () => [select]}});
+if (!classes.has('jt-state-unknown')) throw Error('Initial state');
+select.value = 'deferred'; change();
+if (!classes.has('jt-state-deferred') || classes.has('jt-state-unknown')) throw Error('Deferred repaint');
+select.value = 'done'; change();
+if (!classes.has('jt-state-done') || classes.has('jt-state-deferred')) throw Error('Done repaint');
+console.log('Checklist state colors update immediately.');

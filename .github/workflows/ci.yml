@@ -28,7 +28,9 @@ jobs:
       - run: php tests/woocommerce.php
       - run: php tests/updates.php
       - run: php tests/repository.php
+      - run: php tests/functional.php
       - run: node tests/updates-js.cjs
+      - run: node tests/checklist-js.cjs
       - run: node tests/automatic-js.cjs
       - run: php tools/build.php
       - run: for mode in admin frontend disabled modules-disabled old-wp multisite; do php tests/loader.php "$mode" || exit 1; done

@@ -30,6 +30,8 @@ function home_url($path) { return 'https://example.test' . $path; }
 function wp_nonce_field($action) { echo '<input name="_wpnonce" value="test">'; }
 function selected($a, $b, $echo = true) { return $a === $b ? 'selected' : ''; }
 function submit_button($label, $type = '') { echo '<button>' . esc_html($label) . '</button>'; }
+function wp_enqueue_script($handle, $src = '', $deps = [], $version = false, $footer = false) { $GLOBALS['scripts'][$handle] = compact('src', 'deps', 'version', 'footer'); }
+function plugins_url($path, $file = '') { return 'https://example.test/wp-content/mu-plugins/jt-wp-care/releases/test/' . ltrim($path, '/'); }
 function get_bloginfo($field) { return '6.0'; }
 function wp_strip_all_tags($text) { return strip_tags($text); }
 function get_site_transient($key) { return $GLOBALS['updates'] ?? false; }
@@ -37,6 +39,19 @@ function get_plugins() { return $GLOBALS['plugins'] ?? []; }
 function is_plugin_active($file) { return in_array($file, $GLOBALS['active'] ?? [], true); }
 function is_plugin_active_for_network($file) { return in_array($file, $GLOBALS['network'] ?? [], true); }
 function is_ssl() { return true; }
+function is_user_logged_in() { return $GLOBALS['logged_in'] ?? true; }
+function is_admin() { return $GLOBALS['is_admin'] ?? true; }
+function get_posts($args) { return $GLOBALS['page_ids'] ?? []; }
+function get_permalink($id) { return 'https://example.test/page-' . $id . '/'; }
+function get_the_title($id) { return 'Page ' . $id; }
+function wp_parse_url($url) { return parse_url($url); }
+function untrailingslashit($value) { return rtrim($value, '/'); }
+function wp_safe_remote_get($url, $args) { $GLOBALS['probed'][] = [$url, $args]; return $GLOBALS['http'][$url] ?? new WP_Error(); }
+function is_wp_error($value) { return $value instanceof WP_Error; }
+function wp_remote_retrieve_response_code($response) { return $response['code'] ?? 0; }
+function wp_remote_retrieve_header($response, $name) { return $response['headers'][$name] ?? ''; }
+function wp_remote_retrieve_body($response) { return $response['body'] ?? ''; }
+class WP_Error {}
 function add_filter($hook, $callback) { $GLOBALS['filters'][$hook][] = $callback; }
 function apply_filters($hook, $value) {
     if ($hook === 'xmlrpc_enabled') { return $GLOBALS['xmlrpc_auth'] ?? $value; }

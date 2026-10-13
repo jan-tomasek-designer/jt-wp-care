@@ -77,3 +77,9 @@
 - Modulární registr a základní administrační obrazovka s kontrolou oprávnění.
 - FTP build, smoke testy jádra a konfigurace PHP CI matice.
 - Diagnostika v1.0 a produkční integrační ověření dosud nejsou dokončené.
+## 0.8.0-alpha — 2026-10-13
+
+- Barevné řádky a štítky checklistu i automatických kontrol podle stavu; změna výběru se projeví ihned.
+- Technická kontrola přihlášené relace správce a načtení backoffice aktuálním požadavkem.
+- Omezené read-only HTTP kontroly úvodní a nejvýše pěti základních stránek stejného webu.
+- HTTP/HTML dostupnost je oddělená od ručního vizuálního a funkčního testu; chyby spojení zůstávají Neověřeno.

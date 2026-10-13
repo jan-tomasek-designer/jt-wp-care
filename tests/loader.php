@@ -5,7 +5,7 @@ $mode = $argv[1] ?? 'admin';
 define('ABSPATH', __DIR__ . '/');
 $GLOBALS['wp_version'] = $mode === 'old-wp' ? '5.9' : '6.0';
 if ($mode === 'disabled') { define('JT_WP_CARE_DISABLED', true); }
-if ($mode === 'modules-disabled') { define('JT_WP_CARE_DISABLED_MODULES', ['dashboard', 'checklist', 'security', 'reports', 'updates', 'woocommerce']); }
+if ($mode === 'modules-disabled') { define('JT_WP_CARE_DISABLED_MODULES', ['dashboard', 'checklist', 'security', 'reports', 'updates', 'woocommerce', 'functional-tests']); }
 $hooks = [];
 function is_admin() { global $mode; return $mode !== 'frontend'; }
 function is_multisite() { global $mode; return $mode === 'multisite'; }
