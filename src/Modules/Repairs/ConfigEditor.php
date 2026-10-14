@@ -119,7 +119,11 @@ final class ConfigEditor
         }
         if ($missing !== []) {
             $lineBreak = str_contains($planned, "\r\n") ? "\r\n" : "\n";
-            $definitions = $lineBreak . )l nalezen standardní řádek pro načtení WordPressu; chybějící konstanty nelze bezpečně vložit.');
+            $definitions = $lineBreak . '/* JT WP Care: produkční debug nastavení. */' . $lineBreak;
+            foreach ($missing as $name) { $definitions .= "define('{$name}', false);" . $lineBreak; }
+            $loader = '~^[ \t]*require_once\s+ABSPATH\s*\.\s*[\'\"]wp-settings\.php[\'\"]\s*;~mi';
+            if (preg_match($loader, $planned) !== 1) {
+                throw new \DomainException('Ve wp-config.php nebyl nalezen standardní řádek pro načtení WordPressu; chybějící konstanty nelze bezpečně vložit.');
             }
             $planned = (string) preg_replace($loader, $definitions . '$0', $planned, 1);
         }

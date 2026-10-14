@@ -72,12 +72,29 @@ ID modulů: `dashboard`, `checklist`, `security`, `reports`, `automatic`, `funct
 
 ## Uložená data
 
-WordPress option `jt_wp_care_record_v1` bez autoloadu: stavy, poznámky, ID správců, UTC časy, revize, potvrzení XML-RPC a poslední snímjspěšnou zálohu ani neprokazuje neexistenci jiné zálohy. Ověřit případnou jinou úplnou zálohu a dostupnost obnovy; do té doby odložit aktualizace a mazání. Chybová hláška sama neurčuje správné místo pro změnu serverového limitu.
+WordPress option `jt_wp_care_record_v1` bez autoloadu: stavy, poznámky, ID správců, UTC časy, revize, potvrzení XML-RPC a poslední snímek. Historie oprav konfigurace je v neautoloadovaném option `jt_wp_care_repair_history`; chráněné zálohy konfigurace jsou vedle aktivního `wp-config.php` ve skryté složce `.jt-wp-care-backups` a jejich obsah není v reportu. Záznamy zůstávají až do ručního odstranění správcem; alpha nemá retenční automatizaci. Vypnutí/odstranění souborů nic nemaže. Samotné vykreslení nic neukládá; při otevření JT WP Care může automatický modul samostatným ověřeným POST požadavkem obnovit diagnostický snímek. Exporty se streamují do prohlížeče, nevznikají veřejné soubory v uploads. Do poznámek nevkládejte hesla, klíče ani osobní údaje zákazníků.
 
-Zastavit navazující změny, zaznamenat poslední úspěšný krok, čas a příznaky. Vyhodnotit dopad a zvolit opravu či obnovu podle dohodnutého plánu. Před obnovou DB e-shopu zohlednit nové objednávky a platby. Po nápravě opakovat dotčené testy a popsat incident v reportu.
+## Vývoj a sestavení
 
-## Ověření metodiky
+Bez runtime závislostí, Composer ani WP-CLI nejsou na hostingu potřeba.
 
-Konkrétní servis vést v projektu daného webu. Sem předávat ověřené obecné poznatky: situace → příčina → řešení → důkaz → návrh pravidla. Sdílená dovednost bude distribuovat verzovanou metodiku; provozní stav klientských webů zůstává v servisních záznamech. Samotné použití dovednosti nenahrazuje předání aktuálního kontextu.
+```sh
+php tests/smoke.php
+php tests/behavior.php
+php tools/build.php
+php tests/versioned-loader.php
+php tools/package.php
+php tests/package.php
+```
 
-Použít checklist při servisu běžného webu a WooCommerce/GoPay e-shopu. Zaznamenat nejasnosti, chybějící kroky, potřebné důkazy a časovou náročnost. Po společném vyhodnocení upravit metodiku, označit ověřenou verzi 1.0 a až potom odvodit obrazovky a datový model pluginu.
+Build vytvoří `dist/mu-plugins/`. Existující dist odmítne přepsat; před dalším buildem jej přesuňte. PSR-4 namespace je `JT\WPCare`, zdroje jsou v `src/`. Složky modulů obsahují vlastní registraci a služby; Core řeší lifecycle, request boundary a úložiště. Konfigurace CI připravuje PHP 8.0–8.5; její existence není důkazem provedení této matice.
+
+[Metodika](docs/service-methodology.md) · [Ruční checklist](docs/service-checklist.md) · [XML-RPC specifikace](docs/security-audit-xmlrpc.md) · [Architektura](docs/architecture.md) · [Roadmapa](docs/roadmap.md) · [Changelog](CHANGELOG.md)
+
+SemVer; před 1.0 jsou kontrakty experimentální. Datové schéma je verzováno odděleně, nepodporované schéma se nepřepisuje. [GitHub repozitář](https://github.com/jan-tomasek-designer/jt-wp-care), bez udělené open-source licence; veřejná distribuce vyžaduje zveřejnění repozitáře a vydání. Balíčkování vyžaduje rozšíření PHP zip pouze na vývojovém stroji/CI. Tag odpovídající verzi připraví draft vydání; publikování zůstává ruční.
+
+WooCommerce DB a fronta úloh: viz [popis kontrol](docs/woocommerce-audit.md). Modul: `woocommerce`.
+
+## Aktualizace 0.7
+
+[Řízené aktualizace a veřejný GitHub](docs/version-0.7.md) jsou popsány v docs/version-0.7.md. Modul `updates` lze vypnout. Instalátor 0.4.0-alpha stahuje vydání přímo z GitHubu a po obnovení stránky vyhodnotí i přerušené čekání prohlížeče; starší instalátor je potřeba jednou nahradit přes nahrání běžného pluginu.
