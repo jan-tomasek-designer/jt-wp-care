@@ -4,6 +4,8 @@ namespace JT\WPCareInstaller;
 
 final class Screen
 {
+    public const VERSION = '0.4.0-alpha';
+    private const OPERATION = 'jt_wp_care_install_operation';
     private ?Installer $activeEngine = null;
     private string $phase = 'kontrola požadavku';
 
@@ -91,6 +93,9 @@ final class Screen
                 throw new \DomainException('Nabídka vypršela nebo se změnila. Znovu zkontroluj vydání.');
             }
             if (!defined('JT_WP_CARE_LOADED_RELEASE') || JT_WP_CARE_LOADED_RELEASE !== $offer['expected']) { throw new \DomainException('Aktivní vydání se změnilo. Obnov nabídku.'); }
+            update_option(self::OPERATION, ['state' => 'running', 'version' => $offer['version'], 'expected' => $offer['expected'],
+                'at' => gmdate('c'), 'by' => get_current_user_id()], false);
+            if (function_exists('ignore_user_abort')) { ignore_user_abort(true); }
             $engine = $this->engine();
             $this->phase = 'stažení schváleného vydání z GitHubu';
             $file = (new Repository())->download($offer);
@@ -100,6 +105,11 @@ final class Screen
             $this->finish('github', $next);
         } catch (\Throwable $error) {
             if ($file !== null && is_file($file)) { unlink($file); }
+            $operation = get_option(self::OPERATION, []);
+            if (is_array($operation) && ($operation['state'] ?? '') === 'running') {
+                $operation['state'] = 'failed'; $operation['finished'] = gmdate('c');
+                update_option(self::OPERATION, $operation, false);
+            }
             $this->fail($error);
         }
     }
@@ -115,7 +125,7 @@ final class Screen
         $offer = $saved['offer'] ?? null;
         if (!$offer) { echo '<p>V posledních 30 publikovaných vydáních nebyla nalezena novější úplná verze pro zvolený kanál.</p>'; return; }
         echo '<h3>Nová verze ' . esc_html($offer['version']) . '</h3><p>' . ($offer['prerelease'] ? 'Testovací vydání. ' : '') . 'Předchozí kód zůstane k dispozici pro návrat.</p><pre style="white-space:pre-wrap">' . esc_html($offer['notes']) . '</pre>';
-        echo '<form method="post" action="' . esc_url(admin_url('admin-post.php')) . '">'; wp_nonce_field('jt_care_release_install');
+        echo '<form class="jt-care-long-operation" method="post" action="' . esc_url(admin_url('admin-post.php')) . '">'; wp_nonce_field('jt_care_release_install');
         echo '<input type="hidden" name="action" value="jt_care_release_install"><input type="hidden" name="ticket" value="' . esc_attr($saved['ticket']) . '"><p><label><input type="checkbox" name="confirmed" value="yes" required> Ověřil jsem zálohu a schvaluji instalaci verze ' . esc_html($offer['version']) . '.</label></p>';
         submit_button('Aktualizovat JT WP Care'); echo '</form>';
     }
@@ -125,6 +135,10 @@ final class Screen
         $this->phase = 'zápis výsledku po přepnutí';
         $this->activeEngine = null;
         update_option('jt_wp_care_last_update', ['action' => $action, 'version' => $state['active'], 'previous' => $state['previous'], 'at' => gmdate('c'), 'by' => get_current_user_id()], false);
+        if ($action === 'github') {
+            update_option(self::OPERATION, ['state' => 'complete', 'version' => $state['active'], 'previous' => $state['previous'],
+                'finished' => gmdate('c'), 'by' => get_current_user_id()], false);
+        }
         wp_safe_redirect(admin_url('tools.php?page=jt-care-update'));
         exit;
     }
@@ -133,7 +147,7 @@ final class Screen
         $reason = $error instanceof \DomainException ? $error->getMessage() : 'Neočekávaná chyba instalátoru.';
         // No raw runtime messages, absolute paths, traces, credentials or uploaded contents.
         $kind = $error instanceof \Error ? 'PHP-Error' : 'Exception';
-        return $reason . ' Krok: ' . $phase . '. Kód: ' . $kind . '/' . basename($error->getFile()) . ':' . $error->getLine() . '. Instalátor 0.3.0-alpha, složka: ' . basename(__DIR__) . '. Obnov stránku aktualizací a ověř aktivní i načtenou verzi; tento výsledek sám nepotvrzuje, zda již došlo k přepnutí.';
+        return $reason . ' Krok: ' . $phase . '. Kód: ' . $kind . '/' . basename($error->getFile()) . ':' . $error->getLine() . '. Instalátor ' . self::VERSION . ', složka: ' . basename(__DIR__) . '. Obnov stránku aktualizací a ověř aktivní i načtenou verzi; tento výsledek sám nepotvrzuje, zda již došlo k přepnutí.';
     }
 
     private function fail(\Throwable $error): void
@@ -145,10 +159,20 @@ final class Screen
     public function render(): void
     {
         echo '<div class="wrap"><h1>JT WP Care – aktualizace</h1>';
-        try { $this->authorize(); echo '<p><strong>Instalátor 0.3.0-alpha — aktivní složka: ' . esc_html(basename(__DIR__)) . '</strong></p>'; $engine = $this->engine(); $state = $engine->state(); }
+        try { $this->authorize(); echo '<p><strong>Instalátor ' . esc_html(self::VERSION) . ' — aktivní složka: ' . esc_html(basename(__DIR__)) . '</strong></p>'; $engine = $this->engine(); $state = $engine->state(); }
         catch (\Throwable $error) { echo '<p>' . esc_html(self::diagnostic($error, $this->phase)) . '</p></div>'; return; }
         $loaded = defined('JT_WP_CARE_LOADED_RELEASE') ? JT_WP_CARE_LOADED_RELEASE : 'nenačteno';
         echo '<p>Aktivní verze: <strong>' . esc_html($state['active']) . '</strong>. V tomto požadavku načteno: <strong>' . esc_html($loaded) . '</strong>.</p>';
+        $operation = get_option(self::OPERATION, []);
+        if (is_array($operation) && !empty($operation['version'])) {
+            if ($state['active'] === $operation['version']) {
+                echo '<div class="notice notice-success inline"><p><strong>Instalace ' . esc_html($operation['version']) . ' je podle aktivního ukazatele dokončená.</strong> Předchozí stránka mohla na pomalém hostingu zůstat u rozbalování; rozhodující je zde načtená aktivní verze.</p></div>';
+            } elseif (($operation['state'] ?? '') === 'running') {
+                echo '<div class="notice notice-warning inline"><p>Instalace ' . esc_html($operation['version']) . ' byla spuštěna, ale přepnutí zatím není potvrzené. Počkej a tuto stránku obnov. Instalační tlačítko znovu nemačkej.</p></div>';
+            } elseif (($operation['state'] ?? '') === 'failed') {
+                echo '<div class="notice notice-error inline"><p>Poslední instalace ' . esc_html($operation['version']) . ' nebyla dokončena. Aktivní verze zůstává ' . esc_html($state['active']) . '.</p></div>';
+            }
+        }
         $verified = $loaded === $state['active'] && class_exists('JT\\WPCare\\Core\\Release') && \JT\WPCare\Core\Release::VERSION === $state['active'];
         // Loading a class alone is not an end-to-end health check. Keep the claim narrow.
         echo '<p>' . ($verified ? 'Verze aplikace odpovídá ukazateli. Ještě ověř checklist, diagnostiku, report a důležité funkce webu.' : 'Načtení aplikace není potvrzené. Před další aktualizací ověř JT WP Care; případně vrať předchozí verzi.') . '</p>';
@@ -166,6 +190,7 @@ final class Screen
             echo '<input type="hidden" name="action" value="jt_care_rollback"><input type="hidden" name="expected" value="' . esc_attr($state['active']) . '"><p><label><input type="checkbox" name="confirmed" value="yes" required> Schvaluji návrat na ' . esc_html($state['previous']) . ' a mám dostupnou zálohu.</label></p>';
             submit_button('Vrátit předchozí verzi', 'secondary'); echo '</form>';
         }
+        echo '<script>document.querySelectorAll(".jt-care-long-operation").forEach(function(form){form.addEventListener("submit",function(){var button=form.querySelector("button,input[type=submit]");if(button){button.disabled=true;button.value="Instalace probíhá…";button.textContent="Instalace probíhá…";}var p=document.createElement("p");p.className="notice notice-info inline";p.textContent="Stahuji, ověřuji a rozbaluji balíček. Na pomalém hostingu může stránka přestat čekat dříve než server dokončí práci. Potom stránku obnov a zkontroluj aktivní verzi.";form.appendChild(p);});});</script>';
         echo '</div>';
     }
 }

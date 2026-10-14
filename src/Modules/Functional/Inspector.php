@@ -66,7 +66,9 @@ final class Inspector
         if ($code < 200 || $code >= 400 || !str_contains($type, 'text/html') || !is_string($body) || trim($body) === '') {
             return $this->result('unknown', 'HTTP ' . $code . ', ale HTML odpověď nebyla potvrzena');
         }
-        return $this->result('done', 'HTTP ' . $code . ', HTML odpověď přijata');
+        $fatal = preg_match('/(fatal error|critical error|parse error|database connection|maintenance[^<]{0,80}(unavailable|moment))/i', wp_strip_all_tags(substr($body, 0, 262144)));
+        if ($fatal) { return $this->result('problem', 'HTTP ' . $code . ', ale stránka obsahuje známku kritické PHP, databázové nebo údržbové chyby'); }
+        return $this->result('done', 'HTTP ' . $code . ', HTML odpověď přijata bez rozpoznané kritické chyby');
     }
 
     private function result(string $state, string $text): array { return compact('state', 'text'); }

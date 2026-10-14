@@ -12,6 +12,7 @@ foreach (['Přehled', 'Checklist', 'Diagnostika a bezpečnost', 'Aktualizace', '
     verify(str_contains($overview, $label), 'Overview contains ' . $label);
 }
 verify(substr_count($overview, 'nav-tab-active') === 1 && str_contains($overview, 'jt-overview-grid'), 'One active tab and overview cards');
+verify(str_contains($overview, 'Stav servisu') && str_contains($overview, 'jt-tile-'), 'Dashboard exposes visual service states');
 $_GET['jt_tab'] = 'report';
 ob_start(); $module->render(); $reportTab = ob_get_clean();
 verify(!str_contains($reportTab, 'jt-overview-grid') && substr_count($reportTab, 'nav-tab-active') === 1, 'Section tab hides dashboard cards');

@@ -1,4 +1,4 @@
-# JT WP Care 0.10.0-alpha
+# JT WP Care 0.11.0-alpha
 
 První instalovatelná pilotní verze MU pluginu. **Určena pro staging, nikoli plošné produkční nasazení.** Metodika vychází z ručního servisu; modul updates provádí schválené aktualizace pluginů a šablon. WordPress core a změny zabezpečení zůstávají ruční.
 
@@ -12,6 +12,8 @@ První instalovatelná pilotní verze MU pluginu. **Určena pro staging, nikoli 
 - TXT export a tisková HTML verze používají tentýž uložený záznam. PDF vzniká přes Tisk → Uložit jako PDF v prohlížeči, nejde o serverový PDF generátor.
 - Oprávnění manage_options, POST + nonce u handlerů a ochrana před přepsáním záznamu souběžným požadavkem.
 - Řízené aktualizace po každé položce ověří přihlášenou relaci, administraci a HTTP/HTML dostupnost základních stránek; při nejasném nebo chybném výsledku zastaví další kroky.
+- Úklid zobrazí neaktivní pluginy a po dvojím potvrzení odstraní vždy jen jeden vybraný plugin. Aktivní pluginy, WooCommerce, instalátor JT WP Care a rozpoznané závislosti aktivních pluginů jsou chráněné; po odstranění proběhne technický post-test.
+- Nástěnka barevně rozlišuje dokončené, čekající a problémové oblasti. HTTP test rozpozná také běžné texty fatální PHP chyby, chyby databázového spojení a režimu údržby vrácené se stavem 200.
 
 ## Omezení alpha
 
@@ -21,7 +23,7 @@ Multisite je v této verzi výslovně blokované. Základní kód cílí na PHP 
 
 ## Aktualizace existující instalace přes WordPress
 
-Použij [návod k pomocnému instalátoru](docs/wordpress-update.md). Instalátor 0.3.0-alpha načte testovací vydání z veřejného GitHub Releases, ověří manifest a SHA-256 a po potvrzení správce přepne verzi bez ručního nahrávání ZIPu. Na hostingu bez `disk_free_space` použije omezený kontrolní zápis na stejném disku.
+Použij [návod k pomocnému instalátoru](docs/wordpress-update.md). Instalátor 0.4.0-alpha načte testovací vydání z veřejného GitHub Releases, ověří manifest a SHA-256 a po potvrzení správce přepne verzi bez ručního nahrávání ZIPu. Na hostingu bez `disk_free_space` použije omezený kontrolní zápis na stejném disku. Rozpracovanou operaci zapíše před stažením; po ručním obnovení proto ukáže, zda se verze opravdu přepnula, i když prohlížeč na pomalém hostingu přestal čekat.
 
 ## První instalace přes FTP
 
@@ -39,7 +41,7 @@ wp-content/mu-plugins/
 ├── jt-wp-care.php
 └── jt-wp-care/
     ├── current.json
-    └── releases/0.10.0-alpha/
+    └── releases/0.11.0-alpha/
         ├── release.json
         ├── bootstrap.php
         ├── autoload.php
@@ -94,4 +96,4 @@ WooCommerce DB a fronta úloh: viz [popis kontrol](docs/woocommerce-audit.md). M
 
 ## Aktualizace 0.7
 
-[Řízené aktualizace a veřejný GitHub](docs/version-0.7.md) jsou popsány v docs/version-0.7.md. Modul `updates` lze vypnout. Instalátor 0.3.0-alpha stahuje vydání přímo z GitHubu; starší instalátor je potřeba jednou nahradit přes nahrání běžného pluginu.
+[Řízené aktualizace a veřejný GitHub](docs/version-0.7.md) jsou popsány v docs/version-0.7.md. Modul `updates` lze vypnout. Instalátor 0.4.0-alpha stahuje vydání přímo z GitHubu a po obnovení stránky vyhodnotí i přerušené čekání prohlížeče; starší instalátor je potřeba jednou nahradit přes nahrání běžného pluginu.

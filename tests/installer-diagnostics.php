@@ -23,6 +23,6 @@ if (isset($argv[1])) {
 }
 $text = Screen::diagnostic(new Error('secret-token /private/server/path'), 'kontrola prostředí');
 foreach (['secret-token', '/private/server/path', __DIR__] as $secret) { if (str_contains($text, $secret)) { throw new RuntimeException('Runtime details leaked'); } }
-foreach (['PHP-Error', 'kontrola prostředí', '0.3.0-alpha', 'složka:', 'nepotvrzuje'] as $expected) { if (!str_contains($text, $expected)) { throw new RuntimeException('Missing diagnostic context'); } }
+foreach (['PHP-Error', 'kontrola prostředí', '0.4.0-alpha', 'složka:', 'nepotvrzuje'] as $expected) { if (!str_contains($text, $expected)) { throw new RuntimeException('Missing diagnostic context'); } }
 if (!str_contains(Screen::diagnostic(new DomainException('Ověřený důvod'), 'zápis'), 'Ověřený důvod')) { throw new RuntimeException('Safe domain reason lost'); }
 echo "Safe installer diagnostics passed.\n";

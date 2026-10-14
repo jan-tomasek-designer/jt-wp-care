@@ -1,3 +1,11 @@
+## 0.11.0-alpha — 2026-10-14
+
+- Barevný souhrn nástěnky rozlišuje hotové, čekající, odložené a problémové oblasti; stejné stavy nesou jednotlivé karty.
+- Ručně schválené odstranění jednoho neaktivního pluginu po potvrzení zálohy, s ochranou WooCommerce, instalátoru a rozpoznaných závislostí aktivních pluginů.
+- Po odstranění pluginu proběhne technický test administrace a základních stránek a výsledek se uloží do historie úklidu.
+- HTTP test zachytí známky kritické PHP chyby, chyby databázového připojení a údržbové obrazovky i v odpovědi HTTP 200.
+- Instalátor 0.4.0-alpha ukládá stav operace před stažením a po obnovení stránky vyhodnotí skutečně aktivní verzi; pomalé rozbalování už nezůstane bez vysvětlení.
+
 ## 0.7.0-alpha — 2026-10-12
 
 - Schválený seznam aktualizací pluginů a šablon přes standardní WordPress upgrader; WooCommerce poslední.

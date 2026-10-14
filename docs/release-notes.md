@@ -1,13 +1,11 @@
-# JT WP Care 0.10.0-alpha
+# JT WP Care 0.11.0-alpha
 
-Administrace JT WP Care je rozdělená na pět samostatných záložek: Přehled, Checklist, Diagnostika a bezpečnost, Aktualizace a Report. Přehled ukazuje počet splněných, problémových, odložených a neověřených bodů, stav automatické diagnostiky a stav řízeného aktualizačního plánu. Každá dlaždice vede přímo do příslušné sekce.
+Nástěnka nyní ukazuje barevný stav celého servisu i jednotlivých oblastí: hotovo, čeká a problém. Souhrn odděleně počítá dokončené, neověřené, odložené a problémové body, takže není nutné procházet celý checklist.
 
-Aktualizační pravidla z verze 0.9 zůstávají: každá schválená aktualizace se provede v samostatném kroku a technický post-test běží až v novém požadavku WordPressu. Další položka se uvolní pouze po potvrzeném výsledku administrace, úvodní a základních stránek.
+V záložce Aktualizace přibyl řízený úklid neaktivních pluginů. Správce vždy vybere jeden konkrétní plugin a samostatně potvrdí, že jej web nepotřebuje a že je ověřená záloha. Aktivní pluginy se nenabízejí. WooCommerce, instalátor JT WP Care a pluginy rozpoznané jako závislost aktivního pluginu jsou chráněné. Po odstranění proběhne technický post-test a výsledek se uloží.
 
-Potvrzení instalačního kroku používá skutečně načtenou cílovou verzi a zachovaný stav aktivace. Tím opravuje falešný neúspěch pozorovaný na MRA, kde se Complianz nainstaloval na 7.5.6, ale nejednoznačná návratová hodnota WordPress upgraderu zastavila plán.
+Kontrola stránek nově rozpozná známé texty fatální PHP chyby, chyby databázového připojení a režimu údržby také tehdy, když server chybně vrátí HTTP 200. Test zůstává omezený na čtení a neodesílá formuláře, objednávky ani e-maily.
 
-Součástí vydání je běžný plugin instalátoru 0.3.0-alpha. Pokud hosting zakazuje PHP funkci `disk_free_space`, instalátor už aktualizaci automaticky nezablokuje. Potřebnou kapacitu ověří skutečným omezeným zápisem do dočasného souboru ve stejné instalační složce, soubor uzavře a odstraní ještě před rozbalením. Při nedokončeném zápisu se aktualizace zastaví bez přepnutí aktivní verze.
+Součástí vydání je instalátor 0.4.0-alpha. Před stažením z GitHubu uloží cílovou verzi a po obnovení stránky ji porovná se skutečně aktivním ukazatelem. Pokud pomalý hosting nechá prohlížeč viset u rozbalování, správce instalaci neopakuje: obnoví stránku instalátoru a dostane jednoznačný stav. Na hostingu bez `disk_free_space` zůstává náhradní kontrola kapacity z verze 0.3.
 
-Instalátor 0.3.0-alpha je na web s instalátorem 0.2 nutné jednou nahrát přes Pluginy → Instalace pluginů a nahradit původní verzi. Poté další vydání JT WP Care opět načítá z veřejného GitHub Releases bez ručního payloadu a SHA-256.
-
-Datové schéma a loader zůstávají ve verzi 1. Checklist, diagnostika i historie aktualizací se zachovají.
+Datové schéma servisního záznamu i protokol MU loaderu zůstávají beze změny.

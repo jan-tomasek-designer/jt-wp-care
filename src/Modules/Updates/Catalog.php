@@ -5,6 +5,34 @@ namespace JT\WPCare\Modules\Updates;
 /** Only installed items and offers supplied by WordPress; never a URL from a form. */
 final class Catalog
 {
+    /** Inactive plugins that an administrator may explicitly remove. Nothing is auto-deleted. */
+    public static function inactivePlugins(): array
+    {
+        require_once ABSPATH . 'wp-admin/includes/plugin.php';
+        $plugins = get_plugins();
+        $required = [];
+        foreach ($plugins as $file => $data) {
+            if (!is_plugin_active($file)) { continue; }
+            $slugs = preg_split('/\s*,\s*/', (string) ($data['RequiresPlugins'] ?? ''), -1, PREG_SPLIT_NO_EMPTY);
+            foreach ($slugs ?: [] as $slug) { $required[$slug][] = wp_strip_all_tags((string) ($data['Name'] ?? $file)); }
+        }
+        $rows = [];
+        foreach ($plugins as $file => $data) {
+            if (is_plugin_active($file) || is_plugin_active_for_network($file)) { continue; }
+            $slug = str_contains($file, '/') ? dirname($file) : basename($file, '.php');
+            $blocked = '';
+            if ($file === 'woocommerce/woocommerce.php') { $blocked = 'WooCommerce nelze odstranit tímto úklidem.'; }
+            elseif (str_contains($file, 'jt-wp-care-installer')) { $blocked = 'Instalátor JT WP Care odstraň až po dokončení správy frameworku.'; }
+            elseif (!empty($required[$slug])) { $blocked = 'Vyžaduje jej aktivní plugin: ' . implode(', ', $required[$slug]) . '.'; }
+            $row = ['id' => $file, 'name' => wp_strip_all_tags((string) ($data['Name'] ?? $file)),
+                'version' => (string) ($data['Version'] ?? ''), 'blocked' => $blocked];
+            $row['fingerprint'] = hash('sha256', json_encode($row));
+            $rows[$file] = $row;
+        }
+        uasort($rows, static fn(array $a, array $b): int => strcasecmp($a['name'], $b['name']));
+        return $rows;
+    }
+
     public static function offers(): array
     {
         require_once ABSPATH . 'wp-admin/includes/plugin.php';

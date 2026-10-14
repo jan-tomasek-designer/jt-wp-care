@@ -62,11 +62,17 @@ final class Module implements ModuleInterface
         $plan = get_option(\JT\WPCare\Modules\Updates\Runner::OPTION, []);
         $planLabels = ['ready' => 'čeká na spuštění', 'running' => 'probíhá / výsledek neověřen', 'verifying' => 'čeká na post-test',
             'stopped' => 'zastaveno', 'complete' => 'dokončeno, čeká na ruční kontrolu', 'closed' => 'uzavřeno'];
-        echo '<section class="jt-overview"><div class="jt-overview-grid">';
-        $this->tile('Checklist', $states['done'] . ' z ' . count(Catalog::items()) . ' splněno', 'checklist', $states['problem'] . ' problémů · ' . $states['deferred'] . ' odloženo · ' . $states['unknown'] . ' neověřeno');
-        $this->tile('Diagnostika', $attention ? count($attention) . ' položek vyžaduje pozornost' : ($automatic ? 'Bez zjištěného problému' : 'Dosud bez snímku'), 'diagnostics', 'Poslední snímek: ' . ($record['audit']['at'] ?? 'neproveden'));
-        $this->tile('Aktualizace', $planLabels[$plan['state'] ?? ''] ?? 'Bez aktivního plánu', 'updates', !empty($plan['updated']) ? 'Poslední změna: ' . $plan['updated'] : 'Nejdříve ověř zálohu');
-        $this->tile('Report', !empty($record['updated_at']) ? 'Záznam je uložen' : 'Záznam ještě nebyl uložen', 'report', 'TXT nebo tisková verze / PDF');
+        $total = count(Catalog::items()); $resolved = $states['done'] + $states['na'];
+        $critical = $states['problem'] + count(array_filter($automatic, static fn(array $row): bool => ($row['state'] ?? '') === 'problem'));
+        echo '<section class="jt-overview"><div class="jt-summary jt-summary-' . ($critical ? 'problem' : ($states['unknown'] ? 'pending' : 'done')) . '">';
+        echo '<div><span class="jt-eyebrow">Stav servisu</span><strong>' . ($critical ? esc_html($critical . ' problémů vyžaduje řešení') : ($states['unknown'] ? 'Servis čeká na dokončení' : 'Kontroly bez otevřeného problému')) . '</strong></div>';
+        echo '<div class="jt-summary-counts"><span><b>' . esc_html((string) $resolved) . '</b> hotovo</span><span><b>' . esc_html((string) $states['unknown']) . '</b> čeká</span><span><b>' . esc_html((string) $states['deferred']) . '</b> odloženo</span><span><b>' . esc_html((string) $critical) . '</b> problém</span></div></div>';
+        echo '<div class="jt-overview-grid">';
+        $this->tile('Checklist', $states['done'] . ' z ' . $total . ' splněno', 'checklist', $states['problem'] . ' problémů · ' . $states['deferred'] . ' odloženo · ' . $states['unknown'] . ' neověřeno', $states['problem'] ? 'problem' : ($states['unknown'] ? 'pending' : 'done'));
+        $this->tile('Diagnostika', $attention ? count($attention) . ' položek vyžaduje pozornost' : ($automatic ? 'Bez zjištěného problému' : 'Dosud bez snímku'), 'diagnostics', 'Poslední snímek: ' . ($record['audit']['at'] ?? 'neproveden'), $attention ? 'problem' : ($automatic ? 'done' : 'pending'));
+        $planState = $plan['state'] ?? '';
+        $this->tile('Aktualizace', $planLabels[$planState] ?? 'Bez aktivního plánu', 'updates', !empty($plan['updated']) ? 'Poslední změna: ' . $plan['updated'] : 'Nejdříve ověř zálohu', $planState === 'stopped' ? 'problem' : (in_array($planState, ['complete', 'closed'], true) ? 'done' : 'pending'));
+        $this->tile('Report', !empty($record['updated_at']) ? 'Záznam je uložen' : 'Záznam ještě nebyl uložen', 'report', 'TXT nebo tisková verze / PDF', !empty($record['updated_at']) ? 'done' : 'pending');
         echo '</div>';
         if ($attention) {
             echo '<div class="jt-card"><h2>Co vyžaduje pozornost</h2>';
@@ -80,8 +86,9 @@ final class Module implements ModuleInterface
         echo '<div class="jt-card"><h2>Postup servisu</h2><p>Záloha → diagnostika → plán → WordPress → pluginy → šablony → WooCommerce → funkční test → bezpečnost → report</p></div></section>';
     }
 
-    private function tile(string $title, string $value, string $tab, string $detail): void
+    private function tile(string $title, string $value, string $tab, string $detail, string $state): void
     {
-        echo '<a class="jt-overview-tile" href="' . esc_url(AdminTabs::url($tab)) . '"><strong>' . esc_html($title) . '</strong><span>' . esc_html($value) . '</span><small>' . esc_html($detail) . '</small></a>';
+        $labels = ['done' => 'Hotovo', 'pending' => 'Čeká', 'problem' => 'Pozor'];
+        echo '<a class="jt-overview-tile jt-tile-' . esc_attr($state) . '" href="' . esc_url(AdminTabs::url($tab)) . '"><span class="jt-tile-head"><strong>' . esc_html($title) . '</strong><em>' . esc_html($labels[$state] ?? '') . '</em></span><span>' . esc_html($value) . '</span><small>' . esc_html($detail) . '</small></a>';
     }
 }

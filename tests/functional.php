@@ -20,6 +20,8 @@ $GLOBALS['http']['https://example.test/'] = new WP_Error();
 verify((new Inspector())->collect()['frontoffice']['state'] === 'unknown', 'Transport failure is unknown');
 $GLOBALS['http']['https://example.test/'] = ['code' => 200, 'headers' => ['content-type' => 'application/json'], 'body' => '{}'];
 verify((new Inspector())->collect()['frontoffice']['state'] === 'unknown', 'Non-HTML not overclaimed');
+$GLOBALS['http']['https://example.test/'] = ['code' => 200, 'headers' => ['content-type' => 'text/html'], 'body' => '<html>There has been a critical error on this website.</html>'];
+verify((new Inspector())->collect()['frontoffice']['state'] === 'problem', 'Critical error inside HTTP 200 detected');
 $GLOBALS['logged_in'] = false;
 verify((new Inspector())->collect()['login_session']['state'] === 'problem', 'Missing session detected');
 $GLOBALS['logged_in'] = true;

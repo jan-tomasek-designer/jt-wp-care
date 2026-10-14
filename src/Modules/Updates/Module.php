@@ -12,7 +12,7 @@ final class Module implements ModuleInterface
     public function register(): void
     {
         add_action('jt_wp_care_sections', [$this, 'render'], 8);
-        foreach (['refresh', 'start', 'step', 'verify', 'close'] as $method) { add_action('admin_post_jt_care_updates_' . $method, [$this, $method]); }
+        foreach (['refresh', 'start', 'step', 'verify', 'close', 'delete'] as $method) { add_action('admin_post_jt_care_updates_' . $method, [$this, $method]); }
         // Native scheduled auto-updates must not compete with a Care batch.
         foreach (['plugin', 'theme'] as $kind) {
             add_filter('auto_update_' . $kind, static function ($update) {
@@ -91,6 +91,22 @@ final class Module implements ModuleInterface
             Access::redirect('updates');
         } catch (\Throwable $e) { Access::fail($e); }
     }
+    public function delete(): void
+    {
+        try {
+            Access::post('jt_care_updates_delete'); self::authorize();
+            if (!current_user_can('delete_plugins')) { throw new \DomainException('Nemáš oprávnění odstraňovat pluginy.'); }
+            if (Access::field('backup') !== 'yes' || Access::field('confirmed') !== 'yes') {
+                throw new \DomainException('Potvrď zálohu a to, že vybraný plugin web nepotřebuje.');
+            }
+            $plan = get_option(Runner::OPTION, []);
+            if (in_array($plan['state'] ?? '', ['ready', 'running', 'verifying'], true)) {
+                throw new \DomainException('Nejprve dokonči nebo uzavři aktualizační plán.');
+            }
+            (new Cleanup())->remove(Access::field('plugin'), Access::field('fingerprint'));
+            Access::redirect('updates');
+        } catch (\Throwable $e) { Access::fail($e); }
+    }
     private function form(string $action): void
     {
         echo '<form method="post" action="' . esc_url(admin_url('admin-post.php')) . '">';
@@ -128,7 +144,8 @@ final class Module implements ModuleInterface
         }
         $this->form('refresh'); submit_button('Načíst aktuální nabídky', 'secondary'); echo '</form>';
         $offers = Catalog::offers();
-        if (!$offers) { echo '<p>Nejsou dostupné nabídky s balíčkem z poslední hodiny. Načti aktuální nabídky; prázdný seznam nepotvrzuje aktuálnost všech položek.</p></section>'; return; }
+        if (!$offers) { echo '<p>Nejsou dostupné nabídky s balíčkem z poslední hodiny. Načti aktuální nabídky; prázdný seznam nepotvrzuje aktuálnost všech položek.</p>'; }
+        else {
         $this->form('start');
         foreach ($offers as $key => $row) {
             $recommended = !$row['blocked'] && !$row['critical'];
@@ -142,6 +159,34 @@ final class Module implements ModuleInterface
             echo '</p>';
         }
         echo '<p>Nabídka vydavatele nezaručuje kompatibilitu s tímto webem. Vlastní úpravy souborů mohou být přepsány. WooCommerce může po aktualizaci spustit vlastní migrace.</p><p><label><input type="checkbox" name="backup" value="yes" required> Ověřil jsem dokončenou zálohu souborů a DB, možnost obnovy a schvaluji vybrané verze.</label></p>';
-        submit_button('Připravit schválený seznam'); echo '</form></section>';
+        submit_button('Připravit schválený seznam'); echo '</form>'; }
+        $this->cleanup();
+        echo '</section>';
+    }
+
+    private function cleanup(): void
+    {
+        $rows = Catalog::inactivePlugins();
+        echo '<hr class="jt-divider"><h2>Úklid neaktivních pluginů</h2><p>JT WP Care umí odstranit soubory jednoho neaktivního pluginu. Neumí s jistotou určit, zda jsou jeho data nebo funkce stále potřeba; rozhodnutí proto vždy potvrzuje správce. Po odstranění automaticky otestuje administraci a základní stránky.</p>';
+        $history = get_option(Cleanup::HISTORY, []);
+        if (is_array($history) && $history) {
+            $last = end($history); $state = $last['verification']['state'] ?? 'unknown';
+            echo '<p class="jt-status jt-status-' . esc_attr($state === 'done' ? 'done' : ($state === 'problem' ? 'problem' : 'unknown')) . '"><strong>Poslední úklid: ' . esc_html(($last['name'] ?? '') . ' ' . ($last['version'] ?? '')) . '</strong><br>' . esc_html($last['verification']['text'] ?? 'Výsledek post-testu není dostupný.') . '</p>';
+        }
+        if (!$rows) { echo '<p class="jt-empty">Nebyly nalezeny žádné neaktivní běžné pluginy.</p>'; return; }
+        echo '<div class="jt-cleanup-list">';
+        foreach ($rows as $row) {
+            echo '<div class="jt-cleanup-item' . ($row['blocked'] ? ' is-blocked' : '') . '"><div><strong>' . esc_html($row['name']) . '</strong> <span class="jt-version">' . esc_html($row['version']) . '</span><br><code>' . esc_html($row['id']) . '</code>';
+            if ($row['blocked']) { echo '<p class="description">' . esc_html($row['blocked']) . '</p></div><span class="jt-badge jt-badge-na">Chráněno</span>'; }
+            else {
+                echo '<p class="description">Neaktivní plugin. Před odstraněním ověř, že ho web ani budoucí servis nepotřebuje.</p></div>';
+                $this->form('delete');
+                echo '<input type="hidden" name="plugin" value="' . esc_attr($row['id']) . '"><input type="hidden" name="fingerprint" value="' . esc_attr($row['fingerprint']) . '">';
+                echo '<label><input type="checkbox" name="confirmed" value="yes" required> Plugin není potřeba</label><br><label><input type="checkbox" name="backup" value="yes" required> Záloha je ověřená</label>';
+                submit_button('Odstranit plugin a otestovat web', 'delete small'); echo '</form>';
+            }
+            echo '</div>';
+        }
+        echo '</div>';
     }
 }

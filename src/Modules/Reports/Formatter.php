@@ -50,6 +50,12 @@ final class Formatter
             }
             $lines[] = 'Technický HTTP post-test nenahrazuje vizuální kontrolu, nové přihlášení, formuláře, e-maily, objednávku ani potvrzení databázových migrací.';
         }
+        foreach ($record['cleanup_history'] ?? [] as $entry) {
+            $verification = $entry['verification'] ?? [];
+            $lines[] = "\nODSTRANĚNÝ NEAKTIVNÍ PLUGIN — " . ($entry['at'] ?? '');
+            $lines[] = ($entry['name'] ?? $entry['id'] ?? '') . ' ' . ($entry['version'] ?? '') . ' — správce ID ' . ($entry['by'] ?? '');
+            $lines[] = 'Technický post-test: ' . ($verification['state'] ?? 'unknown') . ' — ' . ($verification['text'] ?? 'bez výsledku');
+        }
         return implode("\n", $lines) . "\n";
     }
 }

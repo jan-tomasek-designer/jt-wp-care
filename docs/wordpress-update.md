@@ -1,11 +1,11 @@
 # Aktualizace JT WP Care přes WordPress
 
-Samostatný běžný plugin **JT WP Care – instalátor aktualizací** aktualizuje verzovaný MU plugin. Instalátor 0.3.0-alpha načítá publikovaná testovací vydání z veřejného GitHub Releases, ověřuje manifest, očekávanou velikost a SHA-256 a teprve po potvrzení správce připraví novou složku a přepne ukazatel aktivní verze.
+Samostatný běžný plugin **JT WP Care – instalátor aktualizací** aktualizuje verzovaný MU plugin. Instalátor 0.4.0-alpha načítá publikovaná testovací vydání z veřejného GitHub Releases, ověřuje manifest, očekávanou velikost a SHA-256 a teprve po potvrzení správce připraví novou složku a přepne ukazatel aktivní verze.
 
 ## První nasazení nebo výměna instalátoru
 
 1. Ověř dokončenou zálohu databáze i souborů a možnost obnovy.
-2. Z publikovaného vydání stáhni `jt-wp-care-installer-0.3.0-alpha.zip`.
+2. Z publikovaného vydání stáhni `jt-wp-care-installer-0.4.0-alpha.zip`.
 3. Ve WordPressu otevři **Pluginy → Instalace pluginů → Nahrát plugin**.
 4. Nahraď starší instalátor a aktivuj pouze jednu kopii ve složce `jt-wp-care-installer`.
 5. Otevři **Nástroje → JT WP Care – aktualizace**.
@@ -20,7 +20,9 @@ Samostatný běžný plugin **JT WP Care – instalátor aktualizací** aktualiz
 
 ## Hosting bez `disk_free_space`
 
-Instalátor 0.3.0-alpha nejprve použije `disk_free_space`, pokud je dostupná. Když ji hosting zakazuje, vytvoří ve stejné instalační složce nulový kontrolní soubor o vypočtené potřebné velikosti, zápis potvrdí, soubor uzavře a odstraní. Teprve potom začne zapisovat nové vydání. Tím ověří skutečnou kvótu a oprávnění na stejném filesystemu bez odhadu z jiné dočasné složky.
+Instalátor 0.4.0-alpha nejprve použije `disk_free_space`, pokud je dostupná. Když ji hosting zakazuje, vytvoří ve stejné instalační složce nulový kontrolní soubor o vypočtené potřebné velikosti, zápis potvrdí, soubor uzavře a odstraní. Teprve potom začne zapisovat nové vydání. Tím ověří skutečnou kvótu a oprávnění na stejném filesystemu bez odhadu z jiné dočasné složky.
+
+Před stahováním se uloží zamýšlená cílová verze. Pokud prohlížeč zůstane na rozbalování nebo přestane čekat, instalaci znovu nespouštěj. Obnov stránku **Nástroje → JT WP Care – aktualizace**. Instalátor porovná zamýšlenou verzi s aktivním ukazatelem a oznámí, zda byla instalace dokončena, stále nepotvrzena, nebo selhala. Aktivní a v aktuálním požadavku načtená verze jsou rozhodující údaj.
 
 Při nedostatku místa, chybě zápisu nebo přerušení se aktivní ukazatel nepřepne. Případný zbylý `.space-check` další pokus bezpečně odstraní pod instalačním zámkem. `flock`, přímý zápis, atomické přejmenování a podporovaný loader zůstávají povinné.
 
