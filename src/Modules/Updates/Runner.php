@@ -43,14 +43,45 @@ final class Runner
                 $fresh = Catalog::offers()[$row['kind'] . ':' . $row['id']] ?? null;
                 if (!$fresh || !hash_equals($row['fingerprint'], $fresh['fingerprint'])) { throw new \DomainException('Verze, nabídka nebo aktivace se změnila. Připrav nový plán.'); }
                 $this->upgrade($row);
-                $plan['results'][] = ['name' => $row['name'], 'from' => $row['from'], 'to' => $row['to'], 'state' => 'done', 'at' => gmdate('c'), 'message' => 'Verze souborů ověřena; funkční test není potvrzen.'];
+                $plan['results'][] = ['name' => $row['name'], 'from' => $row['from'], 'to' => $row['to'],
+                    'state' => 'verifying', 'at' => gmdate('c'),
+                    'message' => 'Verze souborů ověřena; čeká na technický post-test v novém požadavku.'];
                 ++$plan['index'];
-                $plan['state'] = $plan['index'] === count($plan['items']) ? 'complete' : 'ready';
+                // A fresh WordPress request must load the new plugin/theme code before functional checks.
+                $plan['state'] = 'verifying';
             } catch (\Throwable $error) {
                 $plan['state'] = 'stopped';
                 $plan['results'][] = ['name' => $row['name'], 'from' => $row['from'], 'to' => $row['to'], 'state' => 'problem', 'at' => gmdate('c'),
                     'message' => $error instanceof \DomainException ? $error->getMessage() : 'Aktualizace selhala. Ověř skutečný stav webu a verzi; další položky se nespustily.'];
             }
+            $plan['updated'] = gmdate('c'); self::save($plan);
+            return $plan;
+        });
+    }
+
+    public function verify(string $id, int $index): array
+    {
+        return $this->locked(function () use ($id, $index): array {
+            $plan = get_option(self::OPTION, []);
+            if (($plan['id'] ?? '') !== $id || ($plan['by'] ?? 0) !== get_current_user_id()
+                || ($plan['state'] ?? '') !== 'verifying' || ($plan['index'] ?? -1) !== $index
+                || $index < 1 || !isset($plan['results'][$index - 1])
+                || time() - ($plan['created'] ?? 0) > 3600) {
+                throw new \DomainException('Post-test již nelze spustit. Obnov stránku a ověř stav plánu.');
+            }
+            try { $verification = (new Verifier())->run(); }
+            catch (\Throwable $error) {
+                $verification = ['state' => 'unknown', 'at' => gmdate('c'),
+                    'text' => 'Technický post-test se nepodařilo dokončit; před další změnou ověř web ručně.', 'checks' => []];
+            }
+            $result = &$plan['results'][$index - 1];
+            $result['verification'] = $verification;
+            $result['state'] = $verification['state'] === 'done' ? 'done' : 'problem';
+            $result['message'] = 'Verze souborů ověřena. ' . $verification['text'];
+            unset($result);
+            // Unknown also stops: only a confirmed pass may release the next destructive step.
+            $plan['state'] = $verification['state'] !== 'done' ? 'stopped'
+                : ($index === count($plan['items']) ? 'complete' : 'ready');
             $plan['updated'] = gmdate('c'); self::save($plan);
             return $plan;
         });

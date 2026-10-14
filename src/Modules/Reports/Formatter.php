@@ -48,7 +48,7 @@ final class Formatter
             foreach ($plan['results'] ?? [] as $result) {
                 $lines[] = $result['name'] . ': ' . $result['from'] . ' → ' . $result['to'] . ' — ' . $result['state'] . ' — ' . $result['message'];
             }
-            $lines[] = 'Funkční test ani dokončení databázových migrací nejsou tímto záznamem potvrzeny.';
+            $lines[] = 'Technický HTTP post-test nenahrazuje vizuální kontrolu, nové přihlášení, formuláře, e-maily, objednávku ani potvrzení databázových migrací.';
         }
         return implode("\n", $lines) . "\n";
     }

@@ -83,3 +83,9 @@
 - Technická kontrola přihlášené relace správce a načtení backoffice aktuálním požadavkem.
 - Omezené read-only HTTP kontroly úvodní a nejvýše čtyř základních stránek stejného webu.
 - HTTP/HTML dostupnost je oddělená od ručního vizuálního a funkčního testu; chyby spojení zůstávají Neověřeno.
+## 0.9.0-alpha — 2026-10-14
+
+- Po každé řízené aktualizaci automatický technický post-test přihlášené relace, administrace, úvodní a základních stránek.
+- Další položky se při problému i neověřeném výsledku zastaví; provedená verze a podrobnosti kontroly zůstanou v historii.
+- Méně citlivé nabídky jsou předvybrané jako doporučené. Aktivní citlivé pluginy, šablony a WooCommerce dál vyžadují samostatné schválení.
+- Post-test je omezený na GET a nenahrazuje vizuální kontrolu, e-mail, formulář, objednávku ani databázové migrace.

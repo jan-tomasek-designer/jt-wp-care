@@ -34,6 +34,16 @@ try {
     $expired = $plan; $expired['created'] = time() - 3601; Runner::save($expired);
     reject(fn() => $runner->step('test', 0));
     $foreign = $plan; $foreign['by'] = 8; Runner::save($foreign); reject(fn() => $runner->step('test', 0));
+    $verifying = $plan; $verifying['state'] = 'verifying'; $verifying['index'] = 1;
+    $verifying['results'] = [['name' => 'ordinary/a.php', 'from' => '1.0', 'to' => '2.0', 'state' => 'verifying', 'message' => 'pending']];
+    Runner::save($verifying);
+    $GLOBALS['options']['page_on_front'] = 10; $GLOBALS['page_ids'] = [10, 11, 12, 13, 14];
+    foreach (['https://example.test/', 'https://example.test/page-10/', 'https://example.test/page-11/', 'https://example.test/page-12/', 'https://example.test/page-13/'] as $url) {
+        $GLOBALS['http'][$url] = ['code' => 200, 'headers' => ['content-type' => 'text/html'], 'body' => '<html>ok</html>'];
+    }
+    $verified = $runner->verify('test', 1);
+    verify($verified['state'] === 'ready' && $verified['results'][0]['state'] === 'done', 'Fresh-request verification releases next step');
+    reject(fn() => $runner->verify('test', 1));
     $GLOBALS['save_fail'] = true; reject(fn() => Runner::save($plan)); $GLOBALS['save_fail'] = false;
     verify(isset(get_option(Runner::HISTORY)['test']), 'History exists separately from human checklist');
     // The lock prevents concurrent requests and leaves no persistent running process.

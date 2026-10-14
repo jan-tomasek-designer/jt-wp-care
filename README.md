@@ -1,4 +1,4 @@
-# JT WP Care 0.8.0-alpha
+# JT WP Care 0.9.0-alpha
 
 První instalovatelná pilotní verze MU pluginu. **Určena pro staging, nikoli plošné produkční nasazení.** Metodika vychází z ručního servisu; modul updates provádí schválené aktualizace pluginů a šablon. WordPress core a změny zabezpečení zůstávají ruční.
 
@@ -10,6 +10,7 @@ První instalovatelná pilotní verze MU pluginu. **Určena pro staging, nikoli 
 - Security Audit rozlišuje XML-RPC přihlašované metody od neověřené dostupnosti z internetu; hledá Jetpack a vyžádá potvrzení externího použití.
 - TXT export a tisková HTML verze používají tentýž uložený záznam. PDF vzniká přes Tisk → Uložit jako PDF v prohlížeči, nejde o serverový PDF generátor.
 - Oprávnění manage_options, POST + nonce u handlerů a ochrana před přepsáním záznamu souběžným požadavkem.
+- Řízené aktualizace po každé položce ověří přihlášenou relaci, administraci a HTTP/HTML dostupnost základních stránek; při nejasném nebo chybném výsledku zastaví další kroky.
 
 ## Omezení alpha
 
@@ -17,9 +18,9 @@ Jeden rozpracovaný servis bez archivace, uzavírání a zakládání dalšího 
 
 Multisite je v této verzi výslovně blokované. Základní kód cílí na PHP 8.0+ a WordPress 6.0+; konkrétní provedené testy a zbývající staging kontroly uvádí [ověření](docs/verification.md).
 
-## Aktualizace existující instalace 0.3 přes WordPress
+## Aktualizace existující instalace přes WordPress
 
-Použij [návod k pomocnému instalátoru](docs/wordpress-update.md). Umožňuje ručně nahrát payload ZIP z repozitáře a potvrdit změnu bez FTP. Nejde zatím o přímé stahování ani automatické aktualizace.
+Použij [návod k pomocnému instalátoru](docs/wordpress-update.md). Instalátor 0.2.0-alpha načte testovací vydání z veřejného GitHub Releases, ověří manifest a SHA-256 a po potvrzení správce přepne verzi bez ručního nahrávání ZIPu.
 
 ## První instalace přes FTP
 
@@ -37,7 +38,7 @@ wp-content/mu-plugins/
 ├── jt-wp-care.php
 └── jt-wp-care/
     ├── current.json
-    └── releases/0.8.0-alpha/
+    └── releases/0.9.0-alpha/
         ├── release.json
         ├── bootstrap.php
         ├── autoload.php
@@ -63,7 +64,7 @@ define('JT_WP_CARE_DISABLED', true);
 define('JT_WP_CARE_DISABLED_MODULES', ['security', 'reports']);
 ```
 
-ID modulů: `dashboard`, `checklist`, `security`, `reports`, `automatic`. [Automatické kontroly a jejich omezení](docs/automatic-checks.md). Vypnutý modul neregistruje UI ani své handlery. Vypnutí dashboardu skryje stránku; ostatní moduly mají vlastní registraci, pro kompletní vypnutí použijte globální konstantu. Nouzově přes FTP přejmenujte loader tak, aby neměl příponu `.php`.
+ID modulů: `dashboard`, `checklist`, `security`, `reports`, `automatic`, `functional-tests`, `woocommerce`, `updates`. [Automatické kontroly a jejich omezení](docs/automatic-checks.md). Vypnutý modul neregistruje UI ani své handlery. Vypnutí dashboardu skryje stránku; ostatní moduly mají vlastní registraci, pro kompletní vypnutí použijte globální konstantu. Nouzově přes FTP přejmenujte loader tak, aby neměl příponu `.php`.
 
 ## Uložená data
 

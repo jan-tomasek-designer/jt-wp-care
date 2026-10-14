@@ -11,11 +11,11 @@ final class Module implements ModuleInterface
     public function register(): void
     {
         add_action('jt_wp_care_sections', [$this, 'render'], 8);
-        foreach (['refresh', 'start', 'step', 'close'] as $method) { add_action('admin_post_jt_care_updates_' . $method, [$this, $method]); }
+        foreach (['refresh', 'start', 'step', 'verify', 'close'] as $method) { add_action('admin_post_jt_care_updates_' . $method, [$this, $method]); }
         // Native scheduled auto-updates must not compete with a Care batch.
         foreach (['plugin', 'theme'] as $kind) {
             add_filter('auto_update_' . $kind, static function ($update) {
-                return in_array(get_option(Runner::OPTION, [])['state'] ?? '', ['ready', 'running'], true) ? false : $update;
+                return in_array(get_option(Runner::OPTION, [])['state'] ?? '', ['ready', 'running', 'verifying'], true) ? false : $update;
             });
         }
     }
@@ -65,6 +65,18 @@ final class Module implements ModuleInterface
             wp_send_json_error(['message' => $e instanceof \DomainException ? $e->getMessage() : 'Krok se nezdařil. Ověř stav webu.'], 409);
         }
     }
+    public function verify(): void
+    {
+        try {
+            $this->boundary('verify');
+            $index = Access::field('index');
+            if (!ctype_digit($index)) { throw new \DomainException('Neplatný krok post-testu.'); }
+            $plan = (new Runner())->verify(Access::field('plan'), (int) $index);
+            wp_send_json_success(['state' => $plan['state'], 'index' => $plan['index']]);
+        } catch (\Throwable $e) {
+            wp_send_json_error(['message' => $e instanceof \DomainException ? $e->getMessage() : 'Post-test se nezdařil. Ověř stav webu.'], 409);
+        }
+    }
     public function close(): void
     {
         try {
@@ -87,19 +99,26 @@ final class Module implements ModuleInterface
     public function render(): void
     {
         try { self::authorize(); } catch (\Throwable $e) { return; }
-        echo '<section class="jt-card"><h2>Řízené aktualizace</h2><p>Vyber a schval konkrétní verze. Běží postupně: pluginy → šablony → WooCommerce. Při chybě se seznam zastaví. Záloha musí zahrnovat soubory i databázi; automatický návrat databáze není dostupný.</p>';
+        echo '<section class="jt-card"><h2>Řízené aktualizace</h2><p>Vyber a schval konkrétní verze. Běží postupně: pluginy → šablony → WooCommerce. Po každé položce proběhne technický test administrace a základních stránek; při problému nebo neověřeném výsledku se seznam zastaví. Záloha musí zahrnovat soubory i databázi.</p>';
         $plan = get_option(Runner::OPTION, []);
         if ($plan) {
-            $labels = ['ready' => 'Připraveno', 'running' => 'Krok spuštěn – dokončení zatím nepotvrzeno', 'stopped' => 'Zastaveno při chybě', 'complete' => 'Aktualizace dokončeny; ověř funkce webu', 'closed' => 'Plán uzavřen správcem'];
+            $labels = ['ready' => 'Připraveno', 'running' => 'Krok spuštěn – dokončení zatím nepotvrzeno', 'verifying' => 'Verze nainstalována – čeká na technický post-test', 'stopped' => 'Zastaveno při chybě', 'complete' => 'Aktualizace i technické post-testy dokončeny; proveď ruční funkční kontrolu', 'closed' => 'Plán uzavřen správcem'];
             echo '<p><strong>' . esc_html($labels[$plan['state']] ?? 'Neznámý stav') . '</strong></p>';
-            foreach ($plan['results'] ?? [] as $row) { echo '<p>' . esc_html($row['name'] . ' ' . $row['from'] . ' → ' . $row['to'] . ': ' . $row['message']) . '</p>'; }
+            foreach ($plan['results'] ?? [] as $row) {
+                $state = ($row['state'] ?? '') === 'done' ? 'done' : (($row['state'] ?? '') === 'verifying' ? 'unknown' : 'problem');
+                echo '<p class="jt-status jt-status-' . esc_attr($state) . '"><strong>' . esc_html($row['name'] . ' ' . $row['from'] . ' → ' . $row['to']) . '</strong><br>' . esc_html($row['message']) . '</p>';
+            }
         }
-        if (in_array($plan['state'] ?? '', ['ready', 'running'], true)) {
-            if ($plan['state'] === 'ready' && $plan['by'] === get_current_user_id()) {
+        if (in_array($plan['state'] ?? '', ['ready', 'running', 'verifying'], true)) {
+            $expired = time() - (int) ($plan['created'] ?? 0) > 3600;
+            if (in_array($plan['state'], ['ready', 'verifying'], true) && !$expired && $plan['by'] === get_current_user_id()) {
                 echo '<p id="jt-updates-run" data-url="' . esc_url(admin_url('admin-post.php')) . '" data-nonce="' . esc_attr(wp_create_nonce('jt_care_updates_step'))
-                    . '" data-plan="' . esc_attr($plan['id']) . '" data-index="' . esc_attr((string) $plan['index']) . '">Připraveno pokračovat ve schváleném seznamu.</p><button type="button" class="button button-primary" id="jt-updates-go">Spustit schválený seznam</button>';
+                    . '" data-verify-nonce="' . esc_attr(wp_create_nonce('jt_care_updates_verify')) . '" data-state="' . esc_attr($plan['state'])
+                    . '" data-plan="' . esc_attr($plan['id']) . '" data-index="' . esc_attr((string) $plan['index']) . '">Připraveno pokračovat ve schváleném seznamu.</p><button type="button" class="button button-primary" id="jt-updates-go">'
+                    . ($plan['state'] === 'verifying' ? 'Spustit bezpečný post-test' : 'Spustit schválený seznam') . '</button>';
                 wp_enqueue_script('jt-care-updates', plugins_url('assets/updates.js', dirname(__DIR__, 3) . '/bootstrap.php'), [], \JT\WPCare\Core\Release::VERSION, true);
             }
+            if ($expired) { echo '<p class="jt-status jt-status-unknown"><strong>Platnost plánu vypršela.</strong><br>Uzavři jej, načti aktuální nabídky a připrav nový seznam. Starý instalační krok se nespustí.</p>'; }
             echo '<p>Při přerušení ověř skutečnou verzi a funkce webu. Rozpracovaný krok se automaticky neopakuje.</p>';
             $this->form('close');
             echo '<input type="hidden" name="plan" value="' . esc_attr($plan['id']) . '"><label><input type="checkbox" name="reviewed" value="yes" required> Ověřil jsem stav webu a chci uzavřít tento plán bez dalších aktualizací.</label>';
@@ -110,8 +129,12 @@ final class Module implements ModuleInterface
         if (!$offers) { echo '<p>Nejsou dostupné nabídky s balíčkem z poslední hodiny. Načti aktuální nabídky; prázdný seznam nepotvrzuje aktuálnost všech položek.</p></section>'; return; }
         $this->form('start');
         foreach ($offers as $key => $row) {
-            echo '<p><label><input type="checkbox" name="selected[' . esc_attr($key) . ']" value="' . esc_attr($row['fingerprint']) . '"' . ($row['blocked'] ? ' disabled' : '') . '> '
-                . esc_html($row['name'] . ' ' . $row['from'] . ' → ' . $row['to']) . '</label>';
+            $recommended = !$row['blocked'] && !$row['critical'];
+            echo '<p class="jt-update-offer"><label><input type="checkbox" name="selected[' . esc_attr($key) . ']" value="' . esc_attr($row['fingerprint']) . '"'
+                . ($row['blocked'] ? ' disabled' : ($recommended ? ' checked' : '')) . '> '
+                . esc_html($row['name'] . ' ' . $row['from'] . ' → ' . $row['to']) . '</label> '
+                . ($row['blocked'] ? '<span class="jt-badge jt-badge-na">Blokováno</span>'
+                    : ($row['critical'] ? '<span class="jt-badge jt-badge-deferred">Vyžaduje schválení</span>' : '<span class="jt-badge jt-badge-done">Doporučeno</span>'));
             if ($row['blocked']) { echo '<br>' . esc_html($row['blocked']); }
             elseif ($row['critical']) { echo '<br><label><input type="checkbox" name="approved[' . esc_attr($key) . ']" value="yes"> Výslovně schvaluji tuto citlivou změnu po ověření kompatibility.</label>'; }
             echo '</p>';

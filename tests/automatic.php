@@ -26,6 +26,9 @@ verify(Evaluation::results($audit, $now + 86401)['file_edit']['state'] === 'unkn
 verify(Module::due(['audit' => $audit], $now + 3600), 'Hourly refresh');
 verify(!Module::due(['audit' => $audit], $now + 3599), 'No repeated refresh');
 verify(Module::due(['audit' => ['at' => gmdate('c', $now)]], $now), 'Old format refreshed immediately');
+$GLOBALS['options']['jt_wp_care_update_plan'] = ['state' => 'verifying'];
+verify(!Module::due(['audit' => $audit], $now + 3600), 'Post-update gate owns diagnostics while pending');
+unset($GLOBALS['options']['jt_wp_care_update_plan']);
 $fixture = sys_get_temp_dir() . '/jt-auto-' . bin2hex(random_bytes(8));
 mkdir($fixture . '/wp-admin/includes', 0755, true); file_put_contents($fixture . '/wp-admin/includes/plugin.php', '<?php');
 define('ABSPATH', $fixture . '/');
