@@ -15,8 +15,8 @@ final class Cleanup
             if (!$row || !hash_equals($row['fingerprint'], $fingerprint) || $row['blocked'] !== '') {
                 throw new \DomainException('Plugin se změnil, je aktivní nebo jej nelze bezpečně odstranit. Obnov seznam.');
             }
-            require_once ABSPATH . 'wp-admin/includes/file.php';
-            require_once ABSPATH . 'wp-admin/includes/plugin.php';
+            if (!function_exists('get_filesystem_method')) { require_once ABSPATH . 'wp-admin/includes/file.php'; }
+            if (!function_exists('delete_plugins')) { require_once ABSPATH . 'wp-admin/includes/plugin.php'; }
             if (get_filesystem_method([], WP_PLUGIN_DIR . '/' . dirname($id)) !== 'direct') {
                 throw new \DomainException('Hosting neumožňuje přímé odstranění souborů pluginu.');
             }

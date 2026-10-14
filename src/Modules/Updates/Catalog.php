@@ -8,7 +8,7 @@ final class Catalog
     /** Inactive plugins that an administrator may explicitly remove. Nothing is auto-deleted. */
     public static function inactivePlugins(): array
     {
-        require_once ABSPATH . 'wp-admin/includes/plugin.php';
+        if (!function_exists('get_plugins')) { require_once ABSPATH . 'wp-admin/includes/plugin.php'; }
         $plugins = get_plugins();
         $required = [];
         foreach ($plugins as $file => $data) {
