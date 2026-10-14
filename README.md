@@ -1,4 +1,4 @@
-# JT WP Care 0.11.0-alpha
+# JT WP Care 0.12.0-alpha
 
 První instalovatelná pilotní verze MU pluginu. **Určena pro staging, nikoli plošné produkční nasazení.** Metodika vychází z ručního servisu; modul updates provádí schválené aktualizace pluginů a šablon. WordPress core a změny zabezpečení zůstávají ruční.
 
@@ -14,6 +14,7 @@ První instalovatelná pilotní verze MU pluginu. **Určena pro staging, nikoli 
 - Řízené aktualizace po každé položce ověří přihlášenou relaci, administraci a HTTP/HTML dostupnost základních stránek; při nejasném nebo chybném výsledku zastaví další kroky.
 - Úklid zobrazí neaktivní pluginy a po dvojím potvrzení odstraní vždy jen jeden vybraný plugin. Aktivní pluginy, WooCommerce, instalátor JT WP Care a rozpoznané závislosti aktivních pluginů jsou chráněné; po odstranění proběhne technický post-test.
 - Nástěnka barevně rozlišuje dokončené, čekající a problémové oblasti. HTTP test rozpozná také běžné texty fatální PHP chyby, chyby databázového spojení a režimu údržby vrácené se stavem 200.
+- V diagnostice nabízí první řízenou opravu konfigurace: po dvojím potvrzení vypne `WP_DEBUG`, `WP_DEBUG_DISPLAY` a `WP_DEBUG_LOG`. Před zápisem vytvoří chráněnou zálohu, odmítne nejednoznačný `wp-config.php`, ověří syntaxi a po zásahu provede technický test s návratem při zjištěném problému.
 
 ## Omezení alpha
 
@@ -41,7 +42,7 @@ wp-content/mu-plugins/
 ├── jt-wp-care.php
 └── jt-wp-care/
     ├── current.json
-    └── releases/0.11.0-alpha/
+    └── releases/0.12.0-alpha/
         ├── release.json
         ├── bootstrap.php
         ├── autoload.php
@@ -67,33 +68,16 @@ define('JT_WP_CARE_DISABLED', true);
 define('JT_WP_CARE_DISABLED_MODULES', ['security', 'reports']);
 ```
 
-ID modulů: `dashboard`, `checklist`, `security`, `reports`, `automatic`, `functional-tests`, `woocommerce`, `updates`. [Automatické kontroly a jejich omezení](docs/automatic-checks.md). Vypnutý modul neregistruje UI ani své handlery. Vypnutí dashboardu skryje stránku; ostatní moduly mají vlastní registraci, pro kompletní vypnutí použijte globální konstantu. Nouzově přes FTP přejmenujte loader tak, aby neměl příponu `.php`.
+ID modulů: `dashboard`, `checklist`, `security`, `reports`, `automatic`, `functional-tests`, `woocommerce`, `updates`, `repairs`. [Automatické kontroly a jejich omezení](docs/automatic-checks.md). Vypnutý modul neregistruje UI ani své handlery. Vypnutí dashboardu skryje stránku; ostatní moduly mají vlastní registraci, pro kompletní vypnutí použijte globální konstantu. Nouzově přes FTP přejmenujte loader tak, aby neměl příponu `.php`.
 
 ## Uložená data
 
-WordPress option `jt_wp_care_record_v1` bez autoloadu: stavy, poznámky, ID správců, UTC časy, revize, potvrzení XML-RPC a poslední snímek. Záznam zůstává až do ručního odstranění správcem; alpha nemá retenční automatizaci. Vypnutí/odstranění souborů nic nemaže. Samotné vykreslení nic neukládá; při otevření JT WP Care může automatický modul samostatným ověřeným POST požadavkem obnovit diagnostický snímek. Exporty se streamují do prohlížeče, nevznikají veřejné soubory v uploads. Do poznámek nevkládejte hesla, klíče ani osobní údaje zákazníků.
+WordPress option `jt_wp_care_record_v1` bez autoloadu: stavy, poznámky, ID správců, UTC časy, revize, potvrzení XML-RPC a poslední snímjspěšnou zálohu ani neprokazuje neexistenci jiné zálohy. Ověřit případnou jinou úplnou zálohu a dostupnost obnovy; do té doby odložit aktualizace a mazání. Chybová hláška sama neurčuje správné místo pro změnu serverového limitu.
 
-## Vývoj a sestavení
+Zastavit navazující změny, zaznamenat poslední úspěšný krok, čas a příznaky. Vyhodnotit dopad a zvolit opravu či obnovu podle dohodnutého plánu. Před obnovou DB e-shopu zohlednit nové objednávky a platby. Po nápravě opakovat dotčené testy a popsat incident v reportu.
 
-Bez runtime závislostí, Composer ani WP-CLI nejsou na hostingu potřeba.
+## Ověření metodiky
 
-```sh
-php tests/smoke.php
-php tests/behavior.php
-php tools/build.php
-php tests/versioned-loader.php
-php tools/package.php
-php tests/package.php
-```
+Konkrétní servis vést v projektu daného webu. Sem předávat ověřené obecné poznatky: situace → příčina → řešení → důkaz → návrh pravidla. Sdílená dovednost bude distribuovat verzovanou metodiku; provozní stav klientských webů zůstává v servisních záznamech. Samotné použití dovednosti nenahrazuje předání aktuálního kontextu.
 
-Build vytvoří `dist/mu-plugins/`. Existující dist odmítne přepsat; před dalším buildem jej přesuňte. PSR-4 namespace je `JT\WPCare`, zdroje jsou v `src/`. Složky modulů obsahují vlastní registraci a služby; Core řeší lifecycle, request boundary a úložiště. Konfigurace CI připravuje PHP 8.0–8.5; její existence není důkazem provedení této matice.
-
-[Metodika](docs/service-methodology.md) · [Ruční checklist](docs/service-checklist.md) · [XML-RPC specifikace](docs/security-audit-xmlrpc.md) · [Architektura](docs/architecture.md) · [Roadmapa](docs/roadmap.md) · [Changelog](CHANGELOG.md)
-
-SemVer; před 1.0 jsou kontrakty experimentální. Datové schéma je verzováno odděleně, nepodporované schéma se nepřepisuje. [GitHub repozitář](https://github.com/jan-tomasek-designer/jt-wp-care), bez udělené open-source licence; veřejná distribuce vyžaduje zveřejnění repozitáře a vydání. Balíčkování vyžaduje rozšíření PHP zip pouze na vývojovém stroji/CI. Tag odpovídající verzi připraví draft vydání; publikování zůstává ruční.
-
-WooCommerce DB a fronta úloh: viz [popis kontrol](docs/woocommerce-audit.md). Modul: `woocommerce`.
-
-## Aktualizace 0.7
-
-[Řízené aktualizace a veřejný GitHub](docs/version-0.7.md) jsou popsány v docs/version-0.7.md. Modul `updates` lze vypnout. Instalátor 0.4.0-alpha stahuje vydání přímo z GitHubu a po obnovení stránky vyhodnotí i přerušené čekání prohlížeče; starší instalátor je potřeba jednou nahradit přes nahrání běžného pluginu.
+Použít checklist při servisu běžného webu a WooCommerce/GoPay e-shopu. Zaznamenat nejasnosti, chybějící kroky, potřebné důkazy a časovou náročnost. Po společném vyhodnocení upravit metodiku, označit ověřenou verzi 1.0 a až potom odvodit obrazovky a datový model pluginu.

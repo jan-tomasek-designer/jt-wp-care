@@ -35,6 +35,7 @@ final class Collector
         foreach (is_object($coreUpdates) && is_array($coreUpdates->updates ?? null) ? $coreUpdates->updates : [] as $offer) {
             if (is_object($offer) && ($offer->response ?? '') === 'upgrade' && isset($offer->current)) { $coreOffers[] = (string) $offer->current; }
         }
+        $coreOffers = array_values(array_unique($coreOffers));
         $themeOffers = [];
         foreach (is_object($themeUpdates) && is_array($themeUpdates->response ?? null) ? $themeUpdates->response : [] as $slug => $offer) {
             if (is_array($offer) && isset($offer['new_version'])) { $themeOffers[] = $slug . ' → ' . $offer['new_version']; }

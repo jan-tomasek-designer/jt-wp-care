@@ -1,11 +1,9 @@
-# JT WP Care 0.11.0-alpha
+# JT WP Care 0.12.0-alpha
 
-Nástěnka nyní ukazuje barevný stav celého servisu i jednotlivých oblastí: hotovo, čeká a problém. Souhrn odděleně počítá dokončené, neověřené, odložené a problémové body, takže není nutné procházet celý checklist.
+V diagnostice přibyla první řízená oprava konfigurace. Po výslovném potvrzení použitelné zálohy a zásahu umí JT WP Care nastavit `WP_DEBUG`, `WP_DEBUG_DISPLAY` a `WP_DEBUG_LOG` na `false` v běžném zapisovatelném `wp-config.php`. Serverové `PHP display_errors` zůstává samostatným nastavením hostingu.
 
-V záložce Aktualizace přibyl řízený úklid neaktivních pluginů. Správce vždy vybere jeden konkrétní plugin a samostatně potvrdí, že jej web nepotřebuje a že je ověřená záloha. Aktivní pluginy se nenabízejí. WooCommerce, instalátor JT WP Care a pluginy rozpoznané jako závislost aktivního pluginu jsou chráněné. Po odstranění proběhne technický post-test a výsledek se uloží.
+Před změnou vznikne datovaná chráněná záloha. Oprava odmítne symbolický odkaz, neplatnou PHP syntaxi, dynamické nebo vícenásobné definice a aktivní hodnotu, jejíž zdroj není ve `wp-config.php` jednoznačně dohledatelný. Zápis probíhá pod zámkem, kontroluje souběžnou změnu a ověří výsledný obsah.
 
-Kontrola stránek nově rozpozná známé texty fatální PHP chyby, chyby databázového připojení a režimu údržby také tehdy, když server chybně vrátí HTTP 200. Test zůstává omezený na čtení a neodesílá formuláře, objednávky ani e-maily.
+Po zásahu proběhne technický test administrace a základních stránek. Zjištěný problém vyvolá automatický návrat původní konfigurace; neověřitelný HTTP test zůstane viditelným omezením pro ruční kontrolu. Historie zásahu, výsledek testu a název zálohy jsou součástí servisního reportu bez zveřejnění obsahu nebo absolutní cesty.
 
-Součástí vydání je instalátor 0.4.0-alpha. Před stažením z GitHubu uloží cílovou verzi a po obnovení stránky ji porovná se skutečně aktivním ukazatelem. Pokud pomalý hosting nechá prohlížeč viset u rozbalování, správce instalaci neopakuje: obnoví stránku instalátoru a dostane jednoznačný stav. Na hostingu bez `disk_free_space` zůstává náhradní kontrola kapacity z verze 0.3.
-
-Datové schéma servisního záznamu i protokol MU loaderu zůstávají beze změny.
+Diagnostika také slučuje duplicitní nabídky stejné verze WordPressu, které se objevily při produkčním pilotu. Datové schéma servisního záznamu, protokol MU loaderu a instalátor 0.4.0-alpha zůstávají beze změny.

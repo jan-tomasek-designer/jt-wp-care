@@ -1,6 +1,6 @@
 # Servisní metodika JT WP Care
 
-Verze 0.1 — pracovní návrh, aktualizace 2026-10-06. Uživatel potvrdil dokončenou zálohu a úspěšné funkční testy po vypnutí XML-RPC na obnovlimity.cz. Jde o potvrzení tohoto konkrétního postupu, nikoli doložení všech bodů metodiky. Verze metodiky je nezávislá na verzi pluginu.
+Verze 0.1 — pracovní návrh, aktualizace 2026-10-14. Při prvním pilotním servisu byla potvrzena dokončená záloha a úspěšné funkční testy po vypnutí XML-RPC. Jde o potvrzení tohoto konkrétního postupu, nikoli doložení všech bodů metodiky. Verze metodiky je nezávislá na verzi pluginu.
 
 ## Zásada
 
@@ -64,6 +64,18 @@ Zapsat vypořádání testovacích objednávek a plateb; nepředpokládat automa
 - 2FA: ověřit pokrytí administrátorských účtů a výjimky. Nezjistitelné pokrytí zůstává neověřené.
 - XML-RPC: zjistit dostupný stav a prověřit aktivní pluginy na známé závislosti (například Jetpack), včetně síťově aktivních pluginů. Správce musí navíc potvrdit, zda používá vzdálené publikování nebo jiné externí integrace. Nenalezená známá závislost není důkaz nepotřebnosti. Vypnutí doporučit pouze podmíněně, pokud žádná známá závislost nalezena nebyla a správce potvrdil nepotřebnost. Při nejasnosti ponechat „neověřeno“. Žádné automatické vypnutí.
 - DISALLOW_FILE_EDIT: ověřit hodnotu true. Schválenou výjimku uvést jako odchylku, nikoli splněný bod.
+
+### Řízené opravy `wp-config.php`
+
+Diagnostika a oprava jsou dva oddělené kroky. Plugin může nabídnout konkrétní opravu pouze po zjištění problému, nikdy ji nesmí provést při pouhém otevření stránky nebo při automatické diagnostice. Každý zásah vyžaduje oprávnění správce, ochranu proti podvrženému požadavku, nové výslovné schválení zásahu a potvrzení použitelné zálohy celého webu.
+
+První povolená oprava vypíná pouze `WP_DEBUG`, `WP_DEBUG_DISPLAY` a `WP_DEBUG_LOG`. Hodnota `PHP display_errors` je samostatné serverové nastavení a nesmí se vydávat za opravené změnou těchto konstant. `SCRIPT_DEBUG`, vlastní logování aplikace a hostingová konfigurace nejsou součástí tohoto zásahu.
+
+Před změnou musí nástroj najít skutečný `wp-config.php`, ověřit běžný soubor, právo číst a zapisovat, rozumnou velikost, platnou PHP syntaxi a jednoznačné literální definice. Dynamická definice, více definic, hodnota přivedená z prostředí, symbolický odkaz nebo nestandardní umístění znamenají ruční řešení. Nejasnou konfiguraci nástroj nesmí „opravit“ přidáním další definice.
+
+Bezprostředně před zápisem vznikne datovaná chráněná záloha konfigurace s kontrolou integrity. Zápis proběhne pod zámkem a jen pokud se soubor od kontroly nezměnil. Po zápisu se ověří výsledný obsah a PHP syntaxe a proběhne technický test administrace a základních stránek. Při zjištěném problému se původní obsah automaticky vrátí, pokud se mezitím soubor znovu nezměnil. Neověřitelný HTTP test se zaznamená jako omezení a vyžaduje ruční kontrolu; není vydáván za úspěch.
+
+Report eviduje čas, správce, rozsah opravy, výsledek technického testu, případný návrat a identifikátor zálohy bez zveřejnění jejího obsahu nebo absolutní cesty. Po opravě je nutné znovu načíst diagnostiku v novém požadavku, protože konstanty již načteného PHP procesu se za běhu nezmění.
 
 Další diagnostika (SSL, debug, REST API, cron, cache, velikosti) zůstává v backlogu; rozšíření základního checklistu vyplyne z praxe.
 

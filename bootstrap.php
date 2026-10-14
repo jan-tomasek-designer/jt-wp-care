@@ -26,6 +26,7 @@ add_action('plugins_loaded', static function (): void {
         new \JT\WPCare\Modules\WooCommerce\Module(),
         new \JT\WPCare\Modules\Updates\Module(),
         new \JT\WPCare\Modules\Functional\Module(),
+        new \JT\WPCare\Modules\Repairs\Module(),
     ];
     if (!in_array('security', $disabled, true)) { $modules[] = new \JT\WPCare\Modules\Automatic\Module($store); }
     (new \JT\WPCare\Core\Kernel($modules, $disabled))->boot();

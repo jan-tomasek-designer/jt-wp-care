@@ -96,4 +96,8 @@ check(str_contains($text, 'XML-RPC z internetu: Neověřeno'), 'Report retains u
 check(str_contains($text, $record['revision']), 'Report identifies revision.');
 // Export view and TXT both consume this formatter; print renderer escapes its output.
 check(!str_contains($text, '\\nDIAGNOSTIKA'), 'Real newline in report.');
+$record['repair_history'] = [['at' => '2026-10-14T20:00:00Z', 'by' => 7, 'state' => 'changed', 'summary' => '4 ověřeno, 0 neověřeno, 0 problém', 'backup' => 'wp-config-test.php']];
+$text = Formatter::text($record, 'https://example.test/');
+check(str_contains($text, 'OPRAVA WP-CONFIG'), 'Config repair must be included in report.');
+check(str_contains($text, 'wp-config-test.php'), 'Report must identify the protected backup.');
 echo "Behavior tests passed: {$count}\n";

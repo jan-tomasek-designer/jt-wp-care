@@ -11,6 +11,7 @@ use JT\WPCare\Modules\Security\Collector;
 /** Automatic POST refresh only while an authorized administrator visits the Care page. */
 final class Module implements ModuleInterface
 {
+    public const FORCE_REFRESH = 'jt_wp_care_force_audit';
     private Store $store;
     public function __construct(Store $store) { $this->store = $store; }
     public function id(): string { return 'automatic'; }
@@ -23,6 +24,7 @@ final class Module implements ModuleInterface
     {
         $at = strtotime($record['audit']['at'] ?? ''); $now = $now ?? time();
         $plan = get_option('jt_wp_care_update_plan', []);
+        if (get_option(self::FORCE_REFRESH, '') !== '') { return true; }
         if (in_array($plan['state'] ?? '', ['ready', 'running', 'verifying'], true)) { return false; }
         if (in_array($plan['state'] ?? '', ['complete', 'stopped', 'closed'], true) && $at < strtotime($plan['updated'] ?? '')) { return true; }
         return !isset($record['audit']['automatic']) || $at === false || $at > $now + 300 || $now - $at >= 3600;
@@ -34,6 +36,7 @@ final class Module implements ModuleInterface
         $record['audit'] = (new Collector())->collect($record['external_use'] ?? 'unknown');
         // Existing items, notes and human XML-RPC attestations are preserved verbatim.
         $this->store->save($record, $revision);
+        delete_option(self::FORCE_REFRESH);
         return true;
     }
     public function run(): void

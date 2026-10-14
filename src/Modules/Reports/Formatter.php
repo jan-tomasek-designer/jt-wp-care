@@ -56,6 +56,12 @@ final class Formatter
             $lines[] = ($entry['name'] ?? $entry['id'] ?? '') . ' ' . ($entry['version'] ?? '') . ' — správce ID ' . ($entry['by'] ?? '');
             $lines[] = 'Technický post-test: ' . ($verification['state'] ?? 'unknown') . ' — ' . ($verification['text'] ?? 'bez výsledku');
         }
+        foreach ($record['repair_history'] ?? [] as $entry) {
+            $labels = ['changed' => 'provedeno a ověřeno', 'changed_limited' => 'provedeno, část testu neověřena', 'rolled_back' => 'automaticky vráceno'];
+            $lines[] = "\nOPRAVA WP-CONFIG — " . ($entry['at'] ?? '');
+            $lines[] = 'WP_DEBUG, WP_DEBUG_DISPLAY a WP_DEBUG_LOG → false — ' . ($labels[$entry['state'] ?? ''] ?? 'neznámý výsledek');
+            $lines[] = 'Správce ID ' . ($entry['by'] ?? '') . '; technický post-test: ' . ($entry['summary'] ?? 'bez výsledku') . '; chráněná záloha: ' . ($entry['backup'] ?? 'nezjištěna');
+        }
         return implode("\n", $lines) . "\n";
     }
 }

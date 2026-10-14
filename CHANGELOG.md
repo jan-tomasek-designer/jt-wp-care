@@ -1,3 +1,10 @@
+## 0.12.0-alpha — 2026-10-14
+
+- První řízená oprava `wp-config.php`: po potvrzení zálohy vypne `WP_DEBUG`, `WP_DEBUG_DISPLAY` a `WP_DEBUG_LOG`.
+- Oprava přijímá jen jednoznačnou konfiguraci, před zápisem vytváří chráněnou zálohu, kontroluje PHP syntaxi, souběžnou změnu a výsledný obsah.
+- Po změně proběhne technický post-test; při zjištěném problému se konfigurace automaticky vrátí. Výsledek a záloha jsou v historii a reportu.
+- Duplicitní nabídky stejné verze WordPressu jsou v diagnostice sloučené.
+
 ## 0.11.0-alpha — 2026-10-14
 
 - Barevný souhrn nástěnky rozlišuje hotové, čekající, odložené a problémové oblasti; stejné stavy nesou jednotlivé karty.

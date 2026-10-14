@@ -38,6 +38,7 @@ final class Module implements ModuleInterface
             if (!in_array($format, ['txt', 'print'], true)) { throw new \DomainException('Neznámý formát exportu.'); }
             $record['update_history'] = get_option('jt_wp_care_update_history', []);
             $record['cleanup_history'] = get_option('jt_wp_care_cleanup_history', []);
+            $record['repair_history'] = get_option(\JT\WPCare\Modules\Repairs\Module::HISTORY, []);
             $text = Formatter::text($record, home_url('/'));
         } catch (\Throwable $error) { Access::fail($error); }
         nocache_headers();

@@ -26,6 +26,9 @@ verify(Evaluation::results($audit, $now + 86401)['file_edit']['state'] === 'unkn
 verify(Module::due(['audit' => $audit], $now + 3600), 'Hourly refresh');
 verify(!Module::due(['audit' => $audit], $now + 3599), 'No repeated refresh');
 verify(Module::due(['audit' => ['at' => gmdate('c', $now)]], $now), 'Old format refreshed immediately');
+$GLOBALS['options'][Module::FORCE_REFRESH] = '2026-10-12T12:00:00Z';
+verify(Module::due(['audit' => $audit], $now + 1), 'Config repair forces a new-process diagnostic refresh');
+unset($GLOBALS['options'][Module::FORCE_REFRESH]);
 $GLOBALS['options']['jt_wp_care_update_plan'] = ['state' => 'verifying'];
 verify(!Module::due(['audit' => $audit], $now + 3600), 'Post-update gate owns diagnostics while pending');
 unset($GLOBALS['options']['jt_wp_care_update_plan']);
@@ -38,8 +41,10 @@ try {
         'php' => ['state' => 'done', 'note' => 'Original PHP note', 'at' => '2026-10-01', 'by' => 7]];
     $record['external_use'] = 'unused'; $record['external_note'] = 'Human attestation'; $record['external_at'] = '2026-10-01';
     $store->save($record, ''); $before = $store->load();
+    $GLOBALS['options'][Module::FORCE_REFRESH] = '2026-10-12T12:00:00Z';
     $module = new Module($store);
     verify($module->refresh($before['revision']), 'First automatic snapshot saved');
+    verify(!isset($GLOBALS['options'][Module::FORCE_REFRESH]), 'Successful refresh clears forced diagnostic flag');
     $after = $store->load();
     foreach (['items', 'external_use', 'external_note', 'external_at'] as $key) { verify($after[$key] === $before[$key], 'Preserves human evidence ' . $key); }
     verify(!$module->refresh($after['revision']), 'Fresh snapshot not written twice');

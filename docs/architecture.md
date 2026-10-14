@@ -1,6 +1,6 @@
 # Architektura a rozhodnutí
 
-Stav: dlouhodobý návrh, částečně realizovaný pilotem 0.2.0-alpha po uživatelském potvrzení postupu na obnovlimity.cz. Metodika má přednost. Pilot obsahuje checklist, lokální snímek a TXT/tiskový report; obecná rozhraní CheckInterface a AuditRunner popsaná níže zůstávají návrhem.
+Stav: dlouhodobý návrh, částečně realizovaný pilotem 0.2.0-alpha po potvrzení postupu na prvním produkčním webu. Metodika má přednost. Pilot obsahuje checklist, lokální snímek a TXT/tiskový report; obecná rozhraní CheckInterface a AuditRunner popsaná níže zůstávají návrhem.
 
 Pilotní rozhodnutí: ukládat jeden průběžný záznam jako option bez autoloadu. Ukládání používá atomické porovnání původní serializované hodnoty, aby souběžný požadavek nepřepsal novější důkazy. Databázové tabulky a archivace nejsou pro pilot potřeba. PDF vzniká přes tisk prohlížeče ze stejného textu jako TXT; nepřidáváme serverovou PDF závislost před ověřením šablony. Lokální sběr základní inventury je zatím součástí modulu Security, před rozšířením diagnostiky jej oddělíme podle kontraktů níže. Alpha neprovádí externí XML-RPC sondy a uvádí toto omezení u výsledku.
 

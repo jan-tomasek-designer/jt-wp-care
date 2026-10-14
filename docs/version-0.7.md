@@ -26,7 +26,7 @@ Nový běžný instalátor **0.2.0-alpha** je jednorázově potřeba nahrát př
 
 Pevný zdroj `jan-tomasek-designer/jt-wp-care`, žádný GitHub token, libovolná URL nebo main ZIP. Pouze publikované Releases s manifest.json a pojmenovaným payloadem; drafty a starší verze odmítá. Kontrola posledních 30 vydání, nové vydání se potvrzuje jednotlivě. Vydání a součet jsou připnuty na uživatele a 15 minut. Balíček se ověří podle velikosti a SHA-256, poté původní ZIP validací. Přesměrování pouze na povolené GitHub/CDN HTTPS domény, omezená velikost a timeout. Výpadek, rate limit nebo soukromý repozitář nemění běžící kód.
 
-Důvěra je v konkrétní GitHub repozitář a HTTPS. SHA-256 není nezávislý podpis vydavatele; kompromitaci vydavatelského účtu neřeší. To odpovídá schvalovanému nasazení, nikoli bezobslužnému vzdálenému řízení. Návrat k předchozí verzi MU zůstává dostupný. PIPNI bez disk_free_space zůstává pro tento instalátor blokovaný.
+Důvěra je v konkrétní GitHub repozitář a HTTPS. SHA-256 není nezávislý podpis vydavatele; kompromitaci vydavatelského účtu neřeší. To odpovídá schvalovanému nasazení, nikoli bezobslužnému vzdálenému řízení. Návrat k předchozí verzi MU zůstává dostupný. Hosting bez `disk_free_space` vyžaduje podporovanou náhradní kontrolu kapacity.
 
 ## Vydání a stav veřejnosti
 
