@@ -1,10 +1,11 @@
-# JT WP Care 0.9.0-alpha
+# JT WP Care 0.10.0-alpha
 
 První instalovatelná pilotní verze MU pluginu. **Určena pro staging, nikoli plošné produkční nasazení.** Metodika vychází z ručního servisu; modul updates provádí schválené aktualizace pluginů a šablon. WordPress core a změny zabezpečení zůstávají ruční.
 
 ## Co balíček umí
 
 - Nástroje → JT WP Care: 17bodový checklist se stavy neověřeno, splněno, problém, odloženo a netýká se.
+- Přehled a samostatné záložky Checklist, Diagnostika a bezpečnost, Aktualizace a Report.
 - Uloží jeden průběžný záznam; u vyhodnoceného bodu vyžaduje důkaz nebo důvod. Zaznamenává UTC čas změny a ID správce.
 - Při otevření administrace automaticky (nejvýše jednou za hodinu) nebo na vyžádání pořídí lokální diagnostický snímek: WordPress, PHP, DB, šablona/child theme, běžné pluginy, uložené nabídky aktualizací, WooCommerce a základní bezpečnostní informace.
 - Security Audit rozlišuje XML-RPC přihlašované metody od neověřené dostupnosti z internetu; hledá Jetpack a vyžádá potvrzení externího použití.
@@ -20,11 +21,11 @@ Multisite je v této verzi výslovně blokované. Základní kód cílí na PHP 
 
 ## Aktualizace existující instalace přes WordPress
 
-Použij [návod k pomocnému instalátoru](docs/wordpress-update.md). Instalátor 0.2.0-alpha načte testovací vydání z veřejného GitHub Releases, ověří manifest a SHA-256 a po potvrzení správce přepne verzi bez ručního nahrávání ZIPu.
+Použij [návod k pomocnému instalátoru](docs/wordpress-update.md). Instalátor 0.3.0-alpha načte testovací vydání z veřejného GitHub Releases, ověří manifest a SHA-256 a po potvrzení správce přepne verzi bez ručního nahrávání ZIPu. Na hostingu bez `disk_free_space` použije omezený kontrolní zápis na stejném disku.
 
 ## První instalace přes FTP
 
-Pro běžné budoucí aktualizace připravujeme [centrální distribuci a potvrzený updater](docs/updates.md). Pomocný instalátor již umí potvrzené nahrání payloadu přes WordPress. Přímé stahování a automatická distribuce zatím implementované nejsou. Níže je postup první MU instalace.
+První MU instalace se provádí přes FTP. Další potvrzené aktualizace umí běžný instalátor stáhnout z veřejného GitHub Releases. Níže je postup prvního nasazení.
 
 1. Použijte staging a zálohu. Rozbalte distribuční ZIP lokálně.
 2. Nahrajte adresář `jt-wp-care` do `wp-content/mu-plugins/`.
@@ -38,7 +39,7 @@ wp-content/mu-plugins/
 ├── jt-wp-care.php
 └── jt-wp-care/
     ├── current.json
-    └── releases/0.9.0-alpha/
+    └── releases/0.10.0-alpha/
         ├── release.json
         ├── bootstrap.php
         ├── autoload.php
@@ -93,4 +94,4 @@ WooCommerce DB a fronta úloh: viz [popis kontrol](docs/woocommerce-audit.md). M
 
 ## Aktualizace 0.7
 
-[Řízené aktualizace a veřejný GitHub](docs/version-0.7.md) jsou popsány v docs/version-0.7.md. Modul `updates` lze vypnout. Instalátor 0.2.0-alpha stahuje vydání přímo z GitHubu; starší instalátor je potřeba jednou nahradit přes nahrání běžného pluginu.
+[Řízené aktualizace a veřejný GitHub](docs/version-0.7.md) jsou popsány v docs/version-0.7.md. Modul `updates` lze vypnout. Instalátor 0.3.0-alpha stahuje vydání přímo z GitHubu; starší instalátor je potřeba jednou nahradit přes nahrání běžného pluginu.

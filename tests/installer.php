@@ -33,6 +33,7 @@ try {
     file_put_contents($base . '/current.json', json_encode($state));
     file_put_contents($base . '/service-data-sentinel.txt', 'manual notes remain');
     $engine = new Installer($temp, $loaderHash, '6.0');
+    ok(Installer::capacity($base, 1048576) === 'disk_free_space', 'Native capacity check');
     $files = Package::read($payload, $hash, $version, '6.0');
     ok(isset($files['bootstrap.php']), 'Read trusted payload');
     rejected(fn() => Package::read($payload, str_repeat('0', 64), $version, '6.0'));

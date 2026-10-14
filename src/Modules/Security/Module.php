@@ -4,6 +4,7 @@ namespace JT\WPCare\Modules\Security;
 
 use JT\WPCare\Contracts\ModuleInterface;
 use JT\WPCare\Core\Access;
+use JT\WPCare\Core\AdminTabs;
 use JT\WPCare\Core\Store;
 
 final class Module implements ModuleInterface
@@ -33,10 +34,11 @@ final class Module implements ModuleInterface
             $record['audit'] = (new Collector())->collect($use);
             $this->store->save($record, Access::field('revision'));
         } catch (\Throwable $error) { Access::fail($error); }
-        Access::redirect();
+        Access::redirect('diagnostics');
     }
     public function render(): void
     {
+        if (!AdminTabs::is('diagnostics')) { return; }
         Access::authorize();
         $record = $this->store->load();
         echo '<section class="jt-card"><h2>Diagnostika a Security Audit</h2><p>Tlačítkem lze diagnostiku kdykoli obnovit ručně; zapnutý modul automatických kontrol ji obnovuje při otevření této stránky. Výsledek je uložený snímek, nikoli živý monitoring. Nejdříve uložte případné změny checklistu níže.</p>';

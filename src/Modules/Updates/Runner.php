@@ -107,14 +107,13 @@ final class Runner
         try {
             // Single-element bulk API preserves plugin activation; single upgrade() deactivates it.
             if ($row['kind'] === 'plugin') {
-                $batch = $upgrader->bulk_upgrade([$row['id']], ['clear_update_cache' => false]);
-                $result = is_array($batch) ? ($batch[$row['id']] ?? false) : false;
-                $success = is_array($result) && !empty($result['destination']);
+                $upgrader->bulk_upgrade([$row['id']], ['clear_update_cache' => false]);
             } else {
-                $success = $upgrader->upgrade($row['id'], ['clear_update_cache' => false]) === true;
+                $upgrader->upgrade($row['id'], ['clear_update_cache' => false]);
             }
         } finally { remove_filter('upgrader_pre_download', $pin, PHP_INT_MAX); }
-        if (!$success || $skin->get_errors()->has_errors()) { throw new \DomainException('WordPress aktualizaci nepotvrdil. Ověř její výsledek v přehledu pluginů nebo šablon.'); }
+        // Upgrader return values and skins may contain stale/non-fatal errors. The exact installed
+        // version and preserved activation below are the authoritative postconditions.
         if ($row['kind'] === 'plugin') {
             wp_clean_plugins_cache(false);
             $plugins = get_plugins(); $actual = $plugins[$row['id']]['Version'] ?? '';

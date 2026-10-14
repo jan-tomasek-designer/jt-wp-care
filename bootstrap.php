@@ -19,7 +19,7 @@ add_action('plugins_loaded', static function (): void {
     }
     $store = new \JT\WPCare\Core\Store();
     $modules = [
-        new \JT\WPCare\Modules\Dashboard\Module(),
+        new \JT\WPCare\Modules\Dashboard\Module($store),
         new \JT\WPCare\Modules\Checklist\Module($store),
         new \JT\WPCare\Modules\Security\Module($store),
         new \JT\WPCare\Modules\Reports\Module($store),

@@ -4,6 +4,7 @@ namespace JT\WPCare\Modules\Checklist;
 
 use JT\WPCare\Contracts\ModuleInterface;
 use JT\WPCare\Core\Access;
+use JT\WPCare\Core\AdminTabs;
 use JT\WPCare\Core\Store;
 
 final class Module implements ModuleInterface
@@ -26,11 +27,12 @@ final class Module implements ModuleInterface
             $record['items'] = Catalog::normalize($input, $record['items'], $record['audit'] ?? null);
             $this->store->save($record, Access::field('revision'));
         } catch (\Throwable $error) { Access::fail($error); }
-        Access::redirect();
+        Access::redirect('checklist');
     }
 
     public function render(): void
     {
+        if (!AdminTabs::is('checklist')) { return; }
         Access::authorize();
         $record = $this->store->load();
         echo '<section class="jt-card"><h2>Servisní checklist</h2><p>Jeden průběžně ukládaný servis. Diagnostika předvyplní zjištěné údaje u jednotlivých bodů. PHP a editor souborů vyhodnocuje automatika. Ručně doplníš jen skutečné funkční testy a výjimky. Poznámky neobsahují hesla ani osobní údaje zákazníků. Časy jsou v UTC.</p>';

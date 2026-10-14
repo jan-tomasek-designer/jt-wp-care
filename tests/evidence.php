@@ -28,6 +28,7 @@ $input['backup'] = ['state' => 'done', 'note' => 'Ruční důkaz, zachovat'];
 $rows = Catalog::normalize($input, [], $audit);
 $record = ['schema' => 1, 'revision' => 'test', 'items' => $rows, 'audit' => $audit];
 $GLOBALS['options'][Store::OPTION] = $record;
+$_GET['jt_tab'] = 'checklist';
 ob_start(); (new Module(new Store()))->render(); $html = ob_get_clean();
 expect(str_contains($html, 'Zjištěno automaticky') && str_contains($html, 'Co ověřit:'), 'Guided view');
 expect(str_contains($html, 'Ruční důkaz, zachovat'), 'Manual notes preserved');

@@ -8,7 +8,7 @@ final class Installer
     public string $phase = 'kontrola prostředí';
     public static function environment(): void
     {
-        foreach (['disk_free_space', 'flock', 'random_bytes', 'rename', 'mkdir', 'file_put_contents', 'hash_file', 'fopen', 'fclose', 'unlink', 'rmdir'] as $function) {
+        foreach (['flock', 'random_bytes', 'rename', 'mkdir', 'file_put_contents', 'hash_file', 'fopen', 'fclose', 'unlink', 'rmdir'] as $function) {
             if (!function_exists($function)) { throw new \DomainException('Hosting nemá dostupnou PHP funkci ' . $function . '. Aktualizace je zablokovaná; tuto informaci předej podpoře hostingu.'); }
         }
     }
@@ -51,8 +51,7 @@ final class Installer
             $target = $this->base . '/releases/' . $version;
             if (file_exists($target) || is_link($target)) { throw new \DomainException('Tato verze již na disku existuje. Nebude přepsána.'); }
             $this->phase = 'kontrola volného místa';
-            $free = disk_free_space($this->base);
-            if ($free === false || $free < 2 * array_sum(array_map('strlen', $files)) + 10485760) { throw new \DomainException('Nedostatek volného místa nebo nelze zjistit jeho velikost.'); }
+            self::capacity($this->base, 2 * array_sum(array_map('strlen', $files)) + 10485760);
             $this->phase = 'příprava nové složky';
             $stage = $this->base . '/releases/.stage-' . bin2hex(random_bytes(16));
             if (!mkdir($stage, 0755)) { throw new \DomainException('Nelze připravit novou verzi.'); }
@@ -73,6 +72,44 @@ final class Installer
                 if (is_dir($stage) && !is_link($stage)) { $this->cleanStage($stage); }
             }
         });
+    }
+
+    /** Prefer the filesystem metric; otherwise prove capacity by writing a removable reservation on the same filesystem. */
+    public static function capacity(string $base, int $required): string
+    {
+        if ($required < 1 || $required > 100663296 || !is_dir($base) || is_link($base)) {
+            throw new \DomainException('Nelze bezpečně ověřit volné místo.');
+        }
+        if (function_exists('disk_free_space')) {
+            $free = disk_free_space($base);
+            if ($free === false || $free < $required) { throw new \DomainException('Nedostatek volného místa nebo nelze zjistit jeho velikost.'); }
+            return 'disk_free_space';
+        }
+        foreach (['fwrite', 'fflush'] as $function) {
+            if (!function_exists($function)) { throw new \DomainException('Hosting nedovoluje bezpečnou náhradní kontrolu volného místa.'); }
+        }
+        $probe = rtrim($base, '/\\') . '/.space-check';
+        if (is_link($probe) || (file_exists($probe) && !is_file($probe))) { throw new \DomainException('Nepovolený soubor kontroly volného místa.'); }
+        if (is_file($probe) && !unlink($probe)) { throw new \DomainException('Nelze odstranit starou kontrolu volného místa.'); }
+        $handle = fopen($probe, 'x+b');
+        if ($handle === false) { throw new \DomainException('Nelze vytvořit kontrolu volného místa.'); }
+        try {
+            $remaining = $required; $chunk = str_repeat("\0", min(1048576, $required));
+            while ($remaining > 0) {
+                $length = min(strlen($chunk), $remaining); $written = fwrite($handle, $chunk, $length);
+                if (!is_int($written) || $written < 1) { throw new \DomainException('Pro instalaci není potvrzené dostatečné volné místo.'); }
+                $remaining -= $written;
+            }
+            if (!fflush($handle)) { throw new \DomainException('Kontrolní zápis volného místa nebyl potvrzen.'); }
+            clearstatcache(true, $probe);
+            if (filesize($probe) < $required) { throw new \DomainException('Kontrolní zápis nemá očekávanou velikost.'); }
+        } finally {
+            fclose($handle);
+            if (is_file($probe) && !is_link($probe) && !unlink($probe)) {
+                throw new \DomainException('Kontrolní soubor volného místa nelze odstranit; instalace je zastavena.');
+            }
+        }
+        return 'write_probe';
     }
 
     public function rollback(string $expected): array

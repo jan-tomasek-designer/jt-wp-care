@@ -1,43 +1,35 @@
-# Aktualizace 0.3 → 0.4 přes WordPress
+# Aktualizace JT WP Care přes WordPress
 
-Verze 0.3 nemá updater. První přechod bez FTP proto zajišťuje samostatný běžný plugin **JT WP Care – instalátor aktualizací**. Zůstává oddělený od MU aplikace a umí se vrátit k předchozím souborům. Je volitelný; po ověření aktualizace jej lze deaktivovat. MU plugin dál běží.
+Samostatný běžný plugin **JT WP Care – instalátor aktualizací** aktualizuje verzovaný MU plugin. Instalátor 0.3.0-alpha načítá publikovaná testovací vydání z veřejného GitHub Releases, ověřuje manifest, očekávanou velikost a SHA-256 a teprve po potvrzení správce připraví novou složku a přepne ukazatel aktivní verze.
 
-## Postup
+## První nasazení nebo výměna instalátoru
 
-1. Ověř dokončenou zálohu databáze i souborů a dostupnost obnovy. Před produkcí vyzkoušej na testovací kopii.
-2. Z úspěšného běhu CI pro schválený commit v repozitáři stáhni artifact `jt-wp-care-preview`. Rozbal pouze vnější ZIP. Uvnitř jsou balíčky a SHA256SUMS.txt.
-3. Ve WordPressu otevři **Pluginy → Instalace pluginů → Nahrát plugin**. Vyber `jt-wp-care-installer-0.1.1-alpha.zip`, nainstaluj a aktivuj.
-4. Otevři **Nástroje → JT WP Care – aktualizace**.
-5. Vyplň `0.4.0-alpha`, vyber `jt-wp-care-0.4.0-alpha-payload.zip` a vlož 64znakový SHA-256 z odpovídajícího řádku SHA256SUMS.txt. Potvrď zálohu a aktualizaci.
-6. Po přesměrování ověř aktivní i načtenou verzi. V JT WP Care ověř zachované poznámky, spusť diagnostiku, zkontroluj předvyplněné údaje a TXT/tiskový report. Vyzkoušej také důležité funkce webu.
+1. Ověř dokončenou zálohu databáze i souborů a možnost obnovy.
+2. Z publikovaného vydání stáhni `jt-wp-care-installer-0.3.0-alpha.zip`.
+3. Ve WordPressu otevři **Pluginy → Instalace pluginů → Nahrát plugin**.
+4. Nahraď starší instalátor a aktivuj pouze jednu kopii ve složce `jt-wp-care-installer`.
+5. Otevři **Nástroje → JT WP Care – aktualizace**.
 
-Nepoužívej instalační MU ZIP ani zdrojový ZIP z tlačítka Code do běžného instalátoru WordPressu. Do „Pluginy → Nahrát plugin“ patří jen pomocný instalátor. Payload se nahrává až v jeho vlastní obrazovce.
+## Běžná aktualizace MU pluginu
+
+1. Zapni testovací vydání a klikni na kontrolu nové verze.
+2. Zkontroluj nabízenou verzi a potvrď zálohu.
+3. Spusť instalaci. Instalátor stáhne jen přesnou adresu assetu z ověřeného veřejného repozitáře.
+4. Po přesměrování ověř aktivní i načtenou verzi.
+5. V JT WP Care zkontroluj Přehled, obnov diagnostiku a proveď ruční test funkcí, které HTTP post-test nepokrývá.
+
+## Hosting bez `disk_free_space`
+
+Instalátor 0.3.0-alpha nejprve použije `disk_free_space`, pokud je dostupná. Když ji hosting zakazuje, vytvoří ve stejné instalační složce nulový kontrolní soubor o vypočtené potřebné velikosti, zápis potvrdí, soubor uzavře a odstraní. Teprve potom začne zapisovat nové vydání. Tím ověří skutečnou kvótu a oprávnění na stejném filesystemu bez odhadu z jiné dočasné složky.
+
+Při nedostatku místa, chybě zápisu nebo přerušení se aktivní ukazatel nepřepne. Případný zbylý `.space-check` další pokus bezpečně odstraní pod instalačním zámkem. `flock`, přímý zápis, atomické přejmenování a podporovaný loader zůstávají povinné.
 
 ## Důvěra a limity
 
-Tento režim je **ruční nahrání balíčku z repozitáře**, nikoli přímé stahování GitHub → web. Nevyžaduje žádný GitHub token. Správce ověřuje zdroj ZIPu i součtu ve vlastním soukromém repozitáři. Kontrolní součet není kryptografický podpis; automatická distribuce vyžaduje navazující podepisování a samostatnou autentizaci. Do formuláře nelze vložit URL.
+Repozitář a vydání musí být veřejné. SHA-256 potvrzuje shodu se zveřejněným manifestem, nejde o podpis nezávislého vydavatele. Instalace vyžaduje oprávnění správce, POST, nonce a výslovné potvrzení zálohy. Neběží bezobslužně.
 
-Instalátor vyžaduje manage_options i update_plugins, POST, nonce a potvrzení. Respektuje zákaz změn souborů a vypnutí frameworku; odmítá multisite a připnutou verzi. Vyžaduje přímý zápis a známý nezměněný loader. SSH/FTP filesystem transporty zatím nepodporuje. Na hostingu se nemění oprávnění ani limity.
-
-Před zápisem ověří SHA-256, velikost, cesty, typy souborů, duplicity, platformu, protokol i datové schéma. Maximálně 8 MiB ZIP, 32 MiB rozbalených dat, 4 MiB na soubor a 1500 souborů. Zámek brání dvěma aktualizacím přes tento instalátor. Nové soubory vzniknou ve vlastní složce, pak se jedním rename ve stejné složce přepne JSON ukazatel. Přepnutí je určeno pro lokální filesystém s atomickým rename; chování síťového/distribuovaného filesystému a konkrétního hostingu musí ověřit staging. Současná ruční FTP změna není tímto zámkem chráněná.
-
-Původní verze, loader a servisní option se nemění. Nové vydání se nepřepisuje, pokud už existuje. Při přerušení mohou zůstat pomocné soubory nebo kompletní neaktivní vydání; před opakováním ověř stav a nic naslepo nemaž. Instalační záznam v option jt_wp_care_last_update obsahuje poslední operaci, verze, UTC čas a ID správce. Nejde o úplnou historii servisů.
+Balíček může mít nejvýše 8 MiB, rozbalená data 32 MiB, jeden soubor 4 MiB a 1500 souborů. Instalátor odmítá cesty mimo vydání, odkazy, duplicity, nepodporované schéma a změněný loader. Původní vydání, servisní data a checklist zachovává.
 
 ## Návrat
 
-Pokud administrace funguje, v instalátoru potvrď **Vrátit předchozí verzi**. Návrat nemění databázi. Pokud nová verze způsobí fatální chybu před načtením administrace, tento pomocný plugin ji nemůže obejít: přidej ve wp-config.php JT_WP_CARE_PINNED_RELEASE se známou předchozí verzí, nebo vypni framework pomocí JT_WP_CARE_DISABLED. Nouzově přejmenuj MU loader přes FTP na jt-wp-care.php.disabled. Automatická obnova po runtime chybě zatím implementována není.
-
-## Předvyplnění checklistu
-
-Diagnostika u položek zobrazí **Zjištěno automaticky** s časem snímku. Vlastní poznámky zůstávají oddělené a nikdy se automaticky nepřepisují. Starší uložený snímek 0.3 je podporován; pro nové údaje spusť diagnostiku znovu. Informace o aktualizacích pocházejí z cache a jejich absence není potvrzení aktuálnosti. SMTP detekuje omezený seznam pluginů, nikoli doručení.
-
-Stav funkčního ověření potvrzuje správce. U DISALLOW_FILE_EDIT může stav Splněno bez ruční poznámky podložit pouze nová diagnostika s přesnou hodnotou true. Ostatní dokončené body stále potřebují vlastní důkaz nebo důvod. Automatické údaje se objeví také v TXT a tiskovém reportu.
-
-
-Instalátor 0.1.1 podporuje hosting bez PHP zip: omezený čteč přijímá pouze původní ZIPy typu STORE vytvořené naším buildem. Nic nedekomprimuje ani přímo nerozbaluje na disk. Ověřuje centrální i lokální hlavičky, souvislé umístění, CRC, typy a stejné následné bezpečnostní kontroly jako nativní čteč. Nepodporuje ZIP64, šifrování, kompresi a data descriptors; balíček proto nepřebalujte. PHP zip zůstává potřebné pouze při sestavování vydání.
-
-## Instalátor 0.1.2-alpha: diagnostika selhání
-
-Před další instalací otevři aktualizační obrazovku. Uvede verzi instalátoru i skutečnou složku, ze které běží. Kontroluje úplnost doplňkových souborů a dostupnost funkcí nutných k aktualizaci; při jejich zákazu instalaci zablokuje konkrétní zprávou. Tato kontrola sama neinstaluje vydání ani nepřepíná ukazatel. Kontrola filesystem metody WordPressu může vytvořit vlastní krátkodobý testovací soubor.
-
-Při chybě zobrazí krok, bezpečný důvod a typ/soubor/řádek bez absolutních cest či obsahu runtime výjimky. Následně vždy ověř aktivní a načtenou verzi: selhání může nastat i po přepnutí při ukládání výsledku. Tato úprava zpřesňuje diagnostiku, nepotvrzuje dosud příčinu chyby na Livemotion. Při dvou instalátorech deaktivuj oba a aktivuj jen kompletní novou kopii 0.1.2. Veřejné zobrazování PHP chyb není potřeba.
+Pokud administrace funguje, použij v instalátoru **Vrátit předchozí verzi**. Návrat nemění databázi. Při nedostupné administraci připni známé předchozí vydání přes `JT_WP_CARE_PINNED_RELEASE`, vypni framework konstantou `JT_WP_CARE_DISABLED`, nebo nouzově přejmenuj MU loader přes FTP.

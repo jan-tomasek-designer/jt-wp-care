@@ -4,6 +4,7 @@ namespace JT\WPCare\Modules\Reports;
 
 use JT\WPCare\Contracts\ModuleInterface;
 use JT\WPCare\Core\Access;
+use JT\WPCare\Core\AdminTabs;
 use JT\WPCare\Core\Store;
 
 final class Module implements ModuleInterface
@@ -18,6 +19,7 @@ final class Module implements ModuleInterface
     }
     public function render(): void
     {
+        if (!AdminTabs::is('report')) { return; }
         Access::authorize();
         $record = $this->store->load();
         echo '<section class="jt-card"><h2>Report</h2><p>Exportuje pouze uložený stav. Nejdříve uložte checklist. PDF vytvoříte z tiskové verze funkcí prohlížeče Tisk → Uložit jako PDF.</p>';

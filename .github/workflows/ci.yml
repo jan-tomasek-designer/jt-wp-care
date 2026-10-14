@@ -28,6 +28,8 @@ jobs:
       - run: php tests/woocommerce.php
       - run: php tests/updates.php
       - run: php tests/updates-verifier.php
+      - run: php tests/tabs.php
+      - run: php tests/dashboard.php
       - run: php tests/repository.php
       - run: php tests/functional.php
       - run: node tests/updates-js.cjs

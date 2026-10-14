@@ -133,7 +133,7 @@ final class Screen
         $reason = $error instanceof \DomainException ? $error->getMessage() : 'Neočekávaná chyba instalátoru.';
         // No raw runtime messages, absolute paths, traces, credentials or uploaded contents.
         $kind = $error instanceof \Error ? 'PHP-Error' : 'Exception';
-        return $reason . ' Krok: ' . $phase . '. Kód: ' . $kind . '/' . basename($error->getFile()) . ':' . $error->getLine() . '. Instalátor 0.2.0-alpha, složka: ' . basename(__DIR__) . '. Obnov stránku aktualizací a ověř aktivní i načtenou verzi; tento výsledek sám nepotvrzuje, zda již došlo k přepnutí.';
+        return $reason . ' Krok: ' . $phase . '. Kód: ' . $kind . '/' . basename($error->getFile()) . ':' . $error->getLine() . '. Instalátor 0.3.0-alpha, složka: ' . basename(__DIR__) . '. Obnov stránku aktualizací a ověř aktivní i načtenou verzi; tento výsledek sám nepotvrzuje, zda již došlo k přepnutí.';
     }
 
     private function fail(\Throwable $error): void
@@ -145,7 +145,7 @@ final class Screen
     public function render(): void
     {
         echo '<div class="wrap"><h1>JT WP Care – aktualizace</h1>';
-        try { $this->authorize(); echo '<p><strong>Instalátor 0.2.0-alpha — aktivní složka: ' . esc_html(basename(__DIR__)) . '</strong></p>'; $engine = $this->engine(); $state = $engine->state(); }
+        try { $this->authorize(); echo '<p><strong>Instalátor 0.3.0-alpha — aktivní složka: ' . esc_html(basename(__DIR__)) . '</strong></p>'; $engine = $this->engine(); $state = $engine->state(); }
         catch (\Throwable $error) { echo '<p>' . esc_html(self::diagnostic($error, $this->phase)) . '</p></div>'; return; }
         $loaded = defined('JT_WP_CARE_LOADED_RELEASE') ? JT_WP_CARE_LOADED_RELEASE : 'nenačteno';
         echo '<p>Aktivní verze: <strong>' . esc_html($state['active']) . '</strong>. V tomto požadavku načteno: <strong>' . esc_html($loaded) . '</strong>.</p>';

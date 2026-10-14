@@ -86,6 +86,7 @@ try {
     rmdir($fixture . '/wp-admin/includes'); rmdir($fixture . '/wp-admin'); rmdir($fixture);
 }
 $GLOBALS['options'][Store::OPTION]['items']['backup']['note'] = '<script>alert(1)</script>';
+$_GET['jt_tab'] = 'checklist';
 ob_start(); (new \JT\WPCare\Modules\Checklist\Module($store))->render(); $html = ob_get_clean();
 check(!str_contains($html, '<script>'), 'Stored notes must be escaped.');
 check(str_contains($html, '&lt;script&gt;'), 'Escaped note is visible.');

@@ -4,6 +4,7 @@ namespace JT\WPCare\Modules\Updates;
 
 use JT\WPCare\Contracts\ModuleInterface;
 use JT\WPCare\Core\Access;
+use JT\WPCare\Core\AdminTabs;
 
 final class Module implements ModuleInterface
 {
@@ -33,7 +34,7 @@ final class Module implements ModuleInterface
             require_once ABSPATH . 'wp-admin/includes/update.php';
             wp_clean_plugins_cache(true); wp_clean_themes_cache(true);
             wp_update_plugins(); wp_update_themes();
-            Access::redirect();
+            Access::redirect('updates');
         } catch (\Throwable $e) { Access::fail($e); }
     }
     public function start(): void
@@ -50,7 +51,7 @@ final class Module implements ModuleInterface
                 Runner::save(['id' => wp_generate_uuid4(), 'by' => get_current_user_id(), 'created' => time(), 'updated' => gmdate('c'),
                     'backup_confirmed' => true, 'state' => 'ready', 'index' => 0, 'items' => $rows, 'results' => []]);
             });
-            Access::redirect();
+            Access::redirect('updates');
         } catch (\Throwable $e) { Access::fail($e); }
     }
     public function step(): void
@@ -87,7 +88,7 @@ final class Module implements ModuleInterface
                 if (($plan['id'] ?? '') !== Access::field('plan')) { throw new \DomainException('Plán se změnil.'); }
                 $plan['state'] = 'closed'; $plan['updated'] = gmdate('c'); $plan['closed_by'] = get_current_user_id(); Runner::save($plan);
             });
-            Access::redirect();
+            Access::redirect('updates');
         } catch (\Throwable $e) { Access::fail($e); }
     }
     private function form(string $action): void
@@ -98,6 +99,7 @@ final class Module implements ModuleInterface
     }
     public function render(): void
     {
+        if (!AdminTabs::is('updates')) { return; }
         try { self::authorize(); } catch (\Throwable $e) { return; }
         echo '<section class="jt-card"><h2>Řízené aktualizace</h2><p>Vyber a schval konkrétní verze. Běží postupně: pluginy → šablony → WooCommerce. Po každé položce proběhne technický test administrace a základních stránek; při problému nebo neověřeném výsledku se seznam zastaví. Záloha musí zahrnovat soubory i databázi.</p>';
         $plan = get_option(Runner::OPTION, []);

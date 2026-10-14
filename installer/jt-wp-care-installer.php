@@ -2,7 +2,7 @@
 /**
  * Plugin Name: JT WP Care – instalátor aktualizací
  * Description: Ručně potvrzená aktualizace existujícího JT WP Care z ověřeného payload ZIPu.
- * Version: 0.2.0-alpha
+ * Version: 0.3.0-alpha
  * Requires at least: 6.0
  * Requires PHP: 8.0
  */

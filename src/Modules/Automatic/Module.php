@@ -4,6 +4,7 @@ namespace JT\WPCare\Modules\Automatic;
 
 use JT\WPCare\Contracts\ModuleInterface;
 use JT\WPCare\Core\Access;
+use JT\WPCare\Core\AdminTabs;
 use JT\WPCare\Core\Store;
 use JT\WPCare\Modules\Security\Collector;
 
@@ -43,6 +44,7 @@ final class Module implements ModuleInterface
     }
     public function render(): void
     {
+        if (!AdminTabs::is('diagnostics')) { return; }
         Access::authorize(); $record = $this->store->load();
         echo '<section class="jt-card"><h2>Automatické kontroly</h2><p>Kontrola se sama obnoví při otevření JT WP Care, nejvýše jednou za hodinu. Nemění nastavení webu ani neinstaluje aktualizace.</p>';
         $labels = ['php' => 'Podpora větve PHP', 'file_edit' => 'Editor souborů', 'debug' => 'Debug režim', 'wordpress' => 'WordPress', 'plugins' => 'Pluginy', 'theme' => 'Šablony', 'woocommerce' => 'WooCommerce', 'wc_database' => 'Databáze WooCommerce', 'wc_queue' => 'Naplánované úlohy', 'login_session' => 'Přihlášení správce', 'backoffice' => 'Backoffice', 'frontoffice' => 'Front office', 'basic_pages' => 'Základní stránky'];

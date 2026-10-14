@@ -89,3 +89,10 @@
 - Další položky se při problému i neověřeném výsledku zastaví; provedená verze a podrobnosti kontroly zůstanou v historii.
 - Méně citlivé nabídky jsou předvybrané jako doporučené. Aktivní citlivé pluginy, šablony a WooCommerce dál vyžadují samostatné schválení.
 - Post-test je omezený na GET a nenahrazuje vizuální kontrolu, e-mail, formulář, objednávku ani databázové migrace.
+## 0.10.0-alpha — 2026-10-14
+
+- Administrace je rozdělená na Přehled, Checklist, Diagnostiku a bezpečnost, Aktualizace a Report.
+- Přehled ukazuje stav checklistu, počet automatických nálezů, stav aktualizačního plánu a rychlé odkazy do sekcí.
+- Instalátor 0.3.0-alpha umí na hostingu bez `disk_free_space` ověřit potřebné místo omezeným kontrolním zápisem na stejném filesystemu a soubor vždy odstraní.
+- Výsledek aktualizace se potvrzuje skutečně nainstalovanou cílovou verzí a zachovanou aktivací; nejednoznačný návrat upgraderu už nevytvoří falešnou chybu jako u Complianz na MRA.
+- Zachované jsou bezpečné post-testy 0.9 po každé aktualizaci; změna karet ani instalátoru nemění datové schéma.

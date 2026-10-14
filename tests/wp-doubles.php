@@ -21,6 +21,9 @@ function wp_generate_uuid4() { static $id = 0; return 'revision-' . ++$id; }
 function maybe_serialize($value) { return serialize($value); }
 function wp_cache_delete($key, $group) {}
 function add_action($name, $callback, $priority = 10) { $GLOBALS['hooks'][$name][] = $callback; }
+function do_action($name, ...$args) { foreach ($GLOBALS['hooks'][$name] ?? [] as $callback) { $callback(...$args); } }
+function add_management_page($pageTitle, $menuTitle, $capability, $slug, $callback) { $GLOBALS['management_pages'][$slug] = $callback; }
+function wp_enqueue_style($handle, $src = '', $deps = [], $version = false) { $GLOBALS['styles'][$handle] = compact('src', 'deps', 'version'); }
 function esc_html($value) { return htmlspecialchars((string) $value, ENT_QUOTES, 'UTF-8'); }
 function esc_attr($value) { return esc_html($value); }
 function esc_textarea($value) { return esc_html($value); }
