@@ -12,8 +12,8 @@ function wp_unslash($value) { return is_array($value) ? array_map('wp_unslash', 
 function sanitize_textarea_field($text) { return strip_tags($text); }
 function get_current_user_id() { return 7; }
 function get_option($key, $default = false) { return $GLOBALS['options'][$key] ?? $default; }
-function update_option($key, $value, $autoload = null) { $GLOBALS['options'][$key] = $value; return true; }
-function delete_option($key) { unset($GLOBALS['options'][$key]); return true; }
+if (!function_exists('update_option')) { function update_option($key, $value, $autoload = null) { $GLOBALS['options'][$key] = $value; return true; } }
+if (!function_exists('delete_option')) { function delete_option($key) { unset($GLOBALS['options'][$key]); return true; } }
 function add_option($key, $value, $unused = '', $autoload = true) {
     if (isset($GLOBALS['options'][$key])) { return false; }
     if ($autoload !== false) { throw new RuntimeException('Record must not autoload.'); }
