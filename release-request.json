@@ -1,4 +1,5 @@
 {
   "version": "0.11.0-alpha",
-  "publish": true
+  "publish": true,
+  "request": 2
 }
