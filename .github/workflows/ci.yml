@@ -1,9 +1,12 @@
 name: PHP checks
 on:
   push:
-    branches: ['**']
+    branches: [main]
   pull_request:
   workflow_call:
+concurrency:
+  group: php-checks-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 permissions:
   contents: read
 jobs:
