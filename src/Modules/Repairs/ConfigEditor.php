@@ -13,13 +13,17 @@ final class ConfigEditor
 {
     private const TARGETS = ['WP_DEBUG', 'WP_DEBUG_DISPLAY', 'WP_DEBUG_LOG'];
     private string $path;
-    private string $backupDirectory;
+    /** @var string[] */
+    private array $backupDirectories;
+    private ?string $selectedBackupDirectory = null;
     private array $runtime;
 
-    public function __construct(?string $path = null, ?string $backupDirectory = null, ?array $runtime = null)
+    /** @param string|string[]|null $backupDirectory */
+    public function __construct(?string $path = null, string|array|null $backupDirectory = null, ?array $runtime = null)
     {
         $this->path = $path ?? self::locate();
-        $this->backupDirectory = $backupDirectory ?? dirname($this->path) . '/.jt-wp-care-backups';
+        $this->backupDirectories = $backupDirectory === null ? $this->defaultBackupDirectories()
+            : array_values(array_unique(array_filter((array) $backupDirectory, 'is_string')));
         $this->runtime = $runtime ?? array_combine(self::TARGETS, array_map(
             static fn(string $name): bool => defined($name) && constant($name) !== false,
             self::TARGETS
@@ -31,6 +35,9 @@ final class ConfigEditor
         try {
             $source = $this->source();
             $planned = $this->plan($source);
+            if (!$this->hasAvailableBackupDirectory()) {
+                throw new \DomainException('PHP nemá právo vytvořit chráněnou zálohu vedle wp-config.php ani ve spravované složce JT WP Care; soubor nebude změněn.');
+            }
             return [
                 'ready' => true,
                 'needed' => !hash_equals(hash('sha256', $source), hash('sha256', $planned)),
@@ -71,7 +78,7 @@ final class ConfigEditor
     {
         $backup = isset($operation['backup']) && is_string($operation['backup']) ? $operation['backup'] : '';
         $newHash = isset($operation['new_hash']) && is_string($operation['new_hash']) ? $operation['new_hash'] : '';
-        if ($backup === '' || $newHash === '' || dirname($backup) !== $this->backupDirectory) {
+        if ($backup === '' || $newHash === '' || !in_array(dirname($backup), $this->backupDirectories, true)) {
             throw new \DomainException('Záloha konfigurace není platná pro tento web.');
         }
         $current = $this->source();
@@ -199,17 +206,22 @@ final class ConfigEditor
 
     private function backup(string $source): string
     {
-        if (!is_dir($this->backupDirectory) && !@mkdir($this->backupDirectory, 0700, true) && !is_dir($this->backupDirectory)) {
+        $this->selectedBackupDirectory = null;
+        foreach ($this->backupDirectories as $directory) {
+            if ($this->prepareBackupDirectory($directory)) { $this->selectedBackupDirectory = $directory; break; }
+        }
+        if ($this->selectedBackupDirectory === null) {
             throw new \DomainException('Nelze vytvořit chráněnou složku pro zálohu wp-config.php; soubor nebyl změněn.');
         }
-        @chmod($this->backupDirectory, 0700);
+        $directory = $this->selectedBackupDirectory;
+        @chmod($directory, 0700);
         foreach (['index.php' => "<?php http_response_code(404); exit;\n", '.htaccess' => "Require all denied\nDeny from all\n", 'web.config' => "<configuration><system.webServer><authorization><deny users=\"*\" /></authorization></system.webServer></configuration>\n"] as $name => $body) {
-            $control = $this->backupDirectory . '/' . $name;
+            $control = $directory . '/' . $name;
             if (!file_exists($control)) { @file_put_contents($control, $body, LOCK_EX); }
         }
         try { $random = bin2hex(random_bytes(8)); }
         catch (\Throwable $error) { throw new \DomainException('Nelze vytvořit bezpečný název zálohy konfigurace.'); }
-        $path = $this->backupDirectory . '/wp-config-' . gmdate('Ymd-His') . '-' . $random . '.php';
+        $path = $directory . '/wp-config-' . gmdate('Ymd-His') . '-' . $random . '.php';
         $payload = "<?php\nhttp_response_code(404); exit;\n__halt_compiler();\n" . base64_encode($source);
         if (file_put_contents($path, $payload, LOCK_EX) !== strlen($payload)) {
             @unlink($path);
@@ -217,6 +229,39 @@ final class ConfigEditor
         }
         @chmod($path, 0600);
         return $path;
+    }
+
+    /** @return string[] */
+    private function defaultBackupDirectories(): array
+    {
+        $directories = [dirname($this->path) . '/.jt-wp-care-backups'];
+        if (defined('WPMU_PLUGIN_DIR')) {
+            $directories[] = rtrim((string) WPMU_PLUGIN_DIR, '/\\') . '/jt-wp-care/config-backups';
+        } elseif (defined('WP_CONTENT_DIR')) {
+            $directories[] = rtrim((string) WP_CONTENT_DIR, '/\\') . '/mu-plugins/jt-wp-care/config-backups';
+        }
+        return array_values(array_unique($directories));
+    }
+
+    private function hasAvailableBackupDirectory(): bool
+    {
+        foreach ($this->backupDirectories as $directory) {
+            if (is_dir($directory)) {
+                if (!is_link($directory) && is_writable($directory)) { return true; }
+                continue;
+            }
+            $parent = $directory;
+            while (!file_exists($parent) && dirname($parent) !== $parent) { $parent = dirname($parent); }
+            if (is_dir($parent) && !is_link($parent) && is_writable($parent)) { return true; }
+        }
+        return false;
+    }
+
+    private function prepareBackupDirectory(string $directory): bool
+    {
+        if (is_dir($directory)) { return !is_link($directory) && is_writable($directory); }
+        if (file_exists($directory) || !@mkdir($directory, 0700, true)) { return false; }
+        return is_dir($directory) && !is_link($directory) && is_writable($directory);
     }
 
     private function writeLocked(string $expected, string $replacement): void

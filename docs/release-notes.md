@@ -1,8 +1,8 @@
-# JT WP Care 0.12.0-alpha
+# JT WP Care 0.12.1-alpha
 
-V diagnostice přibyla první řízená oprava konfigurace. Po výslovném potvrzení použitelné zálohy a zásahu umí JT WP Care nastavit `WP_DEBUG`, `WP_DEBUG_DISPLAY` a `WP_DEBUG_LOG` na `false` v běžném zapisovatelném `wp-config.php`. Serverové `PHP display_errors` zůstává samostatným nastavením hostingu.
+Toto opravné vydání umožňuje řízenou opravu konfigurace také na hostinzích, kde je zapisovatelný samotný `wp-config.php`, ale PHP nesmí vytvořit novou složku vedle něj. JT WP Care v takovém případě uloží chráněnou zálohu do trvalé spravované složky `wp-content/mu-plugins/jt-wp-care/config-backups`, která není součástí verzovaného vydání.
 
-Před změnou vznikne datovaná chráněná záloha. Oprava odmítne symbolický odkaz, neplatnou PHP syntaxi, dynamické nebo vícenásobné definice a aktivní hodnotu, jejíž zdroj není ve `wp-config.php` jednoznačně dohledatelný. Zápis probíhá pod zámkem, kontroluje souběžnou změnu a ověří výsledný obsah.
+Před změnou vznikne datovaná chráněná záloha. Obě povolená umístění používají náhodný název, PHP ochranu přímého přístupu, ochranné soubory pro Apache/IIS a omezená práva. Oprava odmítne symbolický odkaz, neplatnou PHP syntaxi, dynamické nebo vícenásobné definice a aktivní hodnotu, jejíž zdroj není ve `wp-config.php` jednoznačně dohledatelný. Zápis probíhá pod zámkem, kontroluje souběžnou změnu a ověří výsledný obsah.
 
 Po zásahu proběhne technický test administrace a základních stránek. Zjištěný problém vyvolá automatický návrat původní konfigurace; neověřitelný HTTP test zůstane viditelným omezením pro ruční kontrolu. Historie zásahu, výsledek testu a název zálohy jsou součástí servisního reportu bez zveřejnění obsahu nebo absolutní cesty.
 

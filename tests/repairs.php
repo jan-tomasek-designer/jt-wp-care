@@ -55,6 +55,17 @@ try {
     $mismatch = "<?php\ndefine('WP_DEBUG', false);\nrequire_once ABSPATH . 'wp-settings.php';\n";
     $otherSource = new ConfigEditor($path, $backup, ['WP_DEBUG' => true, 'WP_DEBUG_DISPLAY' => false, 'WP_DEBUG_LOG' => false]);
     repairRejects(fn() => $otherSource->plan($mismatch), 'jiný zdroj');
+
+    file_put_contents($path, $source);
+    $blocked = $directory . '/not-a-directory'; file_put_contents($blocked, 'x');
+    $fallback = $directory . '/managed/config-backups';
+    $fallbackEditor = new ConfigEditor($path, [$blocked . '/backup', $fallback], ['WP_DEBUG' => true, 'WP_DEBUG_DISPLAY' => false, 'WP_DEBUG_LOG' => true]);
+    repairCheck($fallbackEditor->inspect()['ready'], 'Writable managed fallback should make repair available.');
+    $fallbackOperation = $fallbackEditor->disableDebug();
+    repairCheck(dirname($fallbackOperation['backup']) === $fallback, 'Backup should fall back to managed Care directory.');
+    $fallbackEditor->restore($fallbackOperation);
+    foreach (array_diff(scandir($fallback), ['.', '..']) as $file) { unlink($fallback . '/' . $file); }
+    rmdir($fallback); rmdir(dirname($fallback)); unlink($blocked);
 } finally {
     if (is_dir($backup)) { foreach (array_diff(scandir($backup), ['.', '..']) as $file) { unlink($backup . '/' . $file); } rmdir($backup); }
     if (is_file($path)) { unlink($path); }

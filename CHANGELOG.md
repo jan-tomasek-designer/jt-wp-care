@@ -1,3 +1,9 @@
+## 0.12.1-alpha — 2026-10-15
+
+- Záloha `wp-config.php` nově použije spravovanou složku `wp-content/mu-plugins/jt-wp-care/config-backups`, pokud hosting nedovolí vytvořit chráněnou složku vedle konfigurace.
+- Náhradní umístění zachovává PHP ochranu přímého přístupu, náhodný název, omezená práva a kontrolu integrity před případným návratem.
+- Kontrola dostupnosti zálohy probíhá už při zobrazení opravy; bez bezpečného zapisovatelného umístění zůstane zásah zablokovaný.
+
 ## 0.12.0-alpha — 2026-10-14
 
 - První řízená oprava `wp-config.php`: po potvrzení zálohy vypne `WP_DEBUG`, `WP_DEBUG_DISPLAY` a `WP_DEBUG_LOG`.

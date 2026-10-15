@@ -1,4 +1,4 @@
-# JT WP Care 0.12.0-alpha
+# JT WP Care 0.12.1-alpha
 
 První instalovatelná pilotní verze MU pluginu. **Určena pro staging, nikoli plošné produkční nasazení.** Metodika vychází z ručního servisu; modul updates provádí schválené aktualizace pluginů a šablon. WordPress core a změny zabezpečení zůstávají ruční.
 
@@ -42,7 +42,7 @@ wp-content/mu-plugins/
 ├── jt-wp-care.php
 └── jt-wp-care/
     ├── current.json
-    └── releases/0.12.0-alpha/
+    └── releases/0.12.1-alpha/
         ├── release.json
         ├── bootstrap.php
         ├── autoload.php
@@ -72,7 +72,7 @@ ID modulů: `dashboard`, `checklist`, `security`, `reports`, `automatic`, `funct
 
 ## Uložená data
 
-WordPress option `jt_wp_care_record_v1` bez autoloadu: stavy, poznámky, ID správců, UTC časy, revize, potvrzení XML-RPC a poslední snímek. Historie oprav konfigurace je v neautoloadovaném option `jt_wp_care_repair_history`; chráněné zálohy konfigurace jsou vedle aktivního `wp-config.php` ve skryté složce `.jt-wp-care-backups` a jejich obsah není v reportu. Záznamy zůstávají až do ručního odstranění správcem; alpha nemá retenční automatizaci. Vypnutí/odstranění souborů nic nemaže. Samotné vykreslení nic neukládá; při otevření JT WP Care může automatický modul samostatným ověřeným POST požadavkem obnovit diagnostický snímek. Exporty se streamují do prohlížeče, nevznikají veřejné soubory v uploads. Do poznámek nevkládejte hesla, klíče ani osobní údaje zákazníků.
+WordPress option `jt_wp_care_record_v1` bez autoloadu: stavy, poznámky, ID správců, UTC časy, revize, potvrzení XML-RPC a poslední snímek. Historie oprav konfigurace je v neautoloadovaném option `jt_wp_care_repair_history`; chráněné zálohy konfigurace jsou přednostně vedle aktivního `wp-config.php` ve skryté složce `.jt-wp-care-backups`. Když hosting vytvoření této složky nepovolí, použije se `wp-content/mu-plugins/jt-wp-care/config-backups`. Obsah zálohy není v reportu. Záznamy zůstávají až do ručního odstranění správcem; alpha nemá retenční automatizaci. Vypnutí/odstranění souborů nic nemaže. Samotné vykreslení nic neukládá; při otevření JT WP Care může automatický modul samostatným ověřeným POST požadavkem obnovit diagnostický snímek. Exporty se streamují do prohlížeče, nevznikají veřejné soubory v uploads. Do poznámek nevkládejte hesla, klíče ani osobní údaje zákazníků.
 
 ## Vývoj a sestavení
 
