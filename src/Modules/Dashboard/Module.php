@@ -4,9 +4,15 @@ namespace JT\WPCare\Modules\Dashboard;
 
 use JT\WPCare\Contracts\ModuleInterface;
 use JT\WPCare\Core\Access;
+use JT\WPCare\Core\AdminTabs;
+use JT\WPCare\Core\Store;
+use JT\WPCare\Modules\Automatic\Evaluation;
+use JT\WPCare\Modules\Checklist\Catalog;
 
 final class Module implements ModuleInterface
 {
+    private Store $store;
+    public function __construct(Store $store) { $this->store = $store; }
     public function id(): string { return 'dashboard'; }
     public function register(): void
     {
@@ -27,13 +33,62 @@ final class Module implements ModuleInterface
     {
         Access::authorize();
         echo '<div class="wrap jt-care"><h1>JT WP Care <small>' . esc_html(\JT\WPCare\Core\Release::VERSION) . '</small></h1><p>Servis podle metodiky 0.1 · ' . esc_html(home_url('/')) . '</p>';
-        echo '<div class="notice notice-warning inline"><p>Testovací verze pro staging. Aktualizace i změny zabezpečení provádí správce ručně. Nejde o úplný bezpečnostní audit.</p></div>';
+        echo '<div class="notice notice-warning inline"><p>Testovací verze. Vybrané aktualizace se spustí po schválení správcem; nejprve ověř zálohu a možnost obnovy. Nejde o úplný bezpečnostní audit.</p></div>';
         if (isset($_GET['saved']) && $_GET['saved'] === '1') {
             echo '<div class="notice notice-success inline"><p>Operace byla uložena.</p></div>';
         }
-        echo '<p>Záloha → diagnostika → plán → WordPress → pluginy → šablony → WooCommerce → funkční test → bezpečnost → report</p>';
+        echo '<nav class="nav-tab-wrapper jt-tabs" aria-label="Sekce JT WP Care">';
+        foreach (AdminTabs::all() as $id => $label) {
+            echo '<a class="nav-tab' . (AdminTabs::is($id) ? ' nav-tab-active' : '') . '" href="' . esc_url(AdminTabs::url($id)) . '">' . esc_html($label) . '</a>';
+        }
+        echo '</nav>';
+        if (AdminTabs::is('overview')) { $this->overview(); }
         try { do_action('jt_wp_care_sections'); }
         catch (\Throwable $error) { echo '<div class="notice notice-error inline"><p>Záznam nelze zobrazit. Zkontrolujte jeho formát a kompatibilitu verze pluginu.</p></div>'; }
         echo '</div>';
+    }
+
+    private function overview(): void
+    {
+        $record = $this->store->load(); $states = array_fill_keys(array_keys(Catalog::states()), 0);
+        foreach (Catalog::items() as $id => $definition) {
+            $manual = $record['items'][$id]['state'] ?? 'unknown';
+            $auto = Evaluation::item($id, $record['audit'] ?? null);
+            $state = $auto['state'] ?? $manual;
+            ++$states[isset($states[$state]) ? $state : 'unknown'];
+        }
+        $automatic = Evaluation::results($record['audit'] ?? null);
+        $attention = array_filter($automatic, static fn(array $row): bool => in_array($row['state'] ?? '', ['problem', 'unknown'], true));
+        $plan = get_option(\JT\WPCare\Modules\Updates\Runner::OPTION, []);
+        $planLabels = ['ready' => 'čeká na spuštění', 'running' => 'probíhá / výsledek neověřen', 'verifying' => 'čeká na post-test',
+            'stopped' => 'zastaveno', 'complete' => 'dokončeno, čeká na ruční kontrolu', 'closed' => 'uzavřeno'];
+        $total = count(Catalog::items()); $resolved = $states['done'] + $states['na'];
+        $critical = $states['problem'] + count(array_filter($automatic, static fn(array $row): bool => ($row['state'] ?? '') === 'problem'));
+        echo '<section class="jt-overview"><div class="jt-summary jt-summary-' . ($critical ? 'problem' : ($states['unknown'] ? 'pending' : 'done')) . '">';
+        echo '<div><span class="jt-eyebrow">Stav servisu</span><strong>' . ($critical ? esc_html($critical . ' problémů vyžaduje řešení') : ($states['unknown'] ? 'Servis čeká na dokončení' : 'Kontroly bez otevřeného problému')) . '</strong></div>';
+        echo '<div class="jt-summary-counts"><span><b>' . esc_html((string) $resolved) . '</b> hotovo</span><span><b>' . esc_html((string) $states['unknown']) . '</b> čeká</span><span><b>' . esc_html((string) $states['deferred']) . '</b> odloženo</span><span><b>' . esc_html((string) $critical) . '</b> problém</span></div></div>';
+        echo '<div class="jt-overview-grid">';
+        $this->tile('Checklist', $states['done'] . ' z ' . $total . ' splněno', 'checklist', $states['problem'] . ' problémů · ' . $states['deferred'] . ' odloženo · ' . $states['unknown'] . ' neověřeno', $states['problem'] ? 'problem' : ($states['unknown'] ? 'pending' : 'done'));
+        $this->tile('Diagnostika', $attention ? count($attention) . ' položek vyžaduje pozornost' : ($automatic ? 'Bez zjištěného problému' : 'Dosud bez snímku'), 'diagnostics', 'Poslední snímek: ' . ($record['audit']['at'] ?? 'neproveden'), $attention ? 'problem' : ($automatic ? 'done' : 'pending'));
+        $planState = $plan['state'] ?? '';
+        $this->tile('Aktualizace', $planLabels[$planState] ?? 'Bez aktivního plánu', 'updates', !empty($plan['updated']) ? 'Poslední změna: ' . $plan['updated'] : 'Nejdříve ověř zálohu', $planState === 'stopped' ? 'problem' : (in_array($planState, ['complete', 'closed'], true) ? 'done' : 'pending'));
+        $this->tile('Report', !empty($record['updated_at']) ? 'Záznam je uložen' : 'Záznam ještě nebyl uložen', 'report', 'TXT nebo tisková verze / PDF', !empty($record['updated_at']) ? 'done' : 'pending');
+        echo '</div>';
+        if ($attention) {
+            echo '<div class="jt-card"><h2>Co vyžaduje pozornost</h2>';
+            $labels = ['debug' => 'Debug režim', 'plugins' => 'Pluginy', 'theme' => 'Šablony', 'woocommerce' => 'WooCommerce', 'wc_database' => 'Databáze WooCommerce', 'wc_queue' => 'Naplánované úlohy', 'wordpress' => 'WordPress', 'frontoffice' => 'Front office', 'basic_pages' => 'Základní stránky'];
+            foreach (array_slice($attention, 0, 6, true) as $id => $row) {
+                $state = ($row['state'] ?? '') === 'problem' ? 'problem' : 'unknown';
+                echo '<p class="jt-status jt-status-' . esc_attr($state) . '"><strong>' . esc_html($labels[$id] ?? $id) . '</strong><br>' . esc_html($row['text'] ?? '') . '</p>';
+            }
+            echo '<p><a class="button" href="' . esc_url(AdminTabs::url('diagnostics')) . '">Otevřít diagnostiku</a></p></div>';
+        }
+        echo '<div class="jt-card"><h2>Postup servisu</h2><p>Záloha → diagnostika → plán → WordPress → pluginy → šablony → WooCommerce → funkční test → bezpečnost → report</p></div></section>';
+    }
+
+    private function tile(string $title, string $value, string $tab, string $detail, string $state): void
+    {
+        $labels = ['done' => 'Hotovo', 'pending' => 'Čeká', 'problem' => 'Pozor'];
+        echo '<a class="jt-overview-tile jt-tile-' . esc_attr($state) . '" href="' . esc_url(AdminTabs::url($tab)) . '"><span class="jt-tile-head"><strong>' . esc_html($title) . '</strong><em>' . esc_html($labels[$state] ?? '') . '</em></span><span>' . esc_html($value) . '</span><small>' . esc_html($detail) . '</small></a>';
     }
 }

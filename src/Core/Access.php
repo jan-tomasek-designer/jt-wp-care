@@ -28,9 +28,10 @@ final class Access
         return isset($_POST[$name]) && is_string($_POST[$name]) ? wp_unslash($_POST[$name]) : '';
     }
 
-    public static function redirect(): void
+    public static function redirect(string $tab = 'overview'): void
     {
-        wp_safe_redirect(admin_url('tools.php?page=jt-wp-care&saved=1'));
+        $tab = isset(AdminTabs::all()[$tab]) ? $tab : 'overview';
+        wp_safe_redirect(admin_url('tools.php?page=jt-wp-care&jt_tab=' . rawurlencode($tab) . '&saved=1'));
         exit;
     }
 

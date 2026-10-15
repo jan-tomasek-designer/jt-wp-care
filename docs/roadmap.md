@@ -6,11 +6,15 @@ Loader, autoloading, registr, vypínání, prázdná administrační obrazovka, 
 
 ## Nejprve ověření metodiky
 
-Uživatel 2026-10-06 potvrdil dokončenou zálohu a úspěšné funkční testy po vypnutí XML-RPC na obnovlimity.cz a zadal přípravu MU pluginu. Jde o uživatelské potvrzení konkrétního postupu, nikoli automatický důkaz všech bodů metodiky. Vývoj pokračuje pilotem 0.2.0-alpha; širší ověření metodiky a běžného webu zůstává otevřené.
+Při prvním pilotním servisu byla potvrzena dokončená záloha a úspěšné funkční testy po vypnutí XML-RPC. Jde o potvrzení konkrétního postupu, nikoli automatický důkaz všech bodů metodiky. Vývoj pokračuje pilotem 0.2.0-alpha; širší ověření metodiky a běžného webu zůstává otevřené.
 
 ## 0.2.0-alpha — pilot
 
 Implementován jeden průběžný checklist, lokální diagnostika na vyžádání, omezená XML-RPC analýza, TXT a tisková verze pro PDF přes prohlížeč. Bez automatických zásahů. Historie, uzavírání servisů, plná diagnostika a přímé generování PDF nejsou dokončené. Multisite není podporováno. Stav ověření: [testy a staging](verification.md).
+
+## 0.12.0-alpha — první řízená oprava konfigurace
+
+Po samostatném potvrzení zálohy a zásahu lze vypnout tři WordPress debug konstanty v jednoznačném zapisovatelném `wp-config.php`. Součástí je chráněná záloha, kontrola syntaxe, zápis pod zámkem, technický post-test, podmíněný automatický návrat a historie v reportu. Nestandardní nebo dynamická konfigurace zůstává ruční. Další opravy se přidají až jako samostatná pravidla se stejně úzkým rozsahem a vlastním návratem.
 
 ## 1.0 — checklist, diagnostické podklady a report
 

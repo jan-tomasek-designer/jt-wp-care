@@ -1,3 +1,63 @@
+## 0.12.1-alpha — 2026-10-15
+
+- Záloha `wp-config.php` nově použije spravovanou složku `wp-content/mu-plugins/jt-wp-care/config-backups`, pokud hosting nedovolí vytvořit chráněnou složku vedle konfigurace.
+- Náhradní umístění zachovává PHP ochranu přímého přístupu, náhodný název, omezená práva a kontrolu integrity před případným návratem.
+- Kontrola dostupnosti zálohy probíhá už při zobrazení opravy; bez bezpečného zapisovatelného umístění zůstane zásah zablokovaný.
+
+## 0.12.0-alpha — 2026-10-14
+
+- První řízená oprava `wp-config.php`: po potvrzení zálohy vypne `WP_DEBUG`, `WP_DEBUG_DISPLAY` a `WP_DEBUG_LOG`.
+- Oprava přijímá jen jednoznačnou konfiguraci, před zápisem vytváří chráněnou zálohu, kontroluje PHP syntaxi, souběžnou změnu a výsledný obsah.
+- Po změně proběhne technický post-test; při zjištěném problému se konfigurace automaticky vrátí. Výsledek a záloha jsou v historii a reportu.
+- Duplicitní nabídky stejné verze WordPressu jsou v diagnostice sloučené.
+
+## 0.11.0-alpha — 2026-10-14
+
+- Barevný souhrn nástěnky rozlišuje hotové, čekající, odložené a problémové oblasti; stejné stavy nesou jednotlivé karty.
+- Ručně schválené odstranění jednoho neaktivního pluginu po potvrzení zálohy, s ochranou WooCommerce, instalátoru a rozpoznaných závislostí aktivních pluginů.
+- Po odstranění pluginu proběhne technický test administrace a základních stránek a výsledek se uloží do historie úklidu.
+- HTTP test zachytí známky kritické PHP chyby, chyby databázového připojení a údržbové obrazovky i v odpovědi HTTP 200.
+- Instalátor 0.4.0-alpha ukládá stav operace před stažením a po obnovení stránky vyhodnotí skutečně aktivní verzi; pomalé rozbalování už nezůstane bez vysvětlení.
+
+## 0.7.0-alpha — 2026-10-12
+
+- Schválený seznam aktualizací pluginů a šablon přes standardní WordPress upgrader; WooCommerce poslední.
+- Samostatné potvrzení citlivých změn, kontrola nabídky před každým krokem, zámek, zastavení při chybě a historie v reportu.
+- Instalátor 0.2.0-alpha: veřejná GitHub Releases, automatické stažení, limity a SHA-256 bez ručního zadávání.
+- Ruční ZIP zůstává nouzovou cestou; změny schématu ani loaderu nejsou potřeba.
+
+## 0.6.0-alpha — 2026-10-12
+
+- Samostatně vypínatelná diagnostika WooCommerce DB a Action Scheduleru.
+- Omezené čtecí dotazy, žádné spouštění migrací nebo úloh; poznámky a ruční stavy zachovány.
+- Neúspěšné a opožděné úlohy v automatických kontrolách a reportu.
+
+# 0.5.0-alpha — 2026-10-12
+
+- Automatické obnovení lokální diagnostiky při návštěvě administrace, nejvýše jednou za hodinu.
+- Automatické technické výsledky a podpora větví PHP s expirací pravidel.
+- PHP a editor souborů bez ručního potvrzování; původní záznamy zachované.
+- Rozlišení debug display/log a oddělené nabídky WooCommerce.
+
+# Instalátor 0.1.2-alpha — diagnostika
+
+- Zobrazení skutečné složky a verze instalátoru.
+- Kontrola chybějících souborů a zakázaných PHP funkcí před instalací.
+- Konkrétní fáze a bezpečný kód namísto obecné chyby; payload 0.4 beze změny.
+
+# Instalátor 0.1.1-alpha — 2026-10-07
+
+- Oprava aktualizace na hostingu bez PHP zip pomocí omezeného čtení našich STORE balíčků.
+- MU verze 0.4.0-alpha a její payload zůstávají stejné.
+
+# 0.4.0-alpha — 2026-10-07
+
+- Automatické údaje a konkrétní ruční pokyny přímo u checklistu, zachování poznámek.
+- Report obsahuje stejné automatické důkazy s časem snímku.
+- Cache aktualizací WP/šablon a omezená detekce SMTP.
+- Samostatný instalátor 0.1.0-alpha: potvrzené nahrání payload ZIPu přes WP, kontrola SHA-256, přepnutí a ruční návrat.
+- Datové schéma 1 beze změny. Přímé stahování a podpisy nejsou implementovány.
+
 # 0.3.0-alpha — 2026-10-07
 
 - Stabilní MU loader, oddělené verzované složky a nouzový pin.
@@ -38,3 +98,22 @@
 - Modulární registr a základní administrační obrazovka s kontrolou oprávnění.
 - FTP build, smoke testy jádra a konfigurace PHP CI matice.
 - Diagnostika v1.0 a produkční integrační ověření dosud nejsou dokončené.
+## 0.8.0-alpha — 2026-10-13
+
+- Barevné řádky a štítky checklistu i automatických kontrol podle stavu; změna výběru se projeví ihned.
+- Technická kontrola přihlášené relace správce a načtení backoffice aktuálním požadavkem.
+- Omezené read-only HTTP kontroly úvodní a nejvýše čtyř základních stránek stejného webu.
+- HTTP/HTML dostupnost je oddělená od ručního vizuálního a funkčního testu; chyby spojení zůstávají Neověřeno.
+## 0.9.0-alpha — 2026-10-14
+
+- Po každé řízené aktualizaci automatický technický post-test přihlášené relace, administrace, úvodní a základních stránek.
+- Další položky se při problému i neověřeném výsledku zastaví; provedená verze a podrobnosti kontroly zůstanou v historii.
+- Méně citlivé nabídky jsou předvybrané jako doporučené. Aktivní citlivé pluginy, šablony a WooCommerce dál vyžadují samostatné schválení.
+- Post-test je omezený na GET a nenahrazuje vizuální kontrolu, e-mail, formulář, objednávku ani databázové migrace.
+## 0.10.0-alpha — 2026-10-14
+
+- Administrace je rozdělená na Přehled, Checklist, Diagnostiku a bezpečnost, Aktualizace a Report.
+- Přehled ukazuje stav checklistu, počet automatických nálezů, stav aktualizačního plánu a rychlé odkazy do sekcí.
+- Instalátor 0.3.0-alpha umí na hostingu bez `disk_free_space` ověřit potřebné místo omezeným kontrolním zápisem na stejném filesystemu a soubor vždy odstraní.
+- Výsledek aktualizace se potvrzuje skutečně nainstalovanou cílovou verzí a zachovanou aktivací; nejednoznačný návrat upgraderu už nevytvoří falešnou chybu jako u Complianz na MRA.
+- Zachované jsou bezpečné post-testy 0.9 po každé aktualizaci; změna karet ani instalátoru nemění datové schéma.

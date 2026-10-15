@@ -3,6 +3,7 @@ declare(strict_types=1);
 namespace JT\WPCare\Modules\Reports;
 
 use JT\WPCare\Modules\Checklist\Catalog;
+use JT\WPCare\Modules\Checklist\Evidence;
 
 /** Both export formats use this exact text, never a second live audit. */
 final class Formatter
@@ -12,17 +13,22 @@ final class Formatter
         $lines = ['JT WP Care ' . \JT\WPCare\Core\Release::VERSION . ' — průběžný servisní záznam', 'Web: ' . $site,
             'Metodika: ' . ($record['methodology'] ?? '0.1'), 'Revize: ' . $record['revision'],
             'Poslední uložení (UTC): ' . ($record['updated_at'] ?? 'Dosud neuloženo'),
-            'Není potvrzením dokončeného servisu. Stavy checklistu zadal správce; diagnostika je automatický lokální snímek.', ''];
+            'Není potvrzením dokončeného servisu. Automatické stavy jsou označeny; ostatní výsledky zadal správce. Nejde o potvrzení funkčních testů.', ''];
         foreach (Catalog::groups() as $group => $items) {
             $lines[] = $group;
             foreach ($items as $id => [$label, $hint]) {
                 $row = $record['items'][$id] ?? ['state' => 'unknown', 'note' => ''];
-                $lines[] = $label . ': ' . (Catalog::states()[$row['state']] ?? 'Neověřeno');
-                $lines[] = '  ' . ($row['note'] !== '' ? $row['note'] : 'Bez důkazu / poznámky');
+                $auto = \JT\WPCare\Modules\Automatic\Evaluation::item($id, $record['audit'] ?? null);
+                $lines[] = $label . ': ' . (Catalog::states()[$auto['state'] ?? $row['state']] ?? 'Neověřeno') . ($auto !== null ? ' (automaticky)' : '');
+                if ($auto !== null) { $lines[] = '  ' . $auto['text']; $lines[] = '  Dřívější ruční stav: ' . (Catalog::states()[$row['state']] ?? 'Neověřeno'); }
+                $evidence = Evidence::forItem($id, $record['audit'] ?? null);
+                if ($evidence !== '') { $lines[] = '  Zjištěno automaticky (' . ($record['audit']['at'] ?? '') . '): ' . $evidence; }
+                $lines[] = '  Vlastní poznámka: ' . ($row['note'] !== '' ? $row['note'] : 'Bez ruční poznámky');
                 if (!empty($row['at'])) { $lines[] = '  Záznam: ' . $row['at'] . ', správce ID ' . $row['by']; }
             }
             $lines[] = '';
         }
+        foreach (\JT\WPCare\Modules\Automatic\Evaluation::results($record['audit'] ?? null) as $id => $result) { $lines[] = 'Automatická kontrola ' . $id . ': ' . $result['state'] . ' — ' . $result['text']; }
         $lines[] = 'Externí použití XML-RPC: ' . (['unknown' => 'Neověřeno', 'used' => 'Používá se', 'unused' => 'Správce potvrdil nepotřebnost'][$record['external_use'] ?? 'unknown'] ?? 'Neověřeno');
         $lines[] = $record['external_note'] ?? '';
         if (!empty($record['external_at'])) { $lines[] = 'Potvrzení: ' . $record['external_at'] . ', správce ID ' . $record['external_by']; }
@@ -36,6 +42,26 @@ final class Formatter
                 $lines[] = $plugin['name'] . ' ' . $plugin['version'] . ' | ' . ($plugin['active'] ? 'aktivní' : 'neaktivní') . ' | ' . $plugin['update'];
             }
         } else { $lines[] = 'Diagnostika dosud nebyla spuštěna.'; }
+        foreach ($record['update_history'] ?? [] as $plan) {
+            $lines[] = "\nŘÍZENÉ AKTUALIZACE — " . ($plan['updated'] ?? '') . ' — stav: ' . ($plan['state'] ?? 'unknown');
+            $lines[] = 'Schválil správce ID ' . ($plan['by'] ?? '') . '; záloha potvrzena při spuštění: ' . (!empty($plan['backup_confirmed']) ? 'ano' : 'ne');
+            foreach ($plan['results'] ?? [] as $result) {
+                $lines[] = $result['name'] . ': ' . $result['from'] . ' → ' . $result['to'] . ' — ' . $result['state'] . ' — ' . $result['message'];
+            }
+            $lines[] = 'Technický HTTP post-test nenahrazuje vizuální kontrolu, nové přihlášení, formuláře, e-maily, objednávku ani potvrzení databázových migrací.';
+        }
+        foreach ($record['cleanup_history'] ?? [] as $entry) {
+            $verification = $entry['verification'] ?? [];
+            $lines[] = "\nODSTRANĚNÝ NEAKTIVNÍ PLUGIN — " . ($entry['at'] ?? '');
+            $lines[] = ($entry['name'] ?? $entry['id'] ?? '') . ' ' . ($entry['version'] ?? '') . ' — správce ID ' . ($entry['by'] ?? '');
+            $lines[] = 'Technický post-test: ' . ($verification['state'] ?? 'unknown') . ' — ' . ($verification['text'] ?? 'bez výsledku');
+        }
+        foreach ($record['repair_history'] ?? [] as $entry) {
+            $labels = ['changed' => 'provedeno a ověřeno', 'changed_limited' => 'provedeno, část testu neověřena', 'rolled_back' => 'automaticky vráceno'];
+            $lines[] = "\nOPRAVA WP-CONFIG — " . ($entry['at'] ?? '');
+            $lines[] = 'WP_DEBUG, WP_DEBUG_DISPLAY a WP_DEBUG_LOG → false — ' . ($labels[$entry['state'] ?? ''] ?? 'neznámý výsledek');
+            $lines[] = 'Správce ID ' . ($entry['by'] ?? '') . '; technický post-test: ' . ($entry['summary'] ?? 'bez výsledku') . '; chráněná záloha: ' . ($entry['backup'] ?? 'nezjištěna');
+        }
         return implode("\n", $lines) . "\n";
     }
 }

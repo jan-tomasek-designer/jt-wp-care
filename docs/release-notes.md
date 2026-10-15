@@ -1,12 +1,9 @@
-# Vydání 0.3.0-alpha
+# JT WP Care 0.12.1-alpha
 
-Základ pro budoucí řízené aktualizace: stabilní MU loader vybírá jednu kompletní verzi ze složky releases. Instalační ZIP obsahuje loader a počáteční ukazatel; payload ZIP obsahuje pouze konkrétní vydání.
+Toto opravné vydání umožňuje řízenou opravu konfigurace také na hostinzích, kde je zapisovatelný samotný `wp-config.php`, ale PHP nesmí vytvořit novou složku vedle něj. JT WP Care v takovém případě uloží chráněnou zálohu do trvalé spravované složky `wp-content/mu-plugins/jt-wp-care/config-backups`, která není součástí verzovaného vydání.
 
-- Kontrola platformy, protokolu a datového schématu před načtením.
-- Návrat na předchozí kompatibilní vydání při chybějícím vstupním souboru nebo neplatných metadatech.
-- Nouzová volba verze přes JT_WP_CARE_PINNED_RELEASE.
-- Manifest a SHA-256 pro kontrolu balíčků.
+Před změnou vznikne datovaná chráněná záloha. Obě povolená umístění používají náhodný název, PHP ochranu přímého přístupu, ochranné soubory pro Apache/IIS a omezená práva. Oprava odmítne symbolický odkaz, neplatnou PHP syntaxi, dynamické nebo vícenásobné definice a aktivní hodnotu, jejíž zdroj není ve `wp-config.php` jednoznačně dohledatelný. Zápis probíhá pod zámkem, kontroluje souběžnou změnu a ověří výsledný obsah.
 
-Alpha pro staging. Manifest zatím není kryptograficky podepsaný. Stahování, instalace z administrace, atomické přepnutí ani automatická obnova po fatální chybě nejsou implementovány. Nedochází k aktualizaci WordPressu, pluginů nebo databázového schématu.
+Po zásahu proběhne technický test administrace a základních stránek. Zjištěný problém vyvolá automatický návrat původní konfigurace; neověřitelný HTTP test zůstane viditelným omezením pro ruční kontrolu. Historie zásahu, výsledek testu a název zálohy jsou součástí servisního reportu bez zveřejnění obsahu nebo absolutní cesty.
 
-Přechod z 0.2.0 vyžaduje jednorázové ruční nasazení podle README. Samotné rozložení 0.2.0 nelze použít jako předchozí vydání tohoto loaderu.
+Diagnostika také slučuje duplicitní nabídky stejné verze WordPressu, které se objevily při produkčním pilotu. Datové schéma servisního záznamu, protokol MU loaderu a instalátor 0.4.0-alpha zůstávají beze změny.

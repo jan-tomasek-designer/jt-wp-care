@@ -38,8 +38,10 @@ $payload = 'jt-wp-care-' . $version . '-payload.zip';
 archiveFiles($install, ['jt-wp-care.php', 'jt-wp-care/current.json', $directory], $dist . '/' . $installer);
 // No pointer or loader in the updater payload: those belong to the local operator/updater.
 archiveFiles($install, [$directory], $dist . '/' . $payload);
+$companion = 'jt-wp-care-installer-0.4.0-alpha.zip';
+archiveFiles($dist . '/companion', ['jt-wp-care-installer'], $dist . '/' . $companion);
 $assets = [];
-foreach ([$installer, $payload] as $file) { $assets[$file] = ['sha256' => hash_file('sha256', $dist . '/' . $file), 'bytes' => filesize($dist . '/' . $file)]; }
+foreach ([$installer, $payload, $companion] as $file) { $assets[$file] = ['sha256' => hash_file('sha256', $dist . '/' . $file), 'bytes' => filesize($dist . '/' . $file)]; }
 $manifest = Release::metadata() + ['signed' => false, 'assets' => $assets];
 file_put_contents($dist . '/manifest.json', json_encode($manifest, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR) . "\n");
 $checksums = '';

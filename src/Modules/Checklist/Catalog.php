@@ -48,10 +48,14 @@ final class Catalog
         return ['unknown' => 'Neověřeno', 'done' => '✓ Splněno', 'problem' => 'Problém', 'deferred' => 'Odloženo', 'na' => 'Netýká se'];
     }
 
-    public static function normalize(array $input, array $old): array
+    public static function normalize(array $input, array $old, ?array $audit = null): array
     {
         $items = [];
         foreach (self::items() as $id => $definition) {
+            if (\JT\WPCare\Modules\Automatic\Evaluation::item($id, $audit) !== null) {
+                $items[$id] = $old[$id] ?? ['state' => 'unknown', 'note' => '', 'at' => '', 'by' => 0];
+                continue; // Automatic outcomes are derived; old human records remain untouched.
+            }
             $row = $input[$id] ?? null;
             if (!is_array($row) || !isset($row['state'], $row['note']) || !is_string($row['state']) || !is_string($row['note']) || !isset(self::states()[$row['state']])) {
                 throw new \DomainException('Neúplný formulář. Obnovte stránku a vyplňte všechna pole.');
@@ -60,7 +64,7 @@ final class Catalog
                 throw new \DomainException('Poznámka je příliš dlouhá (maximum 6000 bajtů).');
             }
             $note = trim(sanitize_textarea_field($row['note']));
-            if ($row['state'] !== 'unknown' && $note === '') {
+            if ($row['state'] !== 'unknown' && $note === '' && !Evidence::proves($id, $row['state'], $audit)) {
                 throw new \DomainException('Ke každému vyhodnocenému bodu doplňte důkaz nebo důvod: ' . $definition[0]);
             }
             $before = $old[$id] ?? [];
