@@ -35,7 +35,7 @@ final class Module implements ModuleInterface
         if (!AdminTabs::is('checklist')) { return; }
         Access::authorize();
         $record = $this->store->load();
-        echo '<section class="jt-card"><h2>Servisní checklist</h2><p>Jeden průběžně ukládaný servis. Diagnostika předvyplní zjištěné údaje u jednotlivých bodů. PHP a editor souborů vyhodnocuje automatika. Ručně doplníš jen skutečné funkční testy a výjimky. Poznámky neobsahují hesla ani osobní údaje zákazníků. Časy jsou v UTC.</p>';
+        echo '<section class="jt-card"><h2>Servisní checklist</h2><p>Jeden průběžně ukládaný servis. Diagnostika automaticky vyhodnotí technický základ, aktuálnost podle čerstvé cache WordPressu, WooCommerce DB a dostupnost webu. Ručně doplníš zálohu, plán, skutečné obchodní a doručovací testy, bezpečnostní služby a výjimky. Poznámky neobsahují hesla ani osobní údaje zákazníků. Časy jsou v UTC.</p>';
         echo '<form method="post" action="' . esc_url(admin_url('admin-post.php')) . '">';
         wp_nonce_field('jt_care_save');
         echo '<input type="hidden" name="action" value="jt_care_save"><input type="hidden" name="revision" value="' . esc_attr($record['revision']) . '">';

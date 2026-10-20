@@ -34,6 +34,7 @@ final class Module implements ModuleInterface
             require_once ABSPATH . 'wp-admin/includes/update.php';
             wp_clean_plugins_cache(true); wp_clean_themes_cache(true);
             wp_update_plugins(); wp_update_themes();
+            update_option(\JT\WPCare\Modules\Automatic\Module::FORCE_REFRESH, gmdate('c'), false);
             Access::redirect('updates');
         } catch (\Throwable $e) { Access::fail($e); }
     }

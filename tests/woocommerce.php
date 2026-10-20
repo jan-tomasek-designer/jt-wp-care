@@ -17,14 +17,14 @@ function as_get_scheduled_actions($args, $format) {
     return !empty($GLOBALS['found'][$key]) ? [1] : [];
 }
 $i = new Inspector(); $now = 1800000000;
-check($i->collect($now)['wc_database']['state'] === 'unknown', 'Woo absent');
+check($i->collect($now)['wc_database']['state'] === 'na', 'Woo absent');
 define('WC_VERSION', '10.6.1');
 check($i->collect($now)['wc_database']['state'] === 'unknown', 'Missing DB metadata');
 $GLOBALS['options']['woocommerce_db_version'] = '10.6.1';
 $GLOBALS['needs'] = true;
 check($i->collect($now)['wc_database']['state'] === 'problem', 'Native database requirement');
 $GLOBALS['needs'] = false;
-check($i->collect($now)['wc_database']['state'] === 'unknown', 'No migration requirement is not integrity proof');
+check($i->collect($now)['wc_database']['state'] === 'done', 'Native WooCommerce state proves no migration is requested');
 check(empty($GLOBALS['queries']), 'Uninitialized queue not queried');
 $GLOBALS['ready'] = true;
 $r = $i->collect($now);

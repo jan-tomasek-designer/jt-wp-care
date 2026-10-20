@@ -15,7 +15,8 @@ final class Evaluation
     {
         // Source: https://www.php.net/supported-versions.php verified 2026-10-12.
         // Unknown branches and expired policy remain unknown, never guessed as supported.
-        $dates = ['8.2' => ['2024-12-31', '2026-12-31'], '8.3' => ['2025-12-31', '2027-12-31'],
+        $dates = ['8.0' => ['2022-11-26', '2023-11-26'], '8.1' => ['2023-11-25', '2025-12-31'],
+            '8.2' => ['2024-12-31', '2026-12-31'], '8.3' => ['2025-12-31', '2027-12-31'],
             '8.4' => ['2026-12-31', '2028-12-31'], '8.5' => ['2027-12-31', '2029-12-31']];
         if (!preg_match('/^(8\.[0-9]+)\.[0-9]+$/D', $version, $m) || !isset($dates[$m[1]])
             || $now < strtotime('2026-10-12 UTC') || $now >= strtotime('2027-04-12 UTC')) {
@@ -39,11 +40,16 @@ final class Evaluation
             'text' => $debug === true ? 'WP_DEBUG je zapnutý. Zkontroluj účel a nastavení zobrazování/logování.' : ($debug === false ? 'WP_DEBUG je vypnutý.' : 'Stav debug režimu neověřen.')];
         foreach (['wordpress' => 'WordPress', 'plugins' => 'Ostatní pluginy', 'theme' => 'Šablony', 'woocommerce' => 'WooCommerce'] as $id => $label) {
             $offer = $checks['offers'][$id] ?? [];
-            $fresh = is_int($offer['at'] ?? null) && $offer['at'] <= $now + 300 && $offer['at'] >= $now - 86400;
+            $fresh = is_int($offer['at'] ?? null) && $offer['at'] <= $now + 300 && $offer['at'] >= $now - 3600;
             $count = $offer['count'] ?? null;
-            $out[$id] = ['state' => $fresh && is_int($count) && $count > 0 ? 'problem' : 'unknown',
-                'text' => $label . ': ' . ($fresh && is_int($count) ? ($count > 0 ? $count . ' nabídek aktualizace v cache.' : 'V cache není nabídka; aktuálnost není potvrzena.') : 'Cache chybí nebo je starší než 24 hodin.')
-                . ' Nejde o potvrzení provedené aktualizace.'];
+            if ($id === 'woocommerce' && ($checks['woocommerce_active'] ?? null) === false) {
+                $out[$id] = ['state' => 'na', 'text' => 'WooCommerce není načteno; aktualizace se tohoto webu netýká.'];
+                continue;
+            }
+            $known = $fresh && is_int($count);
+            $out[$id] = ['state' => $known ? ($count > 0 ? 'problem' : 'done') : 'unknown',
+                'text' => $label . ': ' . ($known ? ($count > 0 ? $count . ' nabídek aktualizace v čerstvé cache.' : 'V čerstvé cache není nabídka aktualizace.') : 'Cache chybí nebo je starší než jednu hodinu.')
+                . ' Stav vychází z aktualizačního API WordPressu; nejde o funkční test po změně.'];
         }
         return $out;
     }
@@ -64,7 +70,41 @@ final class Evaluation
 
     public static function item(string $id, ?array $audit): ?array
     {
-        // Only checks whose full scope is machine-verifiable replace manual status controls.
-        return in_array($id, ['php', 'file_edit'], true) ? (self::results($audit)[$id] ?? null) : null;
+        // Only narrowly defined, machine-verifiable scopes replace manual controls.
+        $results = self::results($audit);
+        if ($results === []) { return null; }
+        $direct = ['php' => 'php', 'file_edit' => 'file_edit', 'wordpress' => 'wordpress', 'plugins' => 'plugins',
+            'theme' => 'theme', 'woocommerce' => 'woocommerce', 'wc_db' => 'wc_database'];
+        if (isset($direct[$id])) { return $results[$direct[$id]] ?? null; }
+        if ($id === 'diagnosis') {
+            foreach (['WordPress', 'PHP', 'Databáze', 'Šablona'] as $fact) {
+                if (!isset($audit['facts'][$fact]) || !is_string($audit['facts'][$fact]) || $audit['facts'][$fact] === '') {
+                    return ['state' => 'unknown', 'text' => 'Výchozí technické údaje nejsou úplné. Obnov diagnostiku.'];
+                }
+            }
+            return self::combine($results, ['login_session', 'backoffice', 'frontoffice', 'basic_pages'],
+                'Výchozí verze a základní technická dostupnost byly zaznamenány.',
+                'Automatická výchozí diagnostika našla problém.',
+                'Část výchozí technické diagnostiky nebylo možné ověřit.');
+        }
+        if ($id === 'functions') {
+            return self::combine($results, ['login_session', 'backoffice', 'frontoffice', 'basic_pages'],
+                'Přihlášená relace, administrace, úvodní stránka a nalezené základní stránky prošly technickou kontrolou. Nejde o vizuální test ani odeslání formulářů.',
+                'Technická kontrola webu nebo administrace našla problém.',
+                'Část technické dostupnosti nebylo možné ověřit.');
+        }
+        return null;
+    }
+
+    private static function combine(array $results, array $ids, string $done, string $problem, string $unknown): ?array
+    {
+        $states = [];
+        foreach ($ids as $id) {
+            if (!isset($results[$id]['state'])) { return null; }
+            $states[] = $results[$id]['state'];
+        }
+        if (in_array('problem', $states, true)) { return ['state' => 'problem', 'text' => $problem]; }
+        if (in_array('unknown', $states, true) || in_array('deferred', $states, true)) { return ['state' => 'unknown', 'text' => $unknown]; }
+        return ['state' => 'done', 'text' => $done];
     }
 }

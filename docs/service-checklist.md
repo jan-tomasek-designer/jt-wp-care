@@ -11,7 +11,7 @@ Kritické funkce / dohodnutý testovací scénář:
 ## Před změnami
 
 - [ ] Záloha existuje a je doložená.
-- [ ] Výchozí diagnostika je zaznamenaná.
+- [ ] Výchozí technická diagnostika je zaznamenaná.
 - [ ] Plán aktualizací a kompatibilita jsou posouzené.
 
 Záloha: zdroj, čas, rozsah, dokončení, přístup k obnově:
@@ -23,7 +23,7 @@ Známé závady před servisem:
 - [ ] Aktualizace WP — aktuální stav nebo dokončená ruční aktualizace ověřeny.
 - [ ] PHP podporované — verze, zdroj a datum ověření podpory.
 - [ ] Aktualizace pluginů — ostatní pluginy vyhodnoceny, změny ověřeny.
-- [ ] Aktualizace šablony — parent/child vyhodnoceny, výsledek ověřen.
+- [ ] Aktualizace šablon — parent/child vyhodnoceny, výsledek ověřen.
 
 Přehled zobrazuje stav; provádění se řídí pořadím metodiky. PHP se posuzuje už při vstupní diagnostice.
 
@@ -41,8 +41,8 @@ Vypořádání testovacích dat a platby:
 
 ## Funkční test
 
-- [ ] Hlavní stránky a administrace.
-- [ ] Relevantní formuláře a dohodnuté kritické funkce.
+- [ ] Technická dostupnost hlavních stránek a administrace.
+- [ ] Vzhled, relevantní formuláře a dohodnuté kritické funkce.
 
 ## Security
 

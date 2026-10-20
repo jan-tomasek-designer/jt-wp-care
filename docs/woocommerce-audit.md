@@ -1,6 +1,6 @@
 # WooCommerce audit (0.6.0-alpha)
 
-Samostatný modul `woocommerce` přidává výsledky do existující diagnostiky a reportu. Lze jej vypnout přes `JT_WP_CARE_DISABLED_MODULES`. Používá filtr `jt_wp_care_automatic_results`; nezavádí další ukládání ani změnu datového schématu. Ruční záznam DB update zůstává zachován: kontrola požadavku není potvrzením integrity databáze.
+Samostatný modul `woocommerce` přidává výsledky do existující diagnostiky, checklistu a reportu. Lze jej vypnout přes `JT_WP_CARE_DISABLED_MODULES`. Používá filtr `jt_wp_care_automatic_results`; nezavádí další ukládání ani změnu datového schématu. Stav „WooCommerce nepožaduje aktualizaci databáze“ automaticky uzavírá pouze checklistový požadavek na migraci; nepotvrzuje úplnou integritu databáze.
 
 - `WC_Install::needs_db_update()` se čte pouze při existující platné verzi databáze. Chybějící API/metadata znamenají Neověřeno. Rozdílná verze pluginu a databáze sama není chyba.
 - Action Scheduler se dotazuje až po `action_scheduler_init`. Pět dotazů vrací nejvýše jedno ID: neúspěšná úloha celého webu, čekající úloha opožděná více než hodinu a pending/in-progress/failed ve skupině `woocommerce-db-updates`.

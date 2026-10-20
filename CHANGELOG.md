@@ -1,3 +1,11 @@
+## 0.13.0-alpha — 2026-10-20
+- Checklist automaticky vyhodnocuje výchozí technickou diagnostiku, stav aktualizací WordPressu, ostatních pluginů, šablon a WooCommerce, požadavek na WooCommerce DB migraci a technickou dostupnost webu i administrace.
+- Čerstvá aktualizační cache bez nabídky znamená splněný technický stav; nabídka znamená problém a cache starší než hodinu zůstává neověřená.
+- Otevření checklistu samo obnoví chybějící nebo zastaralý diagnostický snímek ověřeným POST požadavkem.
+- Ruční načtení aktuálních nabídek zneplatní diagnostický snímek, aby se nový stav promítl do checklistu.
+- Vizuální kontrola, formuláře a kritické funkce mají vlastní ruční bod; záloha, plán, platba, e-mail, objednávka, Wordfence a 2FA zůstávají ruční.
+- Známé nepodporované větve PHP 8.0 a 8.1 se označí jako problém; na livemotion.cz proto PHP 8.1.13 nezůstane neurčitým stavem.
+
 ## 0.12.2-alpha — 2026-10-20
 - Ručně vypnuté debug konstanty se rozpoznají podle skutečné hodnoty, nikoli podle mezer, uvozovek nebo velikosti písmen v zápisu.
 - Bezpečný `wp-config.php` se už nepřepisuje a nevyžaduje vytvoření zálohy jen kvůli sjednocení formátu.

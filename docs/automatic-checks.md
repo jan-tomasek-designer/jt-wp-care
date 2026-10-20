@@ -1,6 +1,6 @@
 # Automatické kontroly 0.5.0-alpha
 
-Při otevření Nástroje → JT WP Care se diagnostika automaticky obnoví, pokud chybí, pochází ze staršího formátu nebo je starší než hodinu. Jde o jeden autentizovaný POST s nonce a oprávněním manage_options. Nejde o nepřetržitý monitoring ani naplánovanou práci bez návštěvy administrace. Na frontendu se nic nespouští. Bez JavaScriptu zůstává dostupná původní ruční diagnostika.
+Při otevření diagnostiky nebo checklistu v Nástroje → JT WP Care se diagnostika automaticky obnoví, pokud chybí, pochází ze staršího formátu nebo je starší než hodinu. Jde o jeden autentizovaný POST s nonce a oprávněním manage_options. Nejde o nepřetržitý monitoring ani naplánovanou práci bez návštěvy administrace. Na frontendu se nic nespouští. Bez JavaScriptu zůstává dostupná původní ruční diagnostika.
 
 Samostatný modul automatic lze vypnout přes JT_WP_CARE_DISABLED_MODULES. Vypnutí security zablokuje i automatické sbírání. Automatické výsledky se při vypnutí těchto modulů nepoužívají jako náhrada ručních stavů.
 
@@ -9,9 +9,9 @@ Samostatný modul automatic lze vypnout přes JT_WP_CARE_DISABLED_MODULES. Vypnu
 - Podpora větve PHP: aktivní / pouze bezpečnostní opravy / konec podpory. Tabulka ověřena 2026-10-12 na https://www.php.net/supported-versions.php, platná do 2027-04-12. Neznámá větev, předběžná verze nebo prošlá pravidla znamenají Neověřeno. Aktuálnost opravné verze a kompatibilita aplikace nejsou tímto testem doložené.
 - Přesná hodnota DISALLOW_FILE_EDIT true.
 - WP_DEBUG; diagnostika navíc rozlišuje WP_DEBUG_DISPLAY, PHP display_errors a WP_DEBUG_LOG bez zveřejnění cesty logu. Nejde o externí test úniku chyb.
-- Nabídky aktualizací WP, ostatních pluginů, šablon a WooCommerce odděleně. Výsledek Vyžaduje pozornost znamená nabídku v cache do 24 hodin. Chybějící nabídka, stará nebo chybějící cache není potvrzení aktuálnosti. Cache se aktivně nestahuje.
+- Nabídky aktualizací WP, ostatních pluginů, šablon a WooCommerce odděleně. Čerstvá cache do jedné hodiny s nabídkou znamená problém; čerstvá cache bez nabídky znamená splněný stav podle aktualizačního API WordPressu. Starší nebo chybějící cache zůstává neověřená. Tlačítko „Načíst aktuální nabídky“ ji obnoví a vyžádá nový diagnostický snímek.
 
-V checklistu se PHP a DISALLOW_FILE_EDIT vyhodnocují bez ručního přepínače. Dřívější ruční záznamy a poznámky zůstávají zachované a zobrazené odděleně. Technický nález nikdy nepotvrzuje dokončení aktualizací, obnovitelnost zálohy, doručení pošty, funkci objednávky, 2FA ani Wordfence scan.
+V checklistu se bez ručního přepínače vyhodnocuje výchozí technická diagnostika, PHP, aktualizační stav, požadavek WooCommerce na DB migraci, technická dostupnost webu a DISALLOW_FILE_EDIT. Dřívější ruční záznamy a poznámky zůstávají zachované a zobrazené odděleně. Technický nález nikdy nepotvrzuje obnovitelnost zálohy, vizuální správnost, odeslání formuláře, doručení pošty, platbu, objednávku, 2FA ani Wordfence scan.
 
 ## Úložiště a bezpečnost
 

@@ -10,8 +10,8 @@ final class Inspector
     public function collect(int $now): array
     {
         if (!defined('WC_VERSION')) {
-            return ['wc_database' => $this->result('unknown', 'WooCommerce není načteno; databáze neověřena.'),
-                'wc_queue' => $this->result('unknown', 'WooCommerce není načteno; fronta neověřena.')];
+            return ['wc_database' => $this->result('na', 'WooCommerce není načteno; databázová migrace se tohoto webu netýká.'),
+                'wc_queue' => $this->result('na', 'WooCommerce není načteno; jeho fronta se tohoto webu netýká.')];
         }
         $out = ['wc_database' => $this->result('unknown', 'Požadavek na aktualizaci databáze nelze zjistit.'),
             'wc_queue' => $this->result('unknown', 'Action Scheduler není připraven; fronta neověřena.')];
@@ -20,9 +20,9 @@ final class Inspector
             if (is_string($db) && preg_match('/^\d+\.\d+\.\d+$/D', $db) && is_callable(['WC_Install', 'needs_db_update'])) {
                 $needed = \WC_Install::needs_db_update();
                 if (is_bool($needed)) {
-                    $out['wc_database'] = $this->result($needed ? 'problem' : 'unknown', $needed
+                    $out['wc_database'] = $this->result($needed ? 'problem' : 'done', $needed
                         ? 'WooCommerce požaduje aktualizaci databáze. Nic nebylo spuštěno.'
-                        : 'WooCommerce nepožaduje aktualizaci databáze. Dokončení migrací a integrita dat tím nejsou potvrzené.');
+                        : 'WooCommerce nepožaduje aktualizaci databáze. To potvrzuje stav požadavku na migraci, nikoli úplnou integritu dat.');
                 }
             }
         } catch (\Throwable $error) { /* Unavailable integration must not interrupt the other checks. */ }

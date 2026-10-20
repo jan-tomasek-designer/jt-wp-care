@@ -10,14 +10,14 @@ final class Catalog
         return [
             'Před změnami' => [
                 'backup' => ['Záloha existuje', 'Zdroj, čas, soubory + DB, dokončení a dostupnost obnovy. Test obnovy uveďte zvlášť.'],
-                'diagnosis' => ['Výchozí diagnostika', 'Výchozí verze, známé závady a kritické funkce.'],
+                'diagnosis' => ['Výchozí technická diagnostika', 'Verze a základní technická dostupnost před servisem.'],
                 'plan' => ['Plán servisu', 'Rozsah oprávněných zásahů, kompatibilita a pořadí.'],
             ],
             'WordPress' => [
                 'wordpress' => ['Aktualizace WP', 'Aktuální stav, nebo verze před/po a ověření ruční aktualizace.'],
                 'php' => ['PHP podporované', 'Verze, zdroj a datum ověření bezpečnostní podpory.'],
                 'plugins' => ['Aktualizace pluginů', 'Ostatní pluginy; WooCommerce až po šablonách.'],
-                'theme' => ['Aktualizace šablony', 'Parent/child, vlastní úpravy a výsledek.'],
+                'theme' => ['Aktualizace šablon', 'Parent/child, dostupné nabídky a výsledek.'],
             ],
             'WooCommerce a pošta' => [
                 'woocommerce' => ['WooCommerce', 'Aktualizovat poslední v aktualizační části; zapsat výsledek.'],
@@ -27,7 +27,8 @@ final class Catalog
                 'order' => ['Order test', 'Košík, pokladna, stav objednávky a transakční e-mail.'],
             ],
             'Funkční test' => [
-                'functions' => ['Přihlášení, web a administrace', 'Ověřit také relevantní formuláře a kritické funkce.'],
+                'functions' => ['Technická dostupnost webu a administrace', 'Relace správce, administrace a omezený HTTP/HTML test základních stránek.'],
+                'critical_functions' => ['Vizuální a kritické funkce', 'Vzhled, menu, formuláře a další důležité funkce, které nelze potvrdit HTTP kontrolou.'],
             ],
             'Security' => [
                 'wordfence' => ['Wordfence', 'Stav ochrany, poslední scan a vyhodnocení nálezů. Instalace nestačí.'],

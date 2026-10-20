@@ -1,7 +1,11 @@
-# JT WP Care 0.12.2-alpha
+# JT WP Care 0.13.0-alpha
 
-Opravné vydání řeší produkční případ z livemotion.cz. Pokud jsou `WP_DEBUG`, `WP_DEBUG_DISPLAY` a `WP_DEBUG_LOG` vypnuté, JT WP Care už nepovažuje odlišné mezery, uvozovky nebo velikost zápisu `false` za změnu vyžadující přepis `wp-config.php`. Bezpečný soubor proto nevyžaduje vytvoření záložní složky ani právo PHP k zápisu a na hostingu s omezenými právy se zobrazí „Oprava není potřeba“.
+Checklist nyní automaticky uzavírá položky, které lze doložit přímo z WordPressu: výchozí technickou diagnostiku, podporu PHP, stav aktualizací WordPressu, ostatních pluginů, šablon a WooCommerce, požadavek na databázovou migraci WooCommerce, technickou dostupnost webu a administrace a hodnotu `DISALLOW_FILE_EDIT`.
 
-Ručně provedená změna `WP_DEBUG` nyní při otevření diagnostiky zneplatní starší uložený snímek. Automatická kontrola načte aktuální stav a odstraní staré varování bez čekání na běžný hodinový interval.
+Známé nepodporované větve PHP 8.0 a 8.1 se zobrazí jako problém podle oficiálního přehledu PHP. PHP 8.1.13 zjištěné na livemotion.cz proto vyžaduje naplánovanou změnu hostingu nebo verze PHP; samotný plugin PHP nemění.
 
-Řízený zápis zůstává dostupný jen tehdy, když je některá podporovaná konstanta skutečně aktivní a její zdroj lze bezpečně určit. Záloha, kontrola syntaxe, zámek, technický test a automatický návrat zůstávají beze změny.
+Aktualizační stav používá pouze cache aktualizačního API WordPressu mladší než jednu hodinu. Nalezená nabídka znamená problém, čerstvá cache bez nabídky znamená splněný technický stav a starší nebo chybějící cache zůstává neověřená. Ruční načtení nabídek vyžádá nový diagnostický snímek. Chybějící nebo zastaralé důkazy se obnoví ověřeným POST požadavkem také při otevření checklistu.
+
+Technická kontrola webu potvrzuje přihlášenou relaci správce, načtení administrace a omezené HTTP/HTML odpovědi úvodní a nalezených základních stránek. Nehodnotí vzhled, JavaScript ani neodesílá formuláře. Tyto činnosti mají samostatný ruční bod „Vizuální a kritické funkce“.
+
+Záloha a možnost obnovy, schválený plán zásahů, GoPay, skutečné doručení SMTP zprávy, objednávka, Wordfence scan, 2FA a závislosti XML-RPC zůstávají ručními kroky. Vydání nespouští aktualizace ani jiné změny bez potvrzení správce.

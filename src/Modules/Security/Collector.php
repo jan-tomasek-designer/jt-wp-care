@@ -67,7 +67,8 @@ final class Collector
             'XML-RPC známé návaznosti' => $known !== [] ? implode(', ', $known) : 'Nenalezeny v omezeném seznamu (Jetpack); další pluginy, MU kód a externí klienti nejsou vyloučeni',
             'XML-RPC doporučení' => XmlRpcPolicy::advice($known, $externalUse, $auth),
         ];
-        $checks = ['file_edit_disabled' => defined('DISALLOW_FILE_EDIT') && DISALLOW_FILE_EDIT === true, 'php_version' => PHP_VERSION, 'debug' => defined('WP_DEBUG') && (bool) WP_DEBUG, 'offers' => [
+        $checks = ['file_edit_disabled' => defined('DISALLOW_FILE_EDIT') && DISALLOW_FILE_EDIT === true, 'php_version' => PHP_VERSION,
+            'debug' => defined('WP_DEBUG') && (bool) WP_DEBUG, 'woocommerce_active' => defined('WC_VERSION'), 'offers' => [
             'wordpress' => ['count' => count($coreOffers), 'at' => is_object($coreUpdates) ? (int) ($coreUpdates->last_checked ?? 0) : 0],
             'theme' => ['count' => count($themeOffers), 'at' => is_object($themeUpdates) ? (int) ($themeUpdates->last_checked ?? 0) : 0],
         ]];

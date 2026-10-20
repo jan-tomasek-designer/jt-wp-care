@@ -46,6 +46,7 @@ final class Evidence
             'smtp' => 'Odešli test z používaného poštovního pluginu a ověř skutečné doručení. Napiš čas a výsledek bez adres zákazníků.',
             'order' => 'Proveď dohodnutou testovací objednávku: košík, pokladna, doprava, platba, stav objednávky a doručený e-mail.',
             'functions' => 'Vyzkoušej přihlášení, administraci, hlavní stránky a důležité formuláře. Zapiš, co fungovalo a případné chyby.',
+            'critical_functions' => 'V prohlížeči ověř vzhled na počítači a mobilu, menu, formuláře a funkce důležité pro tento konkrétní web. Zapiš jen provedené testy a výsledek.',
             'wordfence' => 'V administraci Wordfence zkontroluj firewall, datum posledního scanu a nálezy. Aktivní plugin sám ochranu nepotvrzuje.',
             'two_factor' => 'Ověř zapnuté 2FA u administrátorů a zaznamenej případné výjimky. Nevkládej obnovovací kódy.',
             'xmlrpc' => 'Ověř externí použití a závislosti. Po případné změně otestuj přihlášení, administraci, objednávku a e-maily.',

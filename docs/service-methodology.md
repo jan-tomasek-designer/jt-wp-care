@@ -20,6 +20,8 @@ Zaškrtnutí znamená doložené splnění podmínky, nikoli pouhé provedení p
 
 Oddělit zjištěný stav od provedené práce: „WP byl aktuální“ a „WP aktualizován z A na B“ mohou uzavřít kontrolu, ale report musí rozlišit skutečně provedený zásah. Nezaškrtnutý bod musí mít vysvětlení.
 
+Automatický důkaz může nahradit ruční stav pouze tehdy, když název a podmínka checklistu odpovídají přesně tomu, co plugin měří. Čerstvá cache aktualizačního API do jedné hodiny může doložit, že WordPress v daném okamžiku nenabízí aktualizaci; nepotvrzuje kompatibilitu, soukromý zdroj bez metadat ani funkční test po zásahu. HTTP/HTML kontrola může doložit technickou dostupnost, ale ne vzhled, JavaScript, formuláře nebo obchodní scénář. Tyto hranice musí být viditelné v UI i reportu.
+
 ## Zahájení servisu
 
 Založit kopii checklistu. Uvést web, prostředí, technika, časové pásmo, servisní okno, oprávněný rozsah zásahů a kritické funkce. Hesla, tokeny a obnovovací kódy do záznamu nepatří.

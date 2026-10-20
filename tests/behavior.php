@@ -18,7 +18,7 @@ function rejects(callable $callback, string $fragment): void {
 $input = [];
 foreach (Catalog::items() as $id => $item) { $input[$id] = ['state' => 'unknown', 'note' => '']; }
 $empty = Catalog::normalize($input, []);
-check(count($empty) === 17, 'All checklist items required.');
+check(count($empty) === count(Catalog::items()), 'All checklist items required.');
 check($empty['backup']['state'] === 'unknown', 'Never assume a backup.');
 $bad = $input; $bad['backup']['state'] = 'done';
 rejects(fn() => Catalog::normalize($bad, []), 'důkaz');

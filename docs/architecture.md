@@ -81,4 +81,4 @@ Pomocný běžný plugin v installer/ má oddělený namespace a lifecycle. Dův
 
 ## 0.5.0: automatické technické výsledky
 
-Samostatný vypínatelný modul automatic spouští při návštěvě administrace omezený POST sběr. UI GET ani frontend neprovádějí zápis. Výsledky jsou ve volitelném poli snímku audit.automatic; schema zůstává 1. Zachování původních lidských stavů umožní návrat ke staršímu kódu bez migrace dat. Pouze dva úzce definované technické body nahrazují v UI ruční volbu; širší servisní úkony mají automatické nálezy oddělené od potvrzení provedení. Při neaktuálním snímku/pravidlech se nepoužívá zelený stav z minulosti.
+Samostatný vypínatelný modul automatic spouští při návštěvě diagnostiky nebo checklistu omezený POST sběr. UI GET ani frontend neprovádějí zápis. Výsledky jsou ve volitelném poli snímku audit.automatic; schema zůstává 1. Zachování původních lidských stavů umožní návrat ke staršímu kódu bez migrace dat. Ruční volbu nahrazují pouze položky, jejichž zobrazený rozsah odpovídá strojově ověřitelnému důkazu; obchodní, vizuální, doručovací a bezpečnostní testy zůstávají ruční. Při neaktuálním snímku nebo pravidlech se nepoužívá zelený stav z minulosti.

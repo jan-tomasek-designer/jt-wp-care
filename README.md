@@ -1,4 +1,4 @@
-# JT WP Care 0.12.2-alpha
+# JT WP Care 0.13.0-alpha
 
 První instalovatelná pilotní verze MU pluginu. **Určena pro staging, nikoli plošné produkční nasazení.** Metodika vychází z ručního servisu; modul updates provádí schválené aktualizace pluginů a šablon. WordPress core a změny zabezpečení zůstávají ruční.
 
@@ -42,7 +42,7 @@ wp-content/mu-plugins/
 ├── jt-wp-care.php
 └── jt-wp-care/
     ├── current.json
-    └── releases/0.12.2-alpha/
+    └── releases/0.13.0-alpha/
         ├── release.json
         ├── bootstrap.php
         ├── autoload.php

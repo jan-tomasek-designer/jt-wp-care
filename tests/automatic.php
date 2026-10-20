@@ -13,15 +13,25 @@ verify(str_contains(Evaluation::php('8.3.30', $now)['text'], 'bezpečnostní opr
 verify(Evaluation::php('8.6.0RC1', $now)['state'] === 'unknown', 'Unknown/pre-release PHP');
 verify(Evaluation::php('8.3.30', strtotime('2027-04-12 UTC'))['state'] === 'unknown', 'Policy expires');
 verify(Evaluation::php('8.2.30', strtotime('2027-01-01 UTC'))['state'] === 'problem', 'Security EOL boundary');
-$checks = ['php_version' => '8.3.30', 'file_edit_disabled' => true, 'debug' => true, 'offers' => [
+verify(Evaluation::php('8.1.13', $now)['state'] === 'problem', 'Known end-of-life PHP branch is a problem, not unknown');
+$checks = ['php_version' => '8.3.30', 'file_edit_disabled' => true, 'debug' => true, 'woocommerce_active' => true, 'offers' => [
     'plugins' => ['count' => 3, 'at' => $now], 'wordpress' => ['count' => 0, 'at' => $now], 'theme' => ['count' => 4, 'at' => $now - 90000]]];
 $results = Evaluation::collect($checks, $now);
 verify($results['file_edit']['state'] === 'done' && $results['debug']['state'] === 'problem', 'Typed checks');
 verify($results['plugins']['state'] === 'problem', 'Known offer needs attention');
-verify($results['wordpress']['state'] === 'unknown', 'No offer is not proof of current version');
+verify($results['wordpress']['state'] === 'done', 'Fresh WordPress API cache with no offer is machine-verifiable');
 verify($results['theme']['state'] === 'unknown', 'Stale cache is not current');
 verify(!isset($results['backup'], $results['smtp'], $results['order']), 'No invented human tests');
-$audit = ['at' => gmdate('c', $now), 'automatic' => $results];
+$results += ['login_session' => ['state' => 'done', 'text' => 'ok'], 'backoffice' => ['state' => 'done', 'text' => 'ok'],
+    'frontoffice' => ['state' => 'done', 'text' => 'ok'], 'basic_pages' => ['state' => 'done', 'text' => 'ok'],
+    'wc_database' => ['state' => 'done', 'text' => 'ok']];
+$audit = ['at' => gmdate('c', $now), 'facts' => ['WordPress' => '7.1', 'PHP' => '8.3', 'Databáze' => '8.0', 'Šablona' => 'Test'], 'automatic' => $results];
+$itemAudit = $audit; $itemAudit['at'] = gmdate('c');
+verify(Evaluation::item('diagnosis', $itemAudit)['state'] === 'done', 'Technical baseline is automatic when all bounded checks pass');
+verify(Evaluation::item('functions', $itemAudit)['state'] === 'done', 'Technical availability is automatic');
+verify(Evaluation::item('wordpress', $itemAudit)['state'] === 'done', 'Update status projects into checklist');
+verify(Evaluation::item('wc_db', $itemAudit)['state'] === 'done', 'WooCommerce migration status projects into checklist');
+verify(Evaluation::item('backup', $itemAudit) === null, 'Hosting backup remains manual');
 verify(Evaluation::results($audit, $now + 86401)['file_edit']['state'] === 'unknown', 'Snapshot expires');
 verify(Module::due(['audit' => $audit], $now + 3600), 'Hourly refresh');
 verify(!Module::due(['audit' => $audit], $now + 3599), 'No repeated refresh');
@@ -52,7 +62,7 @@ try {
     foreach (['items', 'external_use', 'external_note', 'external_at'] as $key) { verify($after[$key] === $before[$key], 'Preserves human evidence ' . $key); }
     verify(!$module->refresh($after['revision']), 'Fresh snapshot not written twice');
     $input = []; foreach (Catalog::items() as $id => $definition) { $input[$id] = ['state' => 'unknown', 'note' => '']; }
-    unset($input['php'], $input['file_edit']);
+    foreach (Catalog::items() as $id => $definition) { if (Evaluation::item($id, $after['audit']) !== null) { unset($input[$id]); } }
     $rows = Catalog::normalize($input, $after['items'], $after['audit']);
     verify($rows['php'] === $before['items']['php'], 'Automatic fields preserve old human record');
     $module->register(); $handler = $GLOBALS['hooks']['admin_post_jt_care_auto_audit'][0];
