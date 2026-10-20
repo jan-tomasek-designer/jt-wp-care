@@ -1,0 +1,48 @@
+name: Publish requested release
+on:
+  push:
+    branches: [main, feature/assisted-checklist-wp-update]
+    paths: [release-request.json]
+permissions:
+  contents: read
+concurrency:
+  group: publish-requested-release
+  cancel-in-progress: false
+jobs:
+  checks:
+    uses: ./.github/workflows/ci.yml
+  publish:
+    needs: checks
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: zip
+          coverage: none
+      - name: Verify explicit release request
+        id: request
+        run: |
+          php -r 'require "autoload.php"; $r=json_decode(file_get_contents("release-request.json"),true,8,JSON_THROW_ON_ERROR); if (($r["version"]??null)!==JT\WPCare\Core\Release::VERSION || ($r["publish"]??false)!==true) {exit(1);} echo "tag=v".JT\WPCare\Core\Release::VERSION.PHP_EOL;' >> "$GITHUB_OUTPUT"
+      - name: Build verified version
+        env:
+          RELEASE_TAG: ${{ steps.request.outputs.tag }}
+        run: php tools/build.php "$RELEASE_TAG"
+      - run: php tools/package.php
+      - run: php tests/package.php
+      - name: Publish immutable-by-policy assets, never replace an existing release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          RELEASE_TAG: ${{ steps.request.outputs.tag }}
+        run: |
+          if gh release view "$RELEASE_TAG" >/dev/null 2>&1; then
+            echo "Release already exists; no assets changed."
+            exit 0
+          fi
+          flags=()
+          if [[ "$RELEASE_TAG" == *-* ]]; then flags+=(--prerelease); fi
+          gh release create "$RELEASE_TAG" dist/*.zip dist/manifest.json dist/SHA256SUMS.txt --target "$GITHUB_SHA" --title "JT WP Care $RELEASE_TAG" --notes-file docs/release-notes.md "${flags[@]}"

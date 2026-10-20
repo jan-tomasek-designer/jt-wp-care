@@ -18,7 +18,7 @@ function rejects(callable $callback, string $fragment): void {
 $input = [];
 foreach (Catalog::items() as $id => $item) { $input[$id] = ['state' => 'unknown', 'note' => '']; }
 $empty = Catalog::normalize($input, []);
-check(count($empty) === 17, 'All checklist items required.');
+check(count($empty) === count(Catalog::items()), 'All checklist items required.');
 check($empty['backup']['state'] === 'unknown', 'Never assume a backup.');
 $bad = $input; $bad['backup']['state'] = 'done';
 rejects(fn() => Catalog::normalize($bad, []), 'důkaz');
@@ -86,6 +86,7 @@ try {
     rmdir($fixture . '/wp-admin/includes'); rmdir($fixture . '/wp-admin'); rmdir($fixture);
 }
 $GLOBALS['options'][Store::OPTION]['items']['backup']['note'] = '<script>alert(1)</script>';
+$_GET['jt_tab'] = 'checklist';
 ob_start(); (new \JT\WPCare\Modules\Checklist\Module($store))->render(); $html = ob_get_clean();
 check(!str_contains($html, '<script>'), 'Stored notes must be escaped.');
 check(str_contains($html, '&lt;script&gt;'), 'Escaped note is visible.');
@@ -95,4 +96,8 @@ check(str_contains($text, 'XML-RPC z internetu: Neověřeno'), 'Report retains u
 check(str_contains($text, $record['revision']), 'Report identifies revision.');
 // Export view and TXT both consume this formatter; print renderer escapes its output.
 check(!str_contains($text, '\\nDIAGNOSTIKA'), 'Real newline in report.');
+$record['repair_history'] = [['at' => '2026-10-14T20:00:00Z', 'by' => 7, 'state' => 'changed', 'summary' => '4 ověřeno, 0 neověřeno, 0 problém', 'backup' => 'wp-config-test.php']];
+$text = Formatter::text($record, 'https://example.test/');
+check(str_contains($text, 'OPRAVA WP-CONFIG'), 'Config repair must be included in report.');
+check(str_contains($text, 'wp-config-test.php'), 'Report must identify the protected backup.');
 echo "Behavior tests passed: {$count}\n";

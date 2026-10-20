@@ -1,6 +1,6 @@
 # Architektura a rozhodnutí
 
-Stav: dlouhodobý návrh, částečně realizovaný pilotem 0.2.0-alpha po uživatelském potvrzení postupu na obnovlimity.cz. Metodika má přednost. Pilot obsahuje checklist, lokální snímek a TXT/tiskový report; obecná rozhraní CheckInterface a AuditRunner popsaná níže zůstávají návrhem.
+Stav: dlouhodobý návrh, částečně realizovaný pilotem 0.2.0-alpha po potvrzení postupu na prvním produkčním webu. Metodika má přednost. Pilot obsahuje checklist, lokální snímek a TXT/tiskový report; obecná rozhraní CheckInterface a AuditRunner popsaná níže zůstávají návrhem.
 
 Pilotní rozhodnutí: ukládat jeden průběžný záznam jako option bez autoloadu. Ukládání používá atomické porovnání původní serializované hodnoty, aby souběžný požadavek nepřepsal novější důkazy. Databázové tabulky a archivace nejsou pro pilot potřeba. PDF vzniká přes tisk prohlížeče ze stejného textu jako TXT; nepřidáváme serverovou PDF závislost před ověřením šablony. Lokální sběr základní inventury je zatím součástí modulu Security, před rozšířením diagnostiky jej oddělíme podle kontraktů níže. Alpha neprovádí externí XML-RPC sondy a uvádí toto omezení u výsledku.
 
@@ -72,3 +72,13 @@ Od v1.0 zveřejnit seznam stabilních rozhraní, hooků, ID a schémat. Interní
 ## 0.3.0: verzovaný loader
 
 Implementace rozděluje stabilní loader a aplikaci ve složce releases/<verze>. Důvodem je příprava nové verze vedle běžícího kódu. Ukazatel je JSON, nikoli spustitelné PHP. Protokol loaderu a datové schéma jsou verzované odděleně; tento loader připouští pouze hodnotu 1. Podrobnosti a omezení obnovy obsahuje [protokol](loader-protocol.md). Přechod z plochého rozložení 0.2.0 je jednorázový ruční krok. Implementace sama nic nestahuje ani nepřepíná.
+
+## 0.4.0: asistovaný checklist a první aktualizace bez FTP
+
+Automatické důkazy jsou projekcí uloženého snímku, ne přepisem poznámek. Proto zůstanou uživatelská data kompatibilní se schématem 1 a export používá stejný zdroj jako obrazovka. Stav testu potvrzuje člověk, s úzkou výjimkou doložení DISALLOW_FILE_EDIT přes typovanou hodnotu true.
+
+Pomocný běžný plugin v installer/ má oddělený namespace a lifecycle. Důvodem je bootstrap aktualizací u již nasazené verze 0.3, která nemá updater, a možnost vrátit soubory nezávisle na UI MU modulu. Je volitelný a deaktivovatelný. Kvůli pořadí načítání MU pluginů však neobejde fatální chybu při bootstrapu; nouzová obnova zůstává přes loader/pin/FTP. Ruční upload ověřený správcem a SHA-256 je mezikrok; automatická distribuce nadále vyžaduje podpisy.
+
+## 0.5.0: automatické technické výsledky
+
+Samostatný vypínatelný modul automatic spouští při návštěvě diagnostiky nebo checklistu omezený POST sběr. UI GET ani frontend neprovádějí zápis. Výsledky jsou ve volitelném poli snímku audit.automatic; schema zůstává 1. Zachování původních lidských stavů umožní návrat ke staršímu kódu bez migrace dat. Ruční volbu nahrazují pouze položky, jejichž zobrazený rozsah odpovídá strojově ověřitelnému důkazu; obchodní, vizuální, doručovací a bezpečnostní testy zůstávají ruční. Při neaktuálním snímku nebo pravidlech se nepoužívá zelený stav z minulosti.

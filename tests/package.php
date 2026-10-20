@@ -9,6 +9,14 @@ if ($manifest['signed'] !== false || $manifest['version'] !== $v) { throw new Ru
 foreach ($manifest['assets'] as $file => $expected) {
     if (hash_file('sha256', $dist . '/' . $file) !== $expected['sha256'] || filesize($dist . '/' . $file) !== $expected['bytes']) { throw new RuntimeException('Asset mismatch.'); }
     $zip = new ZipArchive(); $zip->open($dist . '/' . $file);
+    $companion = str_starts_with($file, 'jt-wp-care-installer-');
+    if ($companion) {
+        foreach (['jt-wp-care-installer.php', 'Package.php', 'StoredZip.php', 'Installer.php', 'Screen.php', 'Repository.php', 'loader.sha256'] as $name) {
+            if ($zip->getFromName('jt-wp-care-installer/' . $name) !== file_get_contents($dist . '/companion/jt-wp-care-installer/' . $name)) { throw new RuntimeException('Companion mismatch'); }
+        }
+        if ($zip->numFiles !== 7) { throw new RuntimeException('Unexpected companion file'); }
+        $zip->close(); continue;
+    }
     $payload = str_ends_with($file, '-payload.zip');
     if ($payload && ($zip->locateName('jt-wp-care.php') !== false || $zip->locateName('jt-wp-care/current.json') !== false)) { throw new RuntimeException('Payload would replace loader/state.'); }
     if (!$payload && ($zip->locateName('jt-wp-care.php') === false || $zip->locateName('jt-wp-care/current.json') === false)) { throw new RuntimeException('Installer is incomplete.'); }

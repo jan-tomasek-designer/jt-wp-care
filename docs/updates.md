@@ -60,4 +60,8 @@ Před vydáním otestovat chybný podpis/hash, nedostatek místa, zamítnutý z�
 
 MU pluginy nemají běžný aktualizační tok standardních pluginů: [WordPress MU plugins](https://developer.wordpress.org/advanced-administration/plugins/mu-plugins/). Vlastní aktualizační vrstva je nutná pro zachování MU architektury.
 
-WordPress Filesystem API může podle oprávnění potřebovat přístupové údaje: [Filesystem API](https://developer.wordpress.org/apis/filesystem/). Nelze slíbit bezobslužný zápis na každém hostingu. Na CZECHIA nejprve ověřit zápis a přepnutí na stagingu; při nesplnění podmínek nabídnout srozumitelný důvod a nouzový ruční postup, nikoli měnit oprávnění plošně.
+WordPress Filesystem API může podle oprávnění potřebovat přístupové údaje: [Filesystem API](https://developer.wordpress.org/apis/filesystem/). Nelze slíbit bezobslužný zápis na každém hostingu. Na každém novém typu hostingu nejprve ověřit zápis a přepnutí na stagingu; při nesplnění podmínek nabídnout srozumitelný důvod a nouzový ruční postup, nikoli měnit oprávnění plošně.
+
+## Stav 0.4.0-alpha
+
+Dodaný [pomocný instalátor](wordpress-update.md) umožňuje ruční nahrání balíčku z repozitáře přes WordPress, SHA-256 kontrolu, zachování předchozího vydání a ruční návrat. Je to mezikrok pro první přechod bez FTP, nikoli realizace automatické distribuce popsané výše. Podpisy, přímé stahování, izolovaný health check s automatickým rollbackem a centrální správa stále zbývají.

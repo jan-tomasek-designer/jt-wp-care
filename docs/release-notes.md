@@ -1,12 +1,11 @@
-# Vydání 0.3.0-alpha
+# JT WP Care 0.13.0-alpha
 
-Základ pro budoucí řízené aktualizace: stabilní MU loader vybírá jednu kompletní verzi ze složky releases. Instalační ZIP obsahuje loader a počáteční ukazatel; payload ZIP obsahuje pouze konkrétní vydání.
+Checklist nyní automaticky uzavírá položky, které lze doložit přímo z WordPressu: výchozí technickou diagnostiku, podporu PHP, stav aktualizací WordPressu, ostatních pluginů, šablon a WooCommerce, požadavek na databázovou migraci WooCommerce, technickou dostupnost webu a administrace a hodnotu `DISALLOW_FILE_EDIT`.
 
-- Kontrola platformy, protokolu a datového schématu před načtením.
-- Návrat na předchozí kompatibilní vydání při chybějícím vstupním souboru nebo neplatných metadatech.
-- Nouzová volba verze přes JT_WP_CARE_PINNED_RELEASE.
-- Manifest a SHA-256 pro kontrolu balíčků.
+Známé nepodporované větve PHP 8.0 a 8.1 se zobrazí jako problém podle oficiálního přehledu PHP. PHP 8.1.13 zjištěné na livemotion.cz proto vyžaduje naplánovanou změnu hostingu nebo verze PHP; samotný plugin PHP nemění.
 
-Alpha pro staging. Manifest zatím není kryptograficky podepsaný. Stahování, instalace z administrace, atomické přepnutí ani automatická obnova po fatální chybě nejsou implementovány. Nedochází k aktualizaci WordPressu, pluginů nebo databázového schématu.
+Aktualizační stav používá pouze cache aktualizačního API WordPressu mladší než jednu hodinu. Nalezená nabídka znamená problém, čerstvá cache bez nabídky znamená splněný technický stav a starší nebo chybějící cache zůstává neověřená. Ruční načtení nabídek vyžádá nový diagnostický snímek. Chybějící nebo zastaralé důkazy se obnoví ověřeným POST požadavkem také při otevření checklistu.
 
-Přechod z 0.2.0 vyžaduje jednorázové ruční nasazení podle README. Samotné rozložení 0.2.0 nelze použít jako předchozí vydání tohoto loaderu.
+Technická kontrola webu potvrzuje přihlášenou relaci správce, načtení administrace a omezené HTTP/HTML odpovědi úvodní a nalezených základních stránek. Nehodnotí vzhled, JavaScript ani neodesílá formuláře. Tyto činnosti mají samostatný ruční bod „Vizuální a kritické funkce“.
+
+Záloha a možnost obnovy, schválený plán zásahů, GoPay, skutečné doručení SMTP zprávy, objednávka, Wordfence scan, 2FA a závislosti XML-RPC zůstávají ručními kroky. Vydání nespouští aktualizace ani jiné změny bez potvrzení správce.

@@ -10,14 +10,14 @@ final class Catalog
         return [
             'Před změnami' => [
                 'backup' => ['Záloha existuje', 'Zdroj, čas, soubory + DB, dokončení a dostupnost obnovy. Test obnovy uveďte zvlášť.'],
-                'diagnosis' => ['Výchozí diagnostika', 'Výchozí verze, známé závady a kritické funkce.'],
+                'diagnosis' => ['Výchozí technická diagnostika', 'Verze a základní technická dostupnost před servisem.'],
                 'plan' => ['Plán servisu', 'Rozsah oprávněných zásahů, kompatibilita a pořadí.'],
             ],
             'WordPress' => [
                 'wordpress' => ['Aktualizace WP', 'Aktuální stav, nebo verze před/po a ověření ruční aktualizace.'],
                 'php' => ['PHP podporované', 'Verze, zdroj a datum ověření bezpečnostní podpory.'],
                 'plugins' => ['Aktualizace pluginů', 'Ostatní pluginy; WooCommerce až po šablonách.'],
-                'theme' => ['Aktualizace šablony', 'Parent/child, vlastní úpravy a výsledek.'],
+                'theme' => ['Aktualizace šablon', 'Parent/child, dostupné nabídky a výsledek.'],
             ],
             'WooCommerce a pošta' => [
                 'woocommerce' => ['WooCommerce', 'Aktualizovat poslední v aktualizační části; zapsat výsledek.'],
@@ -27,7 +27,8 @@ final class Catalog
                 'order' => ['Order test', 'Košík, pokladna, stav objednávky a transakční e-mail.'],
             ],
             'Funkční test' => [
-                'functions' => ['Přihlášení, web a administrace', 'Ověřit také relevantní formuláře a kritické funkce.'],
+                'functions' => ['Technická dostupnost webu a administrace', 'Relace správce, administrace a omezený HTTP/HTML test základních stránek.'],
+                'critical_functions' => ['Vizuální a kritické funkce', 'Vzhled, menu, formuláře a další důležité funkce, které nelze potvrdit HTTP kontrolou.'],
             ],
             'Security' => [
                 'wordfence' => ['Wordfence', 'Stav ochrany, poslední scan a vyhodnocení nálezů. Instalace nestačí.'],
@@ -48,10 +49,14 @@ final class Catalog
         return ['unknown' => 'Neověřeno', 'done' => '✓ Splněno', 'problem' => 'Problém', 'deferred' => 'Odloženo', 'na' => 'Netýká se'];
     }
 
-    public static function normalize(array $input, array $old): array
+    public static function normalize(array $input, array $old, ?array $audit = null): array
     {
         $items = [];
         foreach (self::items() as $id => $definition) {
+            if (\JT\WPCare\Modules\Automatic\Evaluation::item($id, $audit) !== null) {
+                $items[$id] = $old[$id] ?? ['state' => 'unknown', 'note' => '', 'at' => '', 'by' => 0];
+                continue; // Automatic outcomes are derived; old human records remain untouched.
+            }
             $row = $input[$id] ?? null;
             if (!is_array($row) || !isset($row['state'], $row['note']) || !is_string($row['state']) || !is_string($row['note']) || !isset(self::states()[$row['state']])) {
                 throw new \DomainException('Neúplný formulář. Obnovte stránku a vyplňte všechna pole.');
@@ -60,7 +65,7 @@ final class Catalog
                 throw new \DomainException('Poznámka je příliš dlouhá (maximum 6000 bajtů).');
             }
             $note = trim(sanitize_textarea_field($row['note']));
-            if ($row['state'] !== 'unknown' && $note === '') {
+            if ($row['state'] !== 'unknown' && $note === '' && !Evidence::proves($id, $row['state'], $audit)) {
                 throw new \DomainException('Ke každému vyhodnocenému bodu doplňte důkaz nebo důvod: ' . $definition[0]);
             }
             $before = $old[$id] ?? [];

@@ -4,6 +4,7 @@ namespace JT\WPCare\Modules\Reports;
 
 use JT\WPCare\Contracts\ModuleInterface;
 use JT\WPCare\Core\Access;
+use JT\WPCare\Core\AdminTabs;
 use JT\WPCare\Core\Store;
 
 final class Module implements ModuleInterface
@@ -18,6 +19,7 @@ final class Module implements ModuleInterface
     }
     public function render(): void
     {
+        if (!AdminTabs::is('report')) { return; }
         Access::authorize();
         $record = $this->store->load();
         echo '<section class="jt-card"><h2>Report</h2><p>Exportuje pouze uložený stav. Nejdříve uložte checklist. PDF vytvoříte z tiskové verze funkcí prohlížeče Tisk → Uložit jako PDF.</p>';
@@ -34,6 +36,9 @@ final class Module implements ModuleInterface
             if (!hash_equals($record['revision'], Access::field('revision'))) { throw new \DomainException('Záznam se změnil. Obnovte stránku před exportem.'); }
             $format = Access::field('format');
             if (!in_array($format, ['txt', 'print'], true)) { throw new \DomainException('Neznámý formát exportu.'); }
+            $record['update_history'] = get_option('jt_wp_care_update_history', []);
+            $record['cleanup_history'] = get_option('jt_wp_care_cleanup_history', []);
+            $record['repair_history'] = get_option(\JT\WPCare\Modules\Repairs\Module::HISTORY, []);
             $text = Formatter::text($record, home_url('/'));
         } catch (\Throwable $error) { Access::fail($error); }
         nocache_headers();
