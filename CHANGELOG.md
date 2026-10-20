@@ -1,3 +1,8 @@
+## 0.12.2-alpha — 2026-10-20
+- Ručně vypnuté debug konstanty se rozpoznají podle skutečné hodnoty, nikoli podle mezer, uvozovek nebo velikosti písmen v zápisu.
+- Bezpečný `wp-config.php` se už nepřepisuje a nevyžaduje vytvoření zálohy jen kvůli sjednocení formátu.
+- Po ruční změně `WP_DEBUG` se starý diagnostický snímek obnoví při nejbližším otevření diagnostiky, i když ještě neuplynula běžná hodinová lhůta.
+
 ## 0.12.1-alpha — 2026-10-15
 
 - Záloha `wp-config.php` nově použije spravovanou složku `wp-content/mu-plugins/jt-wp-care/config-backups`, pokud hosting nedovolí vytvořit chráněnou složku vedle konfigurace.

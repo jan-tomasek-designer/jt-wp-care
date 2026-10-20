@@ -52,7 +52,7 @@ final class Module implements ModuleInterface
         if (!$inspection['ready']) {
             echo '<p class="jt-status jt-status-unknown"><strong>Vyžaduje ruční řešení</strong><br>' . esc_html($inspection['reason']) . '</p>';
         } elseif (!$inspection['needed']) {
-            echo '<p class="jt-status jt-status-done"><strong>✓ Oprava není potřeba</strong><br>Všechny tři konstanty jsou v konfiguraci nastavené na false.</p>';
+            echo '<p class="jt-status jt-status-done"><strong>✓ Oprava není potřeba</strong><br>WordPress má všechny tři debug hodnoty vypnuté; bezpečná konfigurace se kvůli formátování souboru nepřepisuje.</p>';
         } else {
             echo '<form method="post" action="' . esc_url(admin_url('admin-post.php')) . '">';
             wp_nonce_field('jt_care_repair_debug');

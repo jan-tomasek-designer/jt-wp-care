@@ -1,9 +1,7 @@
-# JT WP Care 0.12.1-alpha
+# JT WP Care 0.12.2-alpha
 
-Toto opravné vydání umožňuje řízenou opravu konfigurace také na hostinzích, kde je zapisovatelný samotný `wp-config.php`, ale PHP nesmí vytvořit novou složku vedle něj. JT WP Care v takovém případě uloží chráněnou zálohu do trvalé spravované složky `wp-content/mu-plugins/jt-wp-care/config-backups`, která není součástí verzovaného vydání.
+Opravné vydání řeší produkční případ z livemotion.cz. Pokud jsou `WP_DEBUG`, `WP_DEBUG_DISPLAY` a `WP_DEBUG_LOG` vypnuté, JT WP Care už nepovažuje odlišné mezery, uvozovky nebo velikost zápisu `false` za změnu vyžadující přepis `wp-config.php`. Bezpečný soubor proto nevyžaduje vytvoření záložní složky ani právo PHP k zápisu a na hostingu s omezenými právy se zobrazí „Oprava není potřeba“.
 
-Před změnou vznikne datovaná chráněná záloha. Obě povolená umístění používají náhodný název, PHP ochranu přímého přístupu, ochranné soubory pro Apache/IIS a omezená práva. Oprava odmítne symbolický odkaz, neplatnou PHP syntaxi, dynamické nebo vícenásobné definice a aktivní hodnotu, jejíž zdroj není ve `wp-config.php` jednoznačně dohledatelný. Zápis probíhá pod zámkem, kontroluje souběžnou změnu a ověří výsledný obsah.
+Ručně provedená změna `WP_DEBUG` nyní při otevření diagnostiky zneplatní starší uložený snímek. Automatická kontrola načte aktuální stav a odstraní staré varování bez čekání na běžný hodinový interval.
 
-Po zásahu proběhne technický test administrace a základních stránek. Zjištěný problém vyvolá automatický návrat původní konfigurace; neověřitelný HTTP test zůstane viditelným omezením pro ruční kontrolu. Historie zásahu, výsledek testu a název zálohy jsou součástí servisního reportu bez zveřejnění obsahu nebo absolutní cesty.
-
-Diagnostika také slučuje duplicitní nabídky stejné verze WordPressu, které se objevily při produkčním pilotu. Datové schéma servisního záznamu, protokol MU loaderu a instalátor 0.4.0-alpha zůstávají beze změny.
+Řízený zápis zůstává dostupný jen tehdy, když je některá podporovaná konstanta skutečně aktivní a její zdroj lze bezpečně určit. Záloha, kontrola syntaxe, zámek, technický test a automatický návrat zůstávají beze změny.

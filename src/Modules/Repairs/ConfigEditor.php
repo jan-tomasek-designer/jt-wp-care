@@ -33,14 +33,20 @@ final class ConfigEditor
     public function inspect(): array
     {
         try {
-            $source = $this->source();
+            $source = $this->source(false);
             $planned = $this->plan($source);
-            if (!$this->hasAvailableBackupDirectory()) {
+            $needed = !hash_equals(hash('sha256', $source), hash('sha256', $planned));
+            // A backup is required only when a write is actually planned. This
+            // keeps a read-only diagnostic useful on restrictive hosting.
+            if ($needed && !is_writable($this->path)) {
+                throw new \DomainException('wp-config.php není pro PHP zapisovatelný; automatická oprava není dostupná.');
+            }
+            if ($needed && !$this->hasAvailableBackupDirectory()) {
                 throw new \DomainException('PHP nemá právo vytvořit chráněnou zálohu vedle wp-config.php ani ve spravované složce JT WP Care; soubor nebude změněn.');
             }
             return [
                 'ready' => true,
-                'needed' => !hash_equals(hash('sha256', $source), hash('sha256', $planned)),
+                'needed' => $needed,
                 'file' => basename($this->path),
                 'runtime' => $this->runtime,
                 'reason' => '',
@@ -101,7 +107,6 @@ final class ConfigEditor
         $this->validatePhp($source);
         $planned = $source;
         $definitions = $this->definitions($source);
-        $missing = [];
         $replacements = [];
         foreach (self::TARGETS as $name) {
             $found = $definitions[$name] ?? [];
@@ -112,27 +117,22 @@ final class ConfigEditor
                 if (($this->runtime[$name] ?? false) === true && $found[0]['value'] === false) {
                     throw new \DomainException($name . ' je za běhu aktivní, přestože nalezená definice je false; hodnotu zřejmě určuje jiný zdroj a oprava byla odmítnuta.');
                 }
-                $replacements[] = ['start' => $found[0]['start'], 'length' => $found[0]['length'], 'text' => "define('{$name}', false);"];
+                // Preserve an already safe statement byte-for-byte. Formatting
+                // differences must never turn a no-op into a configuration write.
+                if ($found[0]['value'] === true) {
+                    $replacements[] = ['start' => $found[0]['start'], 'length' => $found[0]['length'], 'text' => "define('{$name}', false);"];
+                }
                 continue;
             }
             if (($this->runtime[$name] ?? false) === true) {
                 throw new \DomainException($name . ' je aktivní, ale jeho jednoznačná definice není ve wp-config.php; opravu je nutné provést ručně u zdroje hodnoty.');
             }
-            $missing[] = $name;
+            // Undefined debug constants resolve to the safe runtime state in
+            // WordPress. Do not edit wp-config.php merely to make that explicit.
         }
         usort($replacements, static fn(array $a, array $b): int => $b['start'] <=> $a['start']);
         foreach ($replacements as $replacement) {
             $planned = substr_replace($planned, $replacement['text'], $replacement['start'], $replacement['length']);
-        }
-        if ($missing !== []) {
-            $lineBreak = str_contains($planned, "\r\n") ? "\r\n" : "\n";
-            $definitions = $lineBreak . '/* JT WP Care: produkční debug nastavení. */' . $lineBreak;
-            foreach ($missing as $name) { $definitions .= "define('{$name}', false);" . $lineBreak; }
-            $loader = '~^[ \t]*require_once\s+ABSPATH\s*\.\s*[\'\"]wp-settings\.php[\'\"]\s*;~mi';
-            if (preg_match($loader, $planned) !== 1) {
-                throw new \DomainException('Ve wp-config.php nebyl nalezen standardní řádek pro načtení WordPressu; chybějící konstanty nelze bezpečně vložit.');
-            }
-            $planned = (string) preg_replace($loader, $definitions . '$0', $planned, 1);
         }
         $this->validatePhp($planned);
         return $planned;
@@ -182,10 +182,12 @@ final class ConfigEditor
         throw new \DomainException('Aktivní wp-config.php nebyl nalezen v podporovaném umístění.');
     }
 
-    private function source(): string
+    private function source(bool $requireWritable = true): string
     {
-        if (!is_file($this->path) || is_link($this->path) || !is_readable($this->path) || !is_writable($this->path)) {
-            throw new \DomainException('wp-config.php není běžný čitelný a zapisovatelný soubor; automatická oprava není dostupná.');
+        if (!is_file($this->path) || is_link($this->path) || !is_readable($this->path) || ($requireWritable && !is_writable($this->path))) {
+            throw new \DomainException($requireWritable
+                ? 'wp-config.php není běžný čitelný a zapisovatelný soubor; automatická oprava není dostupná.'
+                : 'wp-config.php není běžný čitelný soubor; jeho stav nelze ověřit.');
         }
         $size = filesize($this->path);
         if (!is_int($size) || $size < 20 || $size > 2097152) {

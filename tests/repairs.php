@@ -29,9 +29,10 @@ try {
     repairCheck($inspection['ready'] && $inspection['needed'], 'Conventional config should be repairable.');
     $operation = $editor->disableDebug();
     $changed = (string) file_get_contents($path);
-    foreach (['WP_DEBUG', 'WP_DEBUG_DISPLAY', 'WP_DEBUG_LOG'] as $name) {
+    foreach (['WP_DEBUG', 'WP_DEBUG_LOG'] as $name) {
         repairCheck(str_contains($changed, "define('{$name}', false);"), $name . ' was not disabled.');
     }
+    repairCheck(!str_contains($changed, "define('WP_DEBUG_DISPLAY'"), 'An already safe undefined constant should not require a write.');
     $stored = (string) file_get_contents($operation['backup']);
     repairCheck(!str_contains($stored, 'not-written-in-plain-backup'), 'Backup must not expose config as plain response content.');
     $editor->restore($operation);
@@ -50,7 +51,16 @@ try {
     $commentsAreNotCode = new ConfigEditor($path, $backup, ['WP_DEBUG' => false, 'WP_DEBUG_DISPLAY' => false, 'WP_DEBUG_LOG' => false]);
     $commentPlan = $commentsAreNotCode->plan($commented);
     repairCheck(str_contains($commentPlan, "// define('WP_DEBUG', true);"), 'Commented examples must never be rewritten as executable config.');
-    repairCheck(substr_count($commentPlan, "define('WP_DEBUG', false);") === 1, 'Missing executable definition should be inserted once.');
+    repairCheck($commentPlan === $commented, 'Safe undefined runtime constants must not trigger a config write.');
+
+    $safeFormatted = "<?php\ndefine( 'WP_DEBUG', false );\ndefine( \"WP_DEBUG_LOG\", FALSE );\ndefine( 'WP_DEBUG_DISPLAY', false );\nrequire_once ABSPATH . 'wp-settings.php';\n";
+    file_put_contents($path, $safeFormatted);
+    $unwritableBackup = $directory . '/blocked-parent'; file_put_contents($unwritableBackup, 'x');
+    $safeEditor = new ConfigEditor($path, $unwritableBackup . '/backup', ['WP_DEBUG' => false, 'WP_DEBUG_DISPLAY' => false, 'WP_DEBUG_LOG' => false]);
+    $safeInspection = $safeEditor->inspect();
+    repairCheck($safeInspection['ready'] && !$safeInspection['needed'], 'Already safe config must be a no-op even when backup storage is unavailable.');
+    repairCheck($safeEditor->plan($safeFormatted) === $safeFormatted, 'Safe literal false statements must remain byte-identical.');
+    unlink($unwritableBackup);
 
     $mismatch = "<?php\ndefine('WP_DEBUG', false);\nrequire_once ABSPATH . 'wp-settings.php';\n";
     $otherSource = new ConfigEditor($path, $backup, ['WP_DEBUG' => true, 'WP_DEBUG_DISPLAY' => false, 'WP_DEBUG_LOG' => false]);

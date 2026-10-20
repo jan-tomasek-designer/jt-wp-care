@@ -26,6 +26,9 @@ verify(Evaluation::results($audit, $now + 86401)['file_edit']['state'] === 'unkn
 verify(Module::due(['audit' => $audit], $now + 3600), 'Hourly refresh');
 verify(!Module::due(['audit' => $audit], $now + 3599), 'No repeated refresh');
 verify(Module::due(['audit' => ['at' => gmdate('c', $now)]], $now), 'Old format refreshed immediately');
+if (!defined('WP_DEBUG')) { define('WP_DEBUG', false); }
+$debugMismatch = $audit; $debugMismatch['checks'] = ['debug' => true];
+verify(Module::due(['audit' => $debugMismatch], $now + 1), 'Manual WP_DEBUG change refreshes a stale snapshot immediately');
 $GLOBALS['options'][Module::FORCE_REFRESH] = '2026-10-12T12:00:00Z';
 verify(Module::due(['audit' => $audit], $now + 1), 'Config repair forces a new-process diagnostic refresh');
 unset($GLOBALS['options'][Module::FORCE_REFRESH]);

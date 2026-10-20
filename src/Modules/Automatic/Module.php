@@ -26,6 +26,8 @@ final class Module implements ModuleInterface
         $plan = get_option('jt_wp_care_update_plan', []);
         if (get_option(self::FORCE_REFRESH, '') !== '') { return true; }
         if (in_array($plan['state'] ?? '', ['ready', 'running', 'verifying'], true)) { return false; }
+        $storedDebug = $record['audit']['checks']['debug'] ?? null;
+        if (defined('WP_DEBUG') && is_bool($storedDebug) && $storedDebug !== (bool) WP_DEBUG) { return true; }
         if (in_array($plan['state'] ?? '', ['complete', 'stopped', 'closed'], true) && $at < strtotime($plan['updated'] ?? '')) { return true; }
         return !isset($record['audit']['automatic']) || $at === false || $at > $now + 300 || $now - $at >= 3600;
     }
